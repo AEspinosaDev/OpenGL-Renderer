@@ -103,7 +103,7 @@ Texture::Texture(const std::string& path, GLint level, GLint internalFormat, uns
 
 
 Texture::Texture(GLint level, GLint internalFormat, unsigned int w, unsigned int h, GLint border, GLenum format, GLenum type, bool anisotropicFilter, 
-	int magFilter, int minFilter, int wrapT, int wrapS) :m_RendererID(0), m_FilePath(""), m_LocalBuffer(nullptr), m_Width(0), m_Height(0),
+	int magFilter, int minFilter, int wrapT, int wrapS) :m_RendererID(0), m_FilePath(""), m_LocalBuffer(nullptr), m_Width(w), m_Height(h),
 	level(level), internalFormat(internalFormat), border(border), format(format), type(type) {
 
 	GLcall(glGenTextures(1, &m_RendererID));
@@ -111,11 +111,14 @@ Texture::Texture(GLint level, GLint internalFormat, unsigned int w, unsigned int
 	GLcall(glTexImage2D(GL_TEXTURE_2D, level, internalFormat, m_Width, m_Height, border, format,
 		type, NULL));
 
+
 	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
 		minFilter));
 	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
 	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT));
 	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS));
+	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
 	if (anisotropicFilter) {
 		GLfloat fLargest;
@@ -123,6 +126,8 @@ Texture::Texture(GLint level, GLint internalFormat, unsigned int w, unsigned int
 		GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest));
 	}
 	GLcall(glBindTexture(GL_TEXTURE_2D, 0));
+
+
 
 }
 

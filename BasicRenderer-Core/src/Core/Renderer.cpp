@@ -54,14 +54,15 @@ void Renderer::SetupScene() {
 
 	m_MainCam.setProj(45.0, m_SWidth, m_SHeight);
 
-	m_LightManager->addLight(new PointLight(glm::vec3(2.0, 3.0, 2.0), glm::vec3(1.0, 1.0, 1.0), 1, 1));
+	m_LightManager->addLight(new PointLight(glm::vec3(5.0, 3.0, 4.0), glm::vec3(1.0, 1.0, 1.0), 1.5, 1));
 	//m_LightManager->addLight(new PointLight(glm::vec3(-4.0, 1.0, 2.0), glm::vec3(1.0, 0.5, 0.5), 1, 1));
 
 	createVignette();
 
-	m_Framebuffers["depthFBO"] = new Framebuffer(new Texture(0, GL_DEPTH_COMPONENT16, 1024, 1024,0, GL_DEPTH_COMPONENT, GL_FLOAT,false,GL_NEAREST, GL_NEAREST,GL_REPEAT, GL_REPEAT),
+	Texture* depthTexture = new Texture(0, GL_DEPTH_COMPONENT16, 1024*2, 1024*2, 0, GL_DEPTH_COMPONENT, GL_FLOAT, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+	m_Framebuffers["depthFBO"] = new Framebuffer(depthTexture,
 		GL_DEPTH_ATTACHMENT, GL_FALSE, GL_FALSE);
-	m_Vignette->setTexture(m_Framebuffers["depthFBO"]->getTextureAttachment());
+	//m_Vignette->setTexture(m_Framebuffers["depthFBO"]->getTextureAttachment());
 	m_Framebuffers["vignetteFBO"] = new Framebuffer(m_Vignette->getTexture(), GL_COLOR_ATTACHMENT0, GL_TRUE, GL_TRUE);
 
 	
@@ -71,45 +72,56 @@ void Renderer::DrawScene() {
 	//Shadow mapping pass
 	bindFramebuffer("depthFBO");
 
-	glEnable(GL_DEPTH_TEST);
 	glClear(GL_DEPTH_BUFFER_BIT);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glEnable(GL_DEPTH_TEST);
 
 
-	glViewport(0, 0, 1024, 1024);
+	glViewport(0, 0, 1024*2, 1024*2);
 	
 
 	//Setup light point of view
 	glm::mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, .1f, 15.0f);
-	glm::mat4 lightView = glm::lookAt(glm::vec3(2.0, 3.0, 2.0), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 lightView = glm::lookAt(m_LightManager->getLight(0)->getPosition(), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 lightViewProj = lightProj * lightView;
 
-	m_Models["floor"]->getMesh()->drawShadows(m_Shaders["BasicDepthShader"], lightViewProj);
-	/*m_Models["demon"]->getMesh()->drawShadows(m_Shaders["BasicDepthShader"], lightViewProj);
-	m_Models["box"]->getMesh()->drawShadows(m_Shaders["BasicDepthShader"], lightViewProj);*/
+	glCullFace(GL_FRONT);
+	m_Models["floor"]->getMesh()->drawShadows(m_Shaders["BasicDepthShader"], lightProj, lightView);
+	m_Models["demon"]->getMesh()->drawShadows(m_Shaders["BasicDepthShader"], lightProj, lightView);
+	m_Models["box"]->getMesh()->drawShadows(m_Shaders["BasicDepthShader"], lightProj, lightView);
+
+	//For all lit shaders...
+	//Upload lightsSpaceMatrixes
+	m_Shaders["basicShader"]->bind();
+	m_Shaders["basicShader"]->setMat4("u_lightViewProj", lightViewProj);
+
+	m_Shaders["basicShader"]->setMat4("u_lightViewProj", lightViewProj);
+	m_Framebuffers["depthFBO"]->getTextureAttachment()->bind(5);
+	m_Shaders["basicShader"]->unbind();
 
 
 
-	
+
+	//Final pass write to vignette texture
+	bindFramebuffer("vignetteFBO");
+	glCullFace(GL_BACK);
+
+	m_MainCam.setProj(45.0f, m_SWidth, m_SHeight);
+
+	glViewport(0, 0, m_SWidth, m_SHeight);
+
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
 
-	////Final pass write to vignette texture
-	//bindFramebuffer("vignetteFBO");
+	glEnable(GL_DEPTH_TEST);
 
-	//m_MainCam.setProj(45.0f, m_SWidth, m_SHeight);
+	renderLights(true);
 
-	//glViewport(0, 0, m_SWidth, m_SHeight);
-
-	//glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
-
-
-	//glEnable(GL_DEPTH_TEST);
-
-	//renderLights(true);
-
-	//render("floor");
-	//render("demon");
-	//render("box");
+	render("floor");
+	render("demon");
+	render("box");
 
 
 
@@ -207,6 +219,13 @@ void Renderer::Key_Callback(GLFWwindow* window, int key, int scancode, int actio
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 
 	m_MainCam.camMovement(window, m_DeltaTime);
+
+	//WIP LIGHT CONTROLS
+	Light* l = m_LightManager->getLight(0);
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x-.5f, l->getPosition().y, l->getPosition().z));
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x+.5f, l->getPosition().y, l->getPosition().z));
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x, l->getPosition().y + .5f, l->getPosition().z));
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x, l->getPosition().y - .5f, l->getPosition().z));
 
 }
 

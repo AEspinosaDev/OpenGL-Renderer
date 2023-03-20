@@ -13,6 +13,9 @@ Material::Material(Shader* shader, const std::string& colorPath, const std::stri
 	m_shader->setInt("material.glossTex", 3);
 	emiTex = new Texture(emiPath);
 	m_shader->setInt("emiTex", 4);
+
+	m_shader->setInt("shadowMap", 5);
+
 	m_shader->unbind();
 
 }
@@ -24,6 +27,10 @@ Material::Material(Shader* shader): m_shader(shader), itileU(1), itileV(1) {
 	specularTex = nullptr;
 	roughnessTex = nullptr;
 	emiTex = nullptr;
+
+	m_shader->bind();
+	m_shader->setInt("shadowMap", 5);
+	m_shader->unbind();
 
 }
 void Material::bindTextures() {

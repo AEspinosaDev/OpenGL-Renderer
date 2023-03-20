@@ -63,7 +63,7 @@ public:
 
 	void draw();
 
-	void drawShadows(Shader* depthShader, glm::mat4 light_modelViewProj);
+	void drawShadows(Shader* depthShader, glm::mat4 lightProj, glm::mat4 lightView);
 
 	void importFile(const std::string& pname);
 

@@ -11,8 +11,7 @@ Framebuffer::Framebuffer(Texture* text,int attachmentType ,bool depthAttachment,
 	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID));
 
 	GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D, m_MainAttachmentID, 0));
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
+	
 	if (depthAttachment) {
 
 		GLcall(glGenRenderbuffers(1, &m_DepthAttachmentID));
@@ -24,6 +23,12 @@ Framebuffer::Framebuffer(Texture* text,int attachmentType ,bool depthAttachment,
 		GLcall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachmentID));
 
 	}
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+
+	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+
 
 }
 

@@ -92,14 +92,17 @@ void Mesh::draw()
 	m_Mat->getShader()->unbind();
 }
 
-void Mesh::drawShadows(Shader* depthShader, glm::mat4 lightViewProj)
+void Mesh::drawShadows(Shader* depthShader, glm::mat4 lightProj, glm::mat4 lightView)
 {
 	//If(!castShadows) return;
 	depthShader->bind();
-	depthShader->setMat4("u_Light_ModelViewProj", lightViewProj*m_Model);
+
+	glm::mat4 modelView = lightView * m_Model;
+
+	depthShader->setMat4("u_Light_ModelViewProj", lightProj*modelView);
 
 	m_Vao.bind();
-	//GLcall(glDrawElements(GL_TRIANGLES, m_Triangles, GL_UNSIGNED_INT, (void*)0));
+	GLcall(glDrawElements(GL_TRIANGLES, m_Triangles, GL_UNSIGNED_INT, (void*)0));
 
 	depthShader->unbind();
 

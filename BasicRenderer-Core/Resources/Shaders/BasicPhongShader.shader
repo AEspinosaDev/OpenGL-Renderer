@@ -10,11 +10,13 @@ out vec3 pos;
 out vec2 texCoord;
 out mat3 TBN;
 out vec3 normal;
+out vec4 pos_lightSpace;
 
 
 uniform mat4 u_Model;
 uniform mat4 u_modelView;
 uniform mat4 u_modelViewProj;
+uniform mat4 u_lightViewProj;
 
 
 uniform float u_TileU;
@@ -23,6 +25,7 @@ uniform float u_TileV;
 void main()
 {
 	pos = (u_modelView * vec4(a_Pos, 1.0)).xyz;
+	pos_lightSpace = u_lightViewProj * (u_Model * vec4(a_Pos, 1.0));
 
 	vec3 T = normalize(vec3(u_modelView * vec4(a_Tangent, 0.0)));
 	vec3 N = normalize(vec3(u_modelView * vec4(a_Normal, 0.0)));
@@ -50,7 +53,7 @@ in vec3 pos;
 in vec2 texCoord;
 in mat3 TBN;
 in vec3 normal;
-
+in vec4 pos_lightSpace;
 
 //Lights
 struct PointLight {
@@ -100,6 +103,8 @@ uniform int spotLightsNumber;
 
 uniform Material material;
 
+uniform sampler2D shadowMap;
+
 
 vec3 N;
 
@@ -112,6 +117,30 @@ float computeAttenuation(vec3 lightPos, float lin, float quad) {
 	float constant = 1.0f;
 
 	return 1.0 / (constant + lin * d + quad * (d * d));
+
+}
+
+float computeShadow(vec3 lightDir) {
+
+	// perform perspective divide
+	vec3 projCoords = pos_lightSpace.xyz / pos_lightSpace.w;
+	// transform to [0,1] range
+	projCoords = projCoords * 0.5 + 0.5;
+
+	// get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+	float closestDepth = texture(shadowMap, projCoords.xy).r;
+	// get depth of current fragment from light's perspective
+	float currentDepth = projCoords.z;
+	// check whether current frag pos is in shadow
+	float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+	bias = 0.005;
+	float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+
+	if (projCoords.z > 1.0)
+		shadow = 0.0;
+
+	return shadow;
+
 
 }
 
@@ -132,7 +161,11 @@ vec3 shadePointLight(vec3 lightPos, vec3 color, float intensity) {
 	diffuse *= attenuation;
 	specular *= attenuation;
 
-	vec3 result = (diffuse + specular) * color;
+	//Shadow 
+	float shadow = computeShadow(L);
+
+	vec3 result = (1.0 - shadow) *(diffuse + specular) * color;
+
 	result *= intensity;
 	return result;
 
