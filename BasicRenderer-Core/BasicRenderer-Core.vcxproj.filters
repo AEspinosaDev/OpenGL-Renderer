@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{2a6b0b2a-ff3a-4574-8ebc-a8ffb41577c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Core">
+      <UniqueIdentifier>{825e19e6-86b1-495d-a271-565a33b4bfac}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.h">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OGL-Graphics\Camera.cpp" />
+    <ClCompile Include="src\OGL-Graphics\IBO.cpp" />
+    <ClCompile Include="src\Core\Material.cpp" />
+    <ClCompile Include="src\OGL-Graphics\Mesh.cpp" />
+    <ClCompile Include="src\OGL-Graphics\Shader.cpp" />
+    <ClCompile Include="src\OGL-Graphics\Texture.cpp" />
+    <ClCompile Include="src\OGL-Graphics\VAO.cpp" />
+    <ClCompile Include="src\OGL-Graphics\VBO.cpp" />
+    <ClCompile Include="src\Core\Model.cpp" />
+    <ClCompile Include="src\OGL-Graphics\Graphics_Core.cpp" />
+    <ClCompile Include="src\Core\Light.cpp" />
+    <ClCompile Include="src\Core\LightManager.cpp" />
+    <ClCompile Include="src\Core\Renderer.cpp" />
+    <ClCompile Include="src\OGL-Graphics\Vignette.cpp" />
+    <ClCompile Include="src\OGL-Graphics\Framebuffer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\OGL-Graphics\VBO.h" />
+    <ClInclude Include="src\OGL-Graphics\IBO.h" />
+    <ClInclude Include="src\OGL-Graphics\VAO.h" />
+    <ClInclude Include="src\OGL-Graphics\VBLayout.h" />
+    <ClInclude Include="src\OGL-Graphics\Shader.h" />
+    <ClInclude Include="src\OGL-Graphics\Texture.h" />
+    <ClInclude Include="src\OGL-Graphics\Camera.h" />
+    <ClInclude Include="src\OGL-Graphics\Mesh.h" />
+    <ClInclude Include="src\Core\Material.h" />
+    <ClInclude Include="src\Core\SceneObject.h" />
+    <ClInclude Include="src\OGL-Graphics\Graphics_Core.h" />
+    <ClInclude Include="src\Core\Model.h" />
+    <ClInclude Include="src\Core\Light.h" />
+    <ClInclude Include="src\Core\PointLight.h" />
+    <ClInclude Include="src\Core\LightManager.h" />
+    <ClInclude Include="src\Core\Renderer.h" />
+    <ClInclude Include="src\OGL-Graphics\Vignette.h" />
+    <ClInclude Include="src\OGL-Graphics\Framebuffer.h" />
+    <ClInclude Include="src\Core\DirectionalLight.h" />
+    <ClInclude Include="Resources\Shaders\BasicDepthShader.shader" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Shaders\BasicPhongShader.shader" />
+    <None Include="packages.config" />
+    <None Include="Resources\Shaders\VignetteShader.shader" />
+    <None Include="Resources\Shaders\UnlitBasicShader.shader" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\Textures\BODY_LP_2_Material _25_Height.png" />
+    <Image Include="Resources\Textures\BODY_LP_2_Material _25_Normal.png" />
+    <Image Include="Resources\Textures\color.png" />
+    <Image Include="Resources\Textures\color2.png" />
+    <Image Include="Resources\Textures\emissive.png" />
+    <Image Include="Resources\Textures\DiffuseMap.png" />
+    <Image Include="Resources\Textures\floor.jpg" />
+    <Image Include="Resources\Textures\torii-occ.png" />
+    <Image Include="Resources\Textures\torii-normal.png" />
+    <Image Include="Resources\Textures\torii-gloss.png" />
+    <Image Include="Resources\Textures\torii.png" />
+    <Image Include="Resources\Textures\tengu-normal.png" />
+    <Image Include="Resources\Textures\tengu-gloss.png" />
+    <Image Include="Resources\Textures\tengu-color.png" />
+    <Image Include="Resources\Textures\specMap.png" />
+    <Image Include="Resources\Textures\SeamlessWood-RoughnessMap.tif" />
+    <Image Include="Resources\Textures\SeamlessWood-NormalMap.tif" />
+    <Image Include="Resources\Textures\SeamlessWood-HeightMap.tif" />
+    <Image Include="Resources\Textures\SeamlessWood-GlossMap.tif" />
+    <Image Include="Resources\Textures\SeamlessWood-Diffuse.jpg" />
+    <Image Include="Resources\Textures\RoughnessMap.png" />
+    <Image Include="Resources\Textures\NormalMap.png" />
+    <Image Include="Resources\Textures\normal.png" />
+    <Image Include="Resources\Textures\Material _25_Opacity.png" />
+    <Image Include="Resources\Textures\floor-normal.jpg" />
+    <Image Include="Resources\Textures\floor-gloss.jpg" />
+  </ItemGroup>
+</Project>

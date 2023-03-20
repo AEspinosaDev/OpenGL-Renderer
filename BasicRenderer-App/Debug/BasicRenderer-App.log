@@ -1,0 +1,13 @@
+﻿  Source.cpp
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\Camera.h(30,8): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(116,28): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(132,32): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(204,25): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(205,25): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(209,27): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(210,27): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(212,21): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(213,21): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(226,49): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(226,35): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+LINK : fatal error LNK1104: cannot open file 'FreeImage.lib'
