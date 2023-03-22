@@ -1,6 +1,7 @@
 #include "Framebuffer.h"
 
-Framebuffer::Framebuffer(Texture* text,int attachmentType ,bool depthAttachment, bool resizeOnCallback) : m_TextureAttachment(text), resizeOnCallback(resizeOnCallback)
+Framebuffer::Framebuffer(Texture* text,int attachmentType ,bool depthAttachment, bool resizeOnCallback) : m_TextureAttachment(text), resizeOnCallback(resizeOnCallback),
+attachmentType(attachmentType)
 {
 	width = text->getWidth();
 	height = text->getHeight();
@@ -32,11 +33,22 @@ Framebuffer::Framebuffer(Texture* text,int attachmentType ,bool depthAttachment,
 
 }
 
-Framebuffer::Framebuffer(unsigned int w, unsigned int h, bool depthAttachment, bool resizeOnCallback) : width(w), height(h), resizeOnCallback(resizeOnCallback)
+Framebuffer::Framebuffer(unsigned int w, unsigned int h, bool depthAttachment, bool resizeOnCallback) : width(w), height(h), resizeOnCallback(resizeOnCallback),
+attachmentType(attachmentType)
 {
+	
+}
 
+void Framebuffer::setTextureAttachment(Texture* t)
+{
+	m_TextureAttachment = t;
+	m_MainAttachmentID = t->getID();
 
+	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID));
 
+	GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D, m_MainAttachmentID, 0));
+
+	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
 void Framebuffer::bind()

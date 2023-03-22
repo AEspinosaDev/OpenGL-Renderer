@@ -27,6 +27,8 @@
     <ClCompile Include="src\Core\Renderer.cpp" />
     <ClCompile Include="src\OGL-Graphics\Vignette.cpp" />
     <ClCompile Include="src\OGL-Graphics\Framebuffer.cpp" />
+    <ClCompile Include="src\Core\PointLight.cpp" />
+    <ClCompile Include="src\Core\DirectionalLight.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\OGL-Graphics\VBO.h" />

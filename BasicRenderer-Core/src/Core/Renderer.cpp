@@ -9,7 +9,7 @@ void Renderer::Run() {
 }
 
 void Renderer::SetupScene() {
-	Shader* mainShader = new Shader("BasicPhongShader.shader");
+	Shader* mainShader = new Shader("BasicPhongShader.shader", ShaderType::lit);
 	m_Shaders["basicShader"] = mainShader;
 
 
@@ -55,50 +55,21 @@ void Renderer::SetupScene() {
 	m_MainCam.setProj(45.0, m_SWidth, m_SHeight);
 
 	m_LightManager->addLight(new PointLight(glm::vec3(5.0, 3.0, 4.0), glm::vec3(1.0, 1.0, 1.0), 1.5, 1));
-	//m_LightManager->addLight(new PointLight(glm::vec3(-4.0, 1.0, 2.0), glm::vec3(1.0, 0.5, 0.5), 1, 1));
+	m_LightManager->addLight(new PointLight(glm::vec3(-4.0, 1.0, 2.0), glm::vec3(1.0, 0.5, 0.5), 1, 1));
 
 	createVignette();
 
-	Texture* depthTexture = new Texture(0, GL_DEPTH_COMPONENT16, 1024*2, 1024*2, 0, GL_DEPTH_COMPONENT, GL_FLOAT, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
-	m_Framebuffers["depthFBO"] = new Framebuffer(depthTexture,
+	m_Framebuffers["depthFBO"] = new Framebuffer(m_LightManager->getLight(0)->getShadowText(),
 		GL_DEPTH_ATTACHMENT, GL_FALSE, GL_FALSE);
 	//m_Vignette->setTexture(m_Framebuffers["depthFBO"]->getTextureAttachment());
 	m_Framebuffers["vignetteFBO"] = new Framebuffer(m_Vignette->getTexture(), GL_COLOR_ATTACHMENT0, GL_TRUE, GL_TRUE);
 
-	
+
 }
 void Renderer::DrawScene() {
 
 	//Shadow mapping pass
-	bindFramebuffer("depthFBO");
-
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glEnable(GL_DEPTH_TEST);
-
-
-	glViewport(0, 0, 1024*2, 1024*2);
-	
-
-	//Setup light point of view
-	glm::mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, .1f, 15.0f);
-	glm::mat4 lightView = glm::lookAt(m_LightManager->getLight(0)->getPosition(), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 lightViewProj = lightProj * lightView;
-
-	glCullFace(GL_FRONT);
-	m_Models["floor"]->getMesh()->drawShadows(m_Shaders["BasicDepthShader"], lightProj, lightView);
-	m_Models["demon"]->getMesh()->drawShadows(m_Shaders["BasicDepthShader"], lightProj, lightView);
-	m_Models["box"]->getMesh()->drawShadows(m_Shaders["BasicDepthShader"], lightProj, lightView);
-
-	//For all lit shaders...
-	//Upload lightsSpaceMatrixes
-	m_Shaders["basicShader"]->bind();
-	m_Shaders["basicShader"]->setMat4("u_lightViewProj", lightViewProj);
-
-	m_Shaders["basicShader"]->setMat4("u_lightViewProj", lightViewProj);
-	m_Framebuffers["depthFBO"]->getTextureAttachment()->bind(5);
-	m_Shaders["basicShader"]->unbind();
+	computeShadows();
 
 
 
@@ -131,7 +102,7 @@ void Renderer::DrawScene() {
 	bindFramebuffer();
 
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	/*glClear(GL_COLOR_BUFFER_BIT);*/  
+	/*glClear(GL_COLOR_BUFFER_BIT);*/
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glDisable(GL_DEPTH_TEST);
@@ -195,8 +166,8 @@ void Renderer::Init() {
 
 void Renderer::LateInit()
 {
-	m_Shaders["UnlitBasicShader"] = new Shader("UnlitBasicShader.shader");
-	m_Shaders["BasicDepthShader"] = new Shader("BasicDepthShader.shader");
+	m_Shaders["UnlitBasicShader"] = new Shader("UnlitBasicShader.shader", ShaderType::unlit);
+	m_Shaders["BasicDepthShader"] = new Shader("BasicDepthShader.shader", ShaderType::unlit);
 
 	m_LightManager->init(m_Shaders["UnlitBasicShader"]);
 }
@@ -222,8 +193,9 @@ void Renderer::Key_Callback(GLFWwindow* window, int key, int scancode, int actio
 
 	//WIP LIGHT CONTROLS
 	Light* l = m_LightManager->getLight(0);
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x-.5f, l->getPosition().y, l->getPosition().z));
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x+.5f, l->getPosition().y, l->getPosition().z));
+
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x - .5f, l->getPosition().y, l->getPosition().z));
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x + .5f, l->getPosition().y, l->getPosition().z));
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x, l->getPosition().y + .5f, l->getPosition().z));
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x, l->getPosition().y - .5f, l->getPosition().z));
 
@@ -299,6 +271,56 @@ void Renderer::renderLights(bool enableGizmos)
 	if (enableGizmos)
 		m_LightManager->drawLights(m_MainCam.getProj(), m_MainCam.getView());
 
+}
+
+void Renderer::computeShadows()
+{
+	glViewport(0, 0, m_ShadowResolution, m_ShadowResolution);
+
+	auto lightMatrixes = m_LightManager->getLightsMatrixes();
+	auto lightShadowTextures = m_LightManager->getLightsShadowTextures();
+
+	for (size_t i = 0; i < lightMatrixes.size(); i++)
+	{
+		m_Framebuffers["depthFBO"]->setTextureAttachment(lightShadowTextures[i]);
+
+		bindFramebuffer("depthFBO");
+
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
+		glEnable(GL_DEPTH_TEST);
+		glCullFace(GL_FRONT);
+
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		for (auto& m : m_Models) {
+			m.second->getMesh()->drawShadows(m_Shaders["BasicDepthShader"], lightMatrixes[i]);
+		}
+
+	}
+
+	for (auto& s : m_Shaders) {
+		//For all lit shaders...
+		if (s.second->getType() == ShaderType::lit) {
+			//Upload lightsSpaceMatrixes
+			s.second->bind();
+
+			//Load all lights viewProjs and Textures xDDDDD
+			for (size_t i = 0; i < lightMatrixes.size(); i++)
+			{
+				s.second->setMat4("u_lightsViewProjs[" + std::to_string(i) + "]", lightMatrixes[i]);
+
+				lightShadowTextures[i]->bind(i+5); //NUMBER HERE IS A BIG MISTERY FOR NOW)
+				s.second->setInt("shadowMaps[" + std::to_string(i) + "]", i+5);
+
+			}
+
+			s.second->setInt("u_lightsNumber", lightMatrixes.size());
+
+
+			s.second->unbind();
+		}
+	}
 }
 
 void Renderer::bindFramebuffer(std::string name) {

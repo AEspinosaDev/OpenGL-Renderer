@@ -16,6 +16,7 @@ private:
 
 	Texture* m_TextureAttachment;
 
+	int attachmentType;
 	unsigned int width;
 	unsigned int height;
 	bool resizeOnCallback;
@@ -51,6 +52,7 @@ public:
 	inline unsigned int getWidth() { return width; }
 	inline unsigned int getHeight() { return height; }
 	inline Texture* getTextureAttachment() { return m_TextureAttachment; }
+	void setTextureAttachment(Texture* t);
 
 	/// <summary>
 	/// Tell OpenGL to activate this framebuffer

@@ -3,7 +3,7 @@
 #include <Texture.h>
 
 class Material {
-private:
+protected:
 
 	Shader* m_shader;
 	Texture* colorTex;
@@ -23,6 +23,7 @@ public:
 	~Material(){}
 
 	void bindTextures();
+
 
 	inline Shader* getShader() { return m_shader; }
 

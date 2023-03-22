@@ -11,13 +11,14 @@ private:
 	Mesh* m_PLightMesh;
 	Mesh* m_SLightMesh;
 	Material* m_DebugMat;
+	unsigned int m_ShadowResolution;
 
 	int pointLightsNumber;
 	int directionalLightsNumber;
 	int spotLightsNumber;
 
 public:
-	LightManager() : m_Lights(std::vector<Light*>()), pointLightsNumber(0), 
+	LightManager(unsigned int shadowRes) : m_Lights(std::vector<Light*>()), pointLightsNumber(0), m_ShadowResolution(shadowRes),
 		directionalLightsNumber(0), 
 		spotLightsNumber(0),
 		m_PLightMesh(nullptr),
@@ -44,6 +45,12 @@ public:
 	/// </summary>
 	void uploadLightDataToShader(Shader* s, glm::mat4 view);
 
+	/// <summary>
+	/// Compute each light transform matrix and returns a vector containing all of them
+	/// </summary>
+	std::vector<glm::mat4> getLightsMatrixes();
+
+	std::vector<Texture*> getLightsShadowTextures();
 
 };
 

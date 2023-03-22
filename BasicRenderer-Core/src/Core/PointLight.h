@@ -51,6 +51,6 @@ public:
 
 	inline float getAttenuation() { return m_AttRadius; }
 
-
+	glm::mat4 getLightTransformMatrix();
 };
 

@@ -12,18 +12,25 @@
 
 
 	};
+	enum ShaderType {
+		lit,
+		unlit
+	};
 
 	class Shader {
 		const std::string& m_filePath;
 		unsigned int m_RendererID;
 		std::unordered_map<std::string, int> m_UniformLocationCache;
+		ShaderType type;
 
 	public:
-		Shader(const std::string& filename);
+		Shader(const std::string& filename, ShaderType t);
 		~Shader();
 
 		void bind() const;
 		void unbind() const;
+
+		inline ShaderType getType() { return type; }
 
 
 		void setBool(const std::string& name, bool value) const;

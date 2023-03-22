@@ -1,10 +1,10 @@
 ﻿  Renderer.cpp
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\Camera.h(31,8): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(208,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(236,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(237,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(241,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(242,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(244,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(245,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(179,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(208,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(209,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(213,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(214,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(216,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(217,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
   BasicRenderer-Core.vcxproj -> C:\Dev\BasicRenderer\binaries\Win32\Debug\BasicRenderer-Core.exe

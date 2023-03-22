@@ -24,6 +24,7 @@ private:
     Camera m_MainCam;
 
     LightManager* m_LightManager;
+    unsigned int m_ShadowResolution;
 
     Vignette* m_Vignette;
 
@@ -39,6 +40,8 @@ private:
     float m_DeltaTime;
     float m_LastFrame;
 
+
+
 public:
     Renderer(char name, unsigned int width, unsigned int height) :
 
@@ -47,7 +50,8 @@ public:
         m_SWidth(width), 
         m_SHeight(height), 
         m_Vignette(nullptr),
-        m_LightManager(new LightManager()),
+        m_ShadowResolution(2048),
+        m_LightManager(new LightManager(2048)),
         m_DeltaTime(0.0), 
         m_LastFrame(0.0), 
         m_lastX(width * .5f), 
@@ -73,6 +77,8 @@ public:
 	/// Implement her how the scene is going to be render
 	/// </summary>
 	void DrawScene();
+
+
 
 
 private:
@@ -126,5 +132,11 @@ private:
     /// Uploads all lights data to shaders and if enabled render their gizmo meshes
     /// </summary>
     void renderLights(bool enableGizmos);
+
+    /// <summary>
+    /// Compute shadows on all lit shaders
+    /// </summary>
+    void computeShadows();
+
 };
 

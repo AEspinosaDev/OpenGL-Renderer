@@ -12,7 +12,10 @@ protected:
 	const unsigned int type;
 	glm::vec3  m_Color;
 	float m_Intensity;
+	Texture* m_ShadowText;
 
+	glm::mat4 viewProj;
+	bool castShadows;
 
 
 
@@ -23,7 +26,7 @@ public:
 	/// <param name="p">World position</param>
 	/// <param name="c">Color</param>
 	/// <param name="t">Type</param>
-	Light(glm::vec3 p, glm::vec3  c, const unsigned int t) :SceneObject(p), m_Color(c), m_Intensity(1), type(t) {}
+	Light(glm::vec3 p, glm::vec3  c, const unsigned int t) :SceneObject(p), m_Color(c), m_Intensity(1), type(t), m_ShadowText(nullptr), viewProj(glm::mat4(0.0f)), castShadows(true) {}
 
 	/// <summary>
 	/// Instanciates a light
@@ -32,7 +35,7 @@ public:
 	/// <param name="p">World position</param>
 	/// <param name="c">Color</param>
 	/// <param name="t">Type</param>
-	Light(const std::string na, glm::vec3 p, glm::vec3  c, const unsigned int t) :SceneObject(na,p), m_Color(c), m_Intensity(1), type(t) {}
+	Light(const std::string na, glm::vec3 p, glm::vec3  c, const unsigned int t) :SceneObject(na, p), m_Color(c), m_Intensity(1), type(t), m_ShadowText(nullptr), viewProj(glm::mat4(0.0f)), castShadows(true) {}
 
 	/// <summary>
 	/// Instanciates a light
@@ -41,7 +44,7 @@ public:
 	/// <param name="c">Color</param>
 	/// <param name="i">Intensity</param>
 	/// <param name="t">Type</param>
-	Light(glm::vec3 p, glm::vec3  c, float i, const unsigned int t) :SceneObject(p), m_Color(c), m_Intensity(i), type(t) {}
+	Light(glm::vec3 p, glm::vec3  c, float i, const unsigned int t) :SceneObject(p), m_Color(c), m_Intensity(i), type(t), m_ShadowText(nullptr), viewProj(glm::mat4(0.0f)), castShadows(true) {}
 
 	/// <summary>
 	/// Instanciates a light
@@ -51,7 +54,7 @@ public:
 	/// <param name="c">Color</param>
 	/// <param name="i">Intensity</param>
 	/// <param name="t">Type</param>
-	Light(const std::string na, glm::vec3 p, glm::vec3  c, float i, const unsigned int t) :SceneObject(na,p), m_Color(c), m_Intensity(i), type(t) {}
+	Light(const std::string na, glm::vec3 p, glm::vec3  c, float i, const unsigned int t) :SceneObject(na, p), m_Color(c), m_Intensity(i), type(t), m_ShadowText(nullptr), viewProj(glm::mat4(0.0f)), castShadows(true) {}
 
 
 	/*virtual void draw() = 0;*/
@@ -72,6 +75,15 @@ public:
 
 	virtual inline float getIntensity() { return m_Intensity; }
 
+	virtual inline void setCastShadows(bool c) { castShadows = c; }
+
+	virtual inline bool getCastShadows() { return castShadows; }
+
+	virtual inline Texture* getShadowText() { return m_ShadowText; }
+
+	virtual inline void setShadowText(Texture* t) { m_ShadowText = t; }
+
+	virtual glm::mat4 getLightTransformMatrix() = 0;
 
 	inline const unsigned int getType() { return type; }
 

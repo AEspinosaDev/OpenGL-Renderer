@@ -24,11 +24,12 @@ class Mesh
 	glm::vec3 position;
 	glm::vec3 rotation;
 	float scale;
+	bool castShadows;
 
 	void setTransform();
 
 public:
-	Mesh() :m_IndexBufferID(-1), m_Triangles(-1), m_Model(glm::mat4(1.0f)), m_Mat(nullptr), position(glm::vec3(0.0f)), rotation(glm::vec3(0.0f)), scale(1.0) {}
+	Mesh() :m_IndexBufferID(-1), m_Triangles(-1), m_Model(glm::mat4(1.0f)), m_Mat(nullptr), position(glm::vec3(0.0f)), rotation(glm::vec3(0.0f)), scale(1.0), castShadows(true){}
 
 	~Mesh() {}
 	
@@ -44,7 +45,9 @@ public:
 	
 	inline void setModel(glm::mat4 m) {	m_Model = m;}
 
+	inline void setCastShadows(bool c) { castShadows = c; }
 
+	inline bool getCastShadows() {  return castShadows; }
 
 	void init(unsigned int nTris, unsigned int nVertex, const unsigned int* triangleId, const float* vertexPos,
 		const float* vertexColor, const float* vertexNormal,
@@ -63,7 +66,7 @@ public:
 
 	void draw();
 
-	void drawShadows(Shader* depthShader, glm::mat4 lightProj, glm::mat4 lightView);
+	void drawShadows(Shader* depthShader, glm::mat4 lightViewProj);
 
 	void importFile(const std::string& pname);
 

@@ -172,6 +172,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\DirectionalLight.cpp" />
+    <ClCompile Include="src\Core\PointLight.cpp" />
     <ClCompile Include="src\OGL-Graphics\Framebuffer.cpp" />
     <ClCompile Include="src\Core\Renderer.cpp" />
     <ClCompile Include="src\Core\LightManager.cpp" />

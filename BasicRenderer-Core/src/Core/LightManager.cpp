@@ -27,6 +27,7 @@ void LightManager::addLight(Light* l) {
 		spotLightsNumber++;
 		break;
 	}
+	l->setShadowText(new Texture(0, GL_DEPTH_COMPONENT16, m_ShadowResolution, m_ShadowResolution, 0, GL_DEPTH_COMPONENT, GL_FLOAT, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER));
 	m_Lights.push_back(l);
 }
 
@@ -52,7 +53,7 @@ void LightManager::drawLights(glm::mat4 proj, glm::mat4 view) {
 		case 0:
 			m_PLightMesh->draw();
 			break;
-		
+
 		case 2:
 			m_SLightMesh->draw();
 			break;
@@ -96,4 +97,30 @@ void LightManager::uploadLightDataToShader(Shader* s, glm::mat4 view)
 
 
 
+}
+
+std::vector<glm::mat4> LightManager::getLightsMatrixes()
+{
+	std::vector<glm::mat4> matrixes = std::vector<glm::mat4>();
+
+	for (Light* l : m_Lights)
+	{
+		if (l->getCastShadows())
+			matrixes.push_back(l->getLightTransformMatrix());
+	}
+
+	return matrixes;
+}
+
+std::vector<Texture*> LightManager::getLightsShadowTextures()
+{
+	std::vector<Texture*> texts = std::vector<Texture*>();
+
+	for (Light* l : m_Lights)
+	{
+		if (l->getCastShadows())
+			texts.push_back(l->getShadowText());
+	}
+
+	return texts;
 }

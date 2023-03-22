@@ -1,6 +1,6 @@
 #include "Shader.h"
 
-Shader::Shader(const std::string& filename) :m_filePath(shaderPath + filename), m_RendererID(0) {
+Shader::Shader(const std::string& filename, ShaderType t) :m_filePath(shaderPath + filename), m_RendererID(0),type(t) {
 	ShaderProgramSource src = parseShader();
 	m_RendererID = createShader(src.VertexSource, src.FragmentSource);
 
@@ -28,6 +28,7 @@ void Shader::setInt(const std::string& name, int value) const
 {
 	GLcall(glUniform1i(glGetUniformLocation(m_RendererID, name.c_str()), value));
 }
+
 
 void Shader::setFloat(const std::string& name, float value)
 {
