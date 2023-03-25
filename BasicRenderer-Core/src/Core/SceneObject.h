@@ -13,6 +13,7 @@ protected:
 	glm::vec3 m_Rotation;
 	float m_Scale;
 	bool enabled;
+	
 
 public:
 	

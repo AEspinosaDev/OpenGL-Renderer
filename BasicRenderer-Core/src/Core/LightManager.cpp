@@ -1,7 +1,7 @@
 #include "LightManager.h"
-#include <Core/DirectionalLight.h>
+#include <Core/Lights/DirectionalLight.h>
 
-void LightManager::init(Shader* s)
+void LightManager::init(std::unordered_map<std::string, Shader*> shaders)
 {
 	m_PLightMesh = new Mesh();
 	m_PLightMesh->importFile("Sphere.obj");
@@ -9,11 +9,18 @@ void LightManager::init(Shader* s)
 	m_SLightMesh = new Mesh();
 	m_SLightMesh->importFile("Sphere.obj");
 
-	m_DebugMat = new Material(s);
+	m_DLightMesh = new Mesh();
+	m_DLightMesh->importFile("cylinder.obj");
+
+	m_DebugMat = new UnlitBasicMaterial(shaders);
 	m_PLightMesh->setMaterial(m_DebugMat);
+	m_SLightMesh->setMaterial(m_DebugMat);
+	m_DLightMesh->setMaterial(m_DebugMat);
 }
 
 void LightManager::addLight(Light* l) {
+
+	if (lightsNumber == MAX_LIGHTS) return;
 
 	switch (l->getType())
 	{
@@ -27,6 +34,7 @@ void LightManager::addLight(Light* l) {
 		spotLightsNumber++;
 		break;
 	}
+	lightsNumber++;
 	l->setShadowText(new Texture(0, GL_DEPTH_COMPONENT16, m_ShadowResolution, m_ShadowResolution, 0, GL_DEPTH_COMPONENT, GL_FLOAT, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER));
 	m_Lights.push_back(l);
 }
@@ -39,23 +47,25 @@ void LightManager::removeLight()
 void LightManager::drawLights(glm::mat4 proj, glm::mat4 view) {
 	for (Light* l : m_Lights)
 	{
-		Shader* s = m_DebugMat->getShader();
-		s->bind();
+		
 		glm::mat4 model = glm::translate(glm::mat4(1.0f), l->getPosition());
 		model = glm::scale(model, glm::vec3(0.5));
-		glm::mat4 modelView = view * model;
-		s->setMat4("u_modelViewProj", proj * modelView);
-		s->setVec3("u_color", l->getColor());
-		s->unbind();
+		
+		m_DebugMat->setColor(l->getColor());
 
 		switch (l->getType())
 		{
 		case 0:
-			m_PLightMesh->draw();
+			m_PLightMesh->setModel(model);
+			m_PLightMesh->draw(proj, view);
 			break;
-
+		case 1:
+			m_DLightMesh->setModel(model);
+			m_DLightMesh->draw(proj, view);
+			break;
 		case 2:
-			m_SLightMesh->draw();
+			m_SLightMesh->setModel(model);
+			m_SLightMesh->draw( proj,  view);
 			break;
 		}
 
@@ -66,6 +76,11 @@ void LightManager::uploadLightDataToShader(Shader* s, glm::mat4 view)
 {
 	s->bind();
 
+	int pointLightIndex = 0;
+	int dirLightIndex = 0;
+	int spotLightIndex = 0;
+	int textureSlotIndex = 6;
+
 	for (size_t i = 0; i < m_Lights.size(); i++)
 	{
 		if (m_Lights[i]->isActive()) {
@@ -74,14 +89,31 @@ void LightManager::uploadLightDataToShader(Shader* s, glm::mat4 view)
 			{
 
 			case 0:
-				s->setVec3("pointLights[" + std::to_string(i) + "].pos", view * glm::vec4(m_Lights[i]->getPosition(), 1.0));
-				s->setVec3("pointLights[" + std::to_string(i) + "].color", m_Lights[i]->getColor());
-				s->setFloat("pointLights[" + std::to_string(i) + "].intensity", m_Lights[i]->getIntensity());
+
+				s->setVec3("pointLights[" + std::to_string(pointLightIndex) + "].pos", view * glm::vec4(m_Lights[i]->getPosition(), 1.0));
+				s->setVec3("pointLights[" + std::to_string(pointLightIndex) + "].color", m_Lights[i]->getColor());
+				s->setFloat("pointLights[" + std::to_string(pointLightIndex) + "].intensity", m_Lights[i]->getIntensity());
+				s->setBool("pointLights[" + std::to_string(pointLightIndex) + "].castShadows", m_Lights[i]->getCastShadows());
+				if (m_Lights[i]->getCastShadows()) {
+					s->setMat4("pointLights[" + std::to_string(pointLightIndex) + "].lightViewProj", m_Lights[i]->getLightTransformMatrix());
+					m_Lights[i]->getShadowText()->bind(textureSlotIndex);
+					s->setInt("pointLights[" + std::to_string(pointLightIndex) + "].shadowMap", textureSlotIndex);
+					textureSlotIndex++;
+				}
+				pointLightIndex++;
 				break;
 			case 1:
-				s->setVec3("directionalLights[" + std::to_string(i) + "].dir", view * glm::vec4(static_cast<DirectionalLight*>(m_Lights[i])->getDirection(), 0.0));
-				s->setVec3("directionalLights[" + std::to_string(i) + "].color", m_Lights[i]->getColor());
-				s->setFloat("directionalLights[" + std::to_string(i) + "].intensity", m_Lights[i]->getIntensity());
+				s->setVec3("directionalLights[" + std::to_string(dirLightIndex) + "].dir", view * glm::vec4(static_cast<DirectionalLight*>(m_Lights[i])->getDirection(), 0.0));
+				s->setVec3("directionalLights[" + std::to_string(dirLightIndex) + "].color", m_Lights[i]->getColor());
+				s->setFloat("directionalLights[" + std::to_string(dirLightIndex) + "].intensity", m_Lights[i]->getIntensity());
+				s->setBool("directionalLights[" + std::to_string(dirLightIndex) + "].castShadows", m_Lights[i]->getCastShadows());
+				if (m_Lights[i]->getCastShadows()) {
+					s->setMat4("directionalLights[" + std::to_string(dirLightIndex) + "].lightViewProj", m_Lights[i]->getLightTransformMatrix());
+					m_Lights[i]->getShadowText()->bind(textureSlotIndex); 
+					s->setInt("directionalLights[" + std::to_string(dirLightIndex) + "].shadowMap", textureSlotIndex);
+					textureSlotIndex++;
+				}
+				dirLightIndex++;
 				break;
 			case 2:
 				break;
@@ -89,38 +121,15 @@ void LightManager::uploadLightDataToShader(Shader* s, glm::mat4 view)
 		}
 
 	}
+
+	s->setFloat("u_ambientStrength", m_AmbientStrength);
+	s->setVec3("u_ambientColor", m_AmbientColor);
+
 	s->setInt("pointsLightsNumber", pointLightsNumber);
 	s->setInt("directionalLightsNumber", directionalLightsNumber);
 	s->setInt("spotLightsNumber", spotLightsNumber);
 
 	s->unbind();
 
-
-
 }
 
-std::vector<glm::mat4> LightManager::getLightsMatrixes()
-{
-	std::vector<glm::mat4> matrixes = std::vector<glm::mat4>();
-
-	for (Light* l : m_Lights)
-	{
-		if (l->getCastShadows())
-			matrixes.push_back(l->getLightTransformMatrix());
-	}
-
-	return matrixes;
-}
-
-std::vector<Texture*> LightManager::getLightsShadowTextures()
-{
-	std::vector<Texture*> texts = std::vector<Texture*>();
-
-	for (Light* l : m_Lights)
-	{
-		if (l->getCastShadows())
-			texts.push_back(l->getShadowText());
-	}
-
-	return texts;
-}

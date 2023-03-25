@@ -8,7 +8,8 @@
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h> 
 #include <VAO.h>
-#include "Core/Material.h"
+#include <IBO.h>
+#include "Core/Materials/Material.h"
 
 
 class Mesh
@@ -64,7 +65,7 @@ public:
 	
 	void draw(glm::mat4 proj, glm::mat4 view);
 
-	void draw();
+	
 
 	void drawShadows(Shader* depthShader, glm::mat4 lightViewProj);
 

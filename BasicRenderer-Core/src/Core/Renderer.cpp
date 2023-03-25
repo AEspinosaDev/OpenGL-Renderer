@@ -1,4 +1,6 @@
 #include "Renderer.h"
+#include <Core/Lights/PointLight.h>
+#include <Core/Materials/BasicPhongMaterial.h>
 
 void Renderer::Run() {
 	Init();
@@ -9,13 +11,12 @@ void Renderer::Run() {
 }
 
 void Renderer::SetupScene() {
-	Shader* mainShader = new Shader("BasicPhongShader.shader", ShaderType::lit);
-	m_Shaders["basicShader"] = mainShader;
+	
 
 
 	Texture* boxColorTex = new Texture("SeamlessWood-Diffuse.jpg");
 	Texture* boxNormalTex = new Texture("SeamlessWood-NormalMap.tif");
-	Material* box_m = new Material(mainShader);
+	BasicPhongMaterial* box_m = new BasicPhongMaterial(m_Shaders);
 	box_m->addColorTex(boxColorTex);
 	box_m->addNormalTex(boxNormalTex);
 
@@ -27,7 +28,7 @@ void Renderer::SetupScene() {
 
 	Texture* floorAlbedoTex = new Texture("floor.jpg");
 	Texture* floorNormalTex = new Texture("floor-normal.jpg");
-	Material* floor_m = new Material(mainShader);
+	BasicPhongMaterial* floor_m = new BasicPhongMaterial(m_Shaders);
 	floor_m->addColorTex(floorAlbedoTex);
 	floor_m->addNormalTex(floorNormalTex);
 	floor_m->setTileU(20);
@@ -41,7 +42,7 @@ void Renderer::SetupScene() {
 
 	Texture* tenguColorTex = new Texture("tengu-color.png");
 	Texture* tenguNormalTex = new Texture("tengu-normal.png");
-	Material* tengu_m = new Material(mainShader);
+	BasicPhongMaterial* tengu_m = new BasicPhongMaterial(m_Shaders);
 	tengu_m->addColorTex(tenguColorTex);
 	tengu_m->addNormalTex(tenguNormalTex);
 
@@ -54,8 +55,11 @@ void Renderer::SetupScene() {
 
 	m_MainCam.setProj(45.0, m_SWidth, m_SHeight);
 
-	m_LightManager->addLight(new PointLight(glm::vec3(5.0, 3.0, 4.0), glm::vec3(1.0, 1.0, 1.0), 1.5, 1));
+	PointLight* l = new PointLight(glm::vec3(5.0, 3.0, 4.0), glm::vec3(1.0, 1.0, 1.0), 1.5, 1);
+	//l->setCastShadows(false);
+	m_LightManager->addLight(l);
 	m_LightManager->addLight(new PointLight(glm::vec3(-4.0, 1.0, 2.0), glm::vec3(1.0, 0.5, 0.5), 1, 1));
+	m_LightManager->setAmbientStrength(0.2);
 
 	createVignette();
 
@@ -70,8 +74,6 @@ void Renderer::DrawScene() {
 
 	//Shadow mapping pass
 	computeShadows();
-
-
 
 
 	//Final pass write to vignette texture
@@ -168,8 +170,9 @@ void Renderer::LateInit()
 {
 	m_Shaders["UnlitBasicShader"] = new Shader("UnlitBasicShader.shader", ShaderType::unlit);
 	m_Shaders["BasicDepthShader"] = new Shader("BasicDepthShader.shader", ShaderType::unlit);
+	m_Shaders["BasicPhongShader"] = new Shader("BasicPhongShader.shader", ShaderType::lit);
 
-	m_LightManager->init(m_Shaders["UnlitBasicShader"]);
+	m_LightManager->init(m_Shaders);
 }
 
 void Renderer::Tick()
@@ -277,50 +280,31 @@ void Renderer::computeShadows()
 {
 	glViewport(0, 0, m_ShadowResolution, m_ShadowResolution);
 
-	auto lightMatrixes = m_LightManager->getLightsMatrixes();
-	auto lightShadowTextures = m_LightManager->getLightsShadowTextures();
+	int lights = m_LightManager->getLightsCount();
 
-	for (size_t i = 0; i < lightMatrixes.size(); i++)
+	for (size_t i = 0; i < lights; i++)
 	{
-		m_Framebuffers["depthFBO"]->setTextureAttachment(lightShadowTextures[i]);
+		if (m_LightManager->getLight(i)->getCastShadows()) {
 
-		bindFramebuffer("depthFBO");
+			m_Framebuffers["depthFBO"]->setTextureAttachment(m_LightManager->getLight(i)->getShadowText());
 
-		glDrawBuffer(GL_NONE);
-		glReadBuffer(GL_NONE);
-		glEnable(GL_DEPTH_TEST);
-		glCullFace(GL_FRONT);
+			bindFramebuffer("depthFBO");
 
-		glClear(GL_DEPTH_BUFFER_BIT);
+			glDrawBuffer(GL_NONE);
+			glReadBuffer(GL_NONE);
+			glEnable(GL_DEPTH_TEST);
+			glCullFace(GL_FRONT);
 
-		for (auto& m : m_Models) {
-			m.second->getMesh()->drawShadows(m_Shaders["BasicDepthShader"], lightMatrixes[i]);
-		}
+			glClear(GL_DEPTH_BUFFER_BIT);
 
-	}
-
-	for (auto& s : m_Shaders) {
-		//For all lit shaders...
-		if (s.second->getType() == ShaderType::lit) {
-			//Upload lightsSpaceMatrixes
-			s.second->bind();
-
-			//Load all lights viewProjs and Textures xDDDDD
-			for (size_t i = 0; i < lightMatrixes.size(); i++)
-			{
-				s.second->setMat4("u_lightsViewProjs[" + std::to_string(i) + "]", lightMatrixes[i]);
-
-				lightShadowTextures[i]->bind(i+5); //NUMBER HERE IS A BIG MISTERY FOR NOW)
-				s.second->setInt("shadowMaps[" + std::to_string(i) + "]", i+5);
-
+			for (auto& m : m_Models) {
+				m.second->getMesh()->drawShadows(m_Shaders["BasicDepthShader"], m_LightManager->getLight(i)->getLightTransformMatrix());
 			}
-
-			s.second->setInt("u_lightsNumber", lightMatrixes.size());
-
-
-			s.second->unbind();
 		}
+
 	}
+
+	
 }
 
 void Renderer::bindFramebuffer(std::string name) {

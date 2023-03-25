@@ -63,34 +63,16 @@ void Mesh::init(unsigned int nTris, unsigned int nVertex, const unsigned int* tr
 
 void Mesh::draw(glm::mat4 proj, glm::mat4 view) {
 
-	m_Mat->getShader()->bind();
-
-	glm::mat4 modelView = view * m_Model;
-
-	m_Mat->getShader()->setMat4("u_modelView", modelView);
-	m_Mat->getShader()->setMat4("u_modelViewProj", proj * modelView);
-
-	m_Mat->getShader()->setMat4("u_Model", m_Model);
-	m_Mat->getShader()->setFloat("u_TileV", m_Mat->getTileV());
-	m_Mat->getShader()->setFloat("u_TileU", m_Mat->getTileU());
-
-	m_Mat->bindTextures();
+	m_Mat->bind(proj, view, m_Model);
 
 	m_Vao.bind();
 
 	GLcall(glDrawElements(GL_TRIANGLES, m_Triangles, GL_UNSIGNED_INT, (void*)0));
-	m_Mat->getShader()->unbind();
 
+	m_Mat->unbind();
 }
 
-void Mesh::draw()
-{
-	m_Mat->getShader()->bind();
-	m_Vao.bind();
 
-	GLcall(glDrawElements(GL_TRIANGLES, m_Triangles, GL_UNSIGNED_INT, (void*)0));
-	m_Mat->getShader()->unbind();
-}
 
 void Mesh::drawShadows(Shader* depthShader, glm::mat4 lightViewProj)
 {

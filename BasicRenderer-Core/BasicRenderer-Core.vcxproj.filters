@@ -14,7 +14,6 @@
     </ClCompile>
     <ClCompile Include="src\OGL-Graphics\Camera.cpp" />
     <ClCompile Include="src\OGL-Graphics\IBO.cpp" />
-    <ClCompile Include="src\Core\Material.cpp" />
     <ClCompile Include="src\OGL-Graphics\Mesh.cpp" />
     <ClCompile Include="src\OGL-Graphics\Shader.cpp" />
     <ClCompile Include="src\OGL-Graphics\Texture.cpp" />
@@ -22,13 +21,15 @@
     <ClCompile Include="src\OGL-Graphics\VBO.cpp" />
     <ClCompile Include="src\Core\Model.cpp" />
     <ClCompile Include="src\OGL-Graphics\Graphics_Core.cpp" />
-    <ClCompile Include="src\Core\Light.cpp" />
+    <ClCompile Include="src\Core\Lights\Light.cpp" />
     <ClCompile Include="src\Core\LightManager.cpp" />
     <ClCompile Include="src\Core\Renderer.cpp" />
     <ClCompile Include="src\OGL-Graphics\Vignette.cpp" />
     <ClCompile Include="src\OGL-Graphics\Framebuffer.cpp" />
-    <ClCompile Include="src\Core\PointLight.cpp" />
-    <ClCompile Include="src\Core\DirectionalLight.cpp" />
+    <ClCompile Include="src\Core\Lights\PointLight.cpp" />
+    <ClCompile Include="src\Core\Lights\DirectionalLight.cpp" />
+    <ClCompile Include="src\Core\Materials\BasicPhongMaterial.cpp" />
+    <ClCompile Include="src\Core\Materials\UnlitBasicMaterial.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\OGL-Graphics\VBO.h" />
@@ -39,18 +40,20 @@
     <ClInclude Include="src\OGL-Graphics\Texture.h" />
     <ClInclude Include="src\OGL-Graphics\Camera.h" />
     <ClInclude Include="src\OGL-Graphics\Mesh.h" />
-    <ClInclude Include="src\Core\Material.h" />
+    <ClInclude Include="src\Core\Materials\Material.h" />
     <ClInclude Include="src\Core\SceneObject.h" />
     <ClInclude Include="src\OGL-Graphics\Graphics_Core.h" />
     <ClInclude Include="src\Core\Model.h" />
-    <ClInclude Include="src\Core\Light.h" />
-    <ClInclude Include="src\Core\PointLight.h" />
+    <ClInclude Include="src\Core\Lights\Light.h" />
+    <ClInclude Include="src\Core\Lights\PointLight.h" />
     <ClInclude Include="src\Core\LightManager.h" />
     <ClInclude Include="src\Core\Renderer.h" />
     <ClInclude Include="src\OGL-Graphics\Vignette.h" />
     <ClInclude Include="src\OGL-Graphics\Framebuffer.h" />
-    <ClInclude Include="src\Core\DirectionalLight.h" />
+    <ClInclude Include="src\Core\Lights\DirectionalLight.h" />
     <ClInclude Include="Resources\Shaders\BasicDepthShader.shader" />
+    <ClInclude Include="src\Core\Materials\BasicPhongMaterial.h" />
+    <ClInclude Include="src\Core\Materials\UnlitBasicMaterial.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\BasicPhongShader.shader" />

@@ -27,7 +27,6 @@ private:
     unsigned int m_ShadowResolution;
 
     Vignette* m_Vignette;
-
     std::unordered_map<std::string,Framebuffer*> m_Framebuffers;
 
     std::unordered_map<std::string,Model*> m_Models;
