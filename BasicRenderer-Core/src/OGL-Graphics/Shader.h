@@ -13,8 +13,8 @@
 
 	};
 	enum ShaderType {
-		lit,
-		unlit
+		LIT,
+		UNLIT
 	};
 
 	class Shader {

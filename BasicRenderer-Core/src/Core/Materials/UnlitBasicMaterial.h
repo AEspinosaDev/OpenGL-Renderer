@@ -7,20 +7,23 @@ class UnlitBasicMaterial: public Material
 private:
 	Texture* colorTex;
 	glm::vec3 color;
-
+	float opacity;
 	float itileU;
 	float itileV;
 public:
-	UnlitBasicMaterial(std::unordered_map<std::string, Shader*> shaders) : Material(shaders["UnlitBasicShader"]), itileU(1.0), itileV(1.0), color(glm::vec3(1.0, 1.0, 1.0)),
+	UnlitBasicMaterial(std::unordered_map<std::string, Shader*> shaders) : Material(shaders["UnlitBasicShader"]), itileU(1.0), itileV(1.0),opacity(1.0), color(glm::vec3(1.0, 1.0, 1.0)),
+		colorTex(nullptr) {}
+
+	UnlitBasicMaterial(std::unordered_map<std::string, Shader*> shaders, MaterialParameters params) : Material(shaders["UnlitBasicShader"],params), itileU(1.0), itileV(1.0), opacity(1.0), color(glm::vec3(1.0, 1.0, 1.0)),
 		colorTex(nullptr) {}
 
 	inline void setTileU(float u) { itileU = u; }
-
 	inline float getTileU() { return itileU; }
-
-	inline void SetTileV(float v) { itileV = v; }
-
+	inline void setTileV(float v) { itileV = v; }
 	inline float getTileV() { return itileV; }
+	inline void setOpacity(float o) { opacity = o; }
+	inline float getOpacity() { return opacity; }
+
 
 	inline void setColor(const glm::vec3  c) { color = c; }
 

@@ -1,6 +1,7 @@
 #include "Renderer.h"
 #include <Core/Lights/PointLight.h>
 #include <Core/Materials/BasicPhongMaterial.h>
+#include <map>
 
 void Renderer::Run() {
 	Init();
@@ -11,7 +12,7 @@ void Renderer::Run() {
 }
 
 void Renderer::SetupScene() {
-	
+
 
 
 	Texture* boxColorTex = new Texture("SeamlessWood-Diffuse.jpg");
@@ -19,6 +20,8 @@ void Renderer::SetupScene() {
 	BasicPhongMaterial* box_m = new BasicPhongMaterial(m_Shaders);
 	box_m->addColorTex(boxColorTex);
 	box_m->addNormalTex(boxNormalTex);
+	/*box_m->setOpacity(0.2);
+	box_m->setTransparency(true);*/
 
 	Model* box = new Model();
 	box->loadMesh("box.obj");
@@ -32,7 +35,7 @@ void Renderer::SetupScene() {
 	floor_m->addColorTex(floorAlbedoTex);
 	floor_m->addNormalTex(floorNormalTex);
 	floor_m->setTileU(20);
-	floor_m->SetTileV(20);
+	floor_m->setTileV(20);
 
 	Model* plane = new Model();
 	plane->loadMesh("plane.obj");
@@ -78,7 +81,6 @@ void Renderer::DrawScene() {
 
 	//Final pass write to vignette texture
 	bindFramebuffer("vignetteFBO");
-	glCullFace(GL_BACK);
 
 	m_MainCam.setProj(45.0f, m_SWidth, m_SHeight);
 
@@ -90,11 +92,12 @@ void Renderer::DrawScene() {
 
 	glEnable(GL_DEPTH_TEST);
 
-	renderLights(true);
+	//renderLights(true);
 
-	render("floor");
-	render("demon");
-	render("box");
+	//render("floor");
+	//render("demon");
+	//render("box");
+	render();
 
 
 
@@ -168,9 +171,10 @@ void Renderer::Init() {
 
 void Renderer::LateInit()
 {
-	m_Shaders["UnlitBasicShader"] = new Shader("UnlitBasicShader.shader", ShaderType::unlit);
-	m_Shaders["BasicDepthShader"] = new Shader("BasicDepthShader.shader", ShaderType::unlit);
-	m_Shaders["BasicPhongShader"] = new Shader("BasicPhongShader.shader", ShaderType::lit);
+	std::cout << "Compiling shaders..." << std::endl;
+	m_Shaders["UnlitBasicShader"] = new Shader("UnlitBasicShader.shader", ShaderType::UNLIT);
+	m_Shaders["BasicDepthShader"] = new Shader("BasicDepthShader.shader", ShaderType::UNLIT);
+	m_Shaders["BasicPhongShader"] = new Shader("BasicPhongShader.shader", ShaderType::LIT);
 
 	m_LightManager->init(m_Shaders);
 }
@@ -249,9 +253,34 @@ void Renderer::render()
 {
 	renderLights(true);
 
-	for (auto& m : m_Models) {
-		m.second->draw(m_MainCam.getProj(), m_MainCam.getView());
+	std::vector<Model*> opaqueModels;
+	std::vector<Model*> blendModels;
+
+
+	for (auto & m : m_Models) {
+		m.second->getMesh()->getMaterial()->getTransparency() ? blendModels.push_back(m.second) :opaqueModels.push_back(m.second);
 	}
+
+	//FIRST OPAQUE OBJECTS
+	for (auto& m : opaqueModels) {
+		m->draw(m_MainCam.getProj(), m_MainCam.getView());
+	}
+
+	if (blendModels.size() == 0) return;
+
+	//Calculate distance
+	std::map<float,Model*> sorted;
+	for (unsigned int i = 0; i < blendModels.size(); i++)
+	{
+		float distance = glm::distance(m_MainCam.getPos(),blendModels[i]->getPosition());
+		sorted[distance] = blendModels[i];
+	}
+	//SECOND TRANSPARENT OBJECTS SORTED FROM NEAR TO FAR
+	for (std::map<float, Model*>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+	{
+		it->second->draw(m_MainCam.getProj(), m_MainCam.getView());
+	}
+	
 
 }
 
@@ -269,7 +298,8 @@ void Renderer::bindFramebuffer() {
 void Renderer::renderLights(bool enableGizmos)
 {
 	for (auto& shader : m_Shaders) {
-		m_LightManager->uploadLightDataToShader(shader.second, m_MainCam.getView());
+		if (shader.second->getType() == ShaderType::LIT)
+			m_LightManager->uploadLightDataToShader(shader.second, m_MainCam.getView());
 	}
 	if (enableGizmos)
 		m_LightManager->drawLights(m_MainCam.getProj(), m_MainCam.getView());
@@ -293,6 +323,7 @@ void Renderer::computeShadows()
 			glDrawBuffer(GL_NONE);
 			glReadBuffer(GL_NONE);
 			glEnable(GL_DEPTH_TEST);
+			glEnable(GL_CULL_FACE);
 			glCullFace(GL_FRONT);
 
 			glClear(GL_DEPTH_BUFFER_BIT);
@@ -304,7 +335,7 @@ void Renderer::computeShadows()
 
 	}
 
-	
+
 }
 
 void Renderer::bindFramebuffer(std::string name) {

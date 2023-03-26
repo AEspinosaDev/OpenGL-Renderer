@@ -51,6 +51,7 @@ void BasicPhongMaterial::bind(glm::mat4 proj, glm::mat4 view, glm::mat4 model)
 	m_shader->setMat4("u_Model", model);
 	m_shader->setFloat("u_TileV", itileV);
 	m_shader->setFloat("u_TileU", itileU);
+	m_shader->setFloat("u_opacity", opacity);
 
 	if (colorTex != nullptr)
 		colorTex->bind(0);

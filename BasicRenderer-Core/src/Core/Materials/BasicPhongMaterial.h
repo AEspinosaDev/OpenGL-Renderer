@@ -11,21 +11,24 @@ private:
 	Texture* emiTex;
 	Texture* opacityTex;
 
+	float opacity;
 	float itileU;
 	float itileV;
 
 public:
 
-	BasicPhongMaterial(std::unordered_map<std::string, Shader*> shaders) : Material(shaders["BasicPhongShader"]), itileU(1.0), itileV(1.0),
+	BasicPhongMaterial(std::unordered_map<std::string, Shader*> shaders) : Material(shaders["BasicPhongShader"]), itileU(1.0), itileV(1.0), opacity(1.0),
+		colorTex(nullptr), normalTex(nullptr), specularTex(nullptr), roughnessTex(nullptr), emiTex(nullptr), opacityTex(nullptr) {}
+
+	BasicPhongMaterial(std::unordered_map<std::string, Shader*> shaders, MaterialParameters params) : Material(shaders["BasicPhongShader"],params), itileU(1.0), itileV(1.0), opacity(1.0),
 		colorTex(nullptr), normalTex(nullptr), specularTex(nullptr), roughnessTex(nullptr), emiTex(nullptr), opacityTex(nullptr) {}
 	
 	inline void setTileU(float u)	{	itileU = u;}
-
 	inline float getTileU() { return itileU; }
-
-	inline void SetTileV(float v){itileV = v;}
-
+	inline void setTileV(float v){itileV = v;}
 	inline float getTileV() { return itileV; }
+	inline void setOpacity(float o) { opacity = o; }
+	inline float getOpacity() { return opacity; }
 
 	void addColorTex(Texture* t);
 

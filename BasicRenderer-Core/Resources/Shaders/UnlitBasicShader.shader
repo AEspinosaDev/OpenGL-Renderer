@@ -26,11 +26,12 @@ in vec2 texCoord;
 
 uniform vec3 u_color;
 uniform sampler2D u_colorTex;
+uniform float u_opacity;
 
 out vec4 fragColor;
 
 void main() {
 
-	fragColor = vec4(u_color, 1.0);
+	fragColor = vec4(u_color, u_opacity);
 }
 

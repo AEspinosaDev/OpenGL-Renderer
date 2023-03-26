@@ -175,6 +175,7 @@
     <ClCompile Include="src\Core\Lights\DirectionalLight.cpp" />
     <ClCompile Include="src\Core\Lights\PointLight.cpp" />
     <ClCompile Include="src\Core\Materials\BasicPhongMaterial.cpp" />
+    <ClCompile Include="src\Core\Materials\Material.cpp" />
     <ClCompile Include="src\OGL-Graphics\Framebuffer.cpp" />
     <ClCompile Include="src\Core\Renderer.cpp" />
     <ClCompile Include="src\Core\LightManager.cpp" />

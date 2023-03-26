@@ -1,6 +1,6 @@
 #include "Vignette.h"
 
-Vignette::Vignette(unsigned int w, unsigned int h) : vao(new VAO()), shader(new Shader("VignetteShader.shader",ShaderType::unlit)), texture(new Texture(w, h))
+Vignette::Vignette(unsigned int w, unsigned int h) : vao(new VAO()), shader(new Shader("VignetteShader.shader",ShaderType::UNLIT)), texture(new Texture(w, h))
 {
 	const float  quadTriangles[] = {
 		// X, Y, Z,
@@ -43,6 +43,8 @@ Vignette::Vignette(unsigned int w, unsigned int h) : vao(new VAO()), shader(new 
 
 void Vignette::draw()
 {
+	glDisable(GL_CULL_FACE);
+
 	shader->bind();
 
 	shader->setMat4("u_proj", glm::ortho(-1, 1, -1, 1, 2, 250));

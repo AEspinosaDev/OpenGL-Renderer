@@ -30,6 +30,7 @@
     <ClCompile Include="src\Core\Lights\DirectionalLight.cpp" />
     <ClCompile Include="src\Core\Materials\BasicPhongMaterial.cpp" />
     <ClCompile Include="src\Core\Materials\UnlitBasicMaterial.cpp" />
+    <ClCompile Include="src\Core\Materials\Material.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\OGL-Graphics\VBO.h" />

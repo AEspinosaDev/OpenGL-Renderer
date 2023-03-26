@@ -63,6 +63,7 @@ void Mesh::init(unsigned int nTris, unsigned int nVertex, const unsigned int* tr
 
 void Mesh::draw(glm::mat4 proj, glm::mat4 view) {
 
+	m_Mat->setupParameters();
 	m_Mat->bind(proj, view, m_Model);
 
 	m_Vao.bind();

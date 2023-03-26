@@ -123,7 +123,7 @@ uniform int spotLightsNumber;
 uniform float u_ambientStrength;
 uniform vec3 u_ambientColor;
 
-
+uniform float u_opacity;
 
 
 
@@ -249,7 +249,7 @@ void main()
 	N = normalize(TBN * normalK);
 	//N = normal;
 
-	FragColor = vec4(shade(), 1.0);
+	FragColor = vec4(shade(), u_opacity);
 
 }
 
