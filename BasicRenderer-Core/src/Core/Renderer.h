@@ -11,6 +11,21 @@
 #include <OGL-Graphics/Framebuffer.h>
 #include <Core/LightManager.h>
 
+enum AntialiasingType {
+    NONE = 0,
+    MSAAx2 = 2,
+    MSAAx4 = 4,
+    MSAAx8 = 8,
+    MSAAx16 = 16
+};
+enum ShadowMapQuality {
+    VERY_LOW = 512,
+    LOW = 1080,
+    MID = 2048,
+    HIGH = 4096,
+    VERY_HIGHT = 8192
+};
+
 class Renderer
 {
 private: 
@@ -24,7 +39,10 @@ private:
     Camera m_MainCam;
 
     LightManager* m_LightManager;
+
     unsigned int m_ShadowResolution;
+
+    unsigned int  m_AntialiasingSamples;
 
     Vignette* m_Vignette;
     std::unordered_map<std::string,Framebuffer*> m_Framebuffers;
@@ -42,20 +60,27 @@ private:
 
 
 public:
-    Renderer(char name, unsigned int width, unsigned int height) :
+    Renderer(char name, unsigned int width, unsigned int height, AntialiasingType antialiasing) :
 
         m_Name(name),
         m_Window(nullptr),
         m_SWidth(width), 
         m_SHeight(height), 
         m_Vignette(nullptr),
-        m_ShadowResolution(2048),
-        m_LightManager(new LightManager(2048)),
+        m_ShadowResolution(ShadowMapQuality::MID),
+        m_AntialiasingSamples(antialiasing),
+        m_LightManager(new LightManager(ShadowMapQuality::MID)),
         m_DeltaTime(0.0), 
         m_LastFrame(0.0), 
         m_lastX(width * .5f), 
 		m_lastY(height * .5f)
     {}
+
+    
+    inline void setAntialiasingType(AntialiasingType n) { m_AntialiasingSamples =n; }
+    inline AntialiasingType getAntialiasingType() { return (AntialiasingType)m_AntialiasingSamples;  }
+    inline void setShadoMapQuality(ShadowMapQuality q) { m_ShadowResolution = q; }
+    inline ShadowMapQuality getShadoMapQuality() { return (ShadowMapQuality)m_ShadowResolution; }
     
     /// <summary>
     /// Run application
@@ -121,6 +146,17 @@ private:
     /// Bind specific framebuffer given its name
     /// </summary>
     void bindFramebuffer(std::string name);
+
+    /// <summary>
+    /// Read source fbo data and write it in destiny fbo given some parameters
+    /// </summary>
+    void blitFramebuffer(std::string src_name, std::string dst_name, GLbitfield mask, GLenum filter);
+
+    /// <summary>
+    ///  Read source fbo data and write it in destiny fbo given some parameters
+    /// </summary>
+    void blitFramebuffer(std::string src_name,unsigned int src_x_o, unsigned int src_y_o, unsigned int src_x_f, unsigned int src_y_f,
+        std::string dst_name, unsigned int dst_x_o, unsigned int dst_y_o, unsigned int dst_x_f, unsigned int dst_y_f, GLbitfield mask, GLenum filter);
 
     /// <summary>
     /// Creates a vignette to render to texture

@@ -47,6 +47,7 @@ public:
 	/// <param name="resizeOnCallback">Resize enabling</param>
 	Framebuffer(Texture* text, bool resizeOnCallback);
 
+	inline const int getID() { return m_RendererID; }
 	inline void setWidth(unsigned int w) { width = w; }
 	inline void setHeight(unsigned int h) { height = h; }
 	inline unsigned int getWidth() { return width; }

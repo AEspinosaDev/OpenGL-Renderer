@@ -20,8 +20,8 @@ void Renderer::SetupScene() {
 	BasicPhongMaterial* box_m = new BasicPhongMaterial(m_Shaders);
 	box_m->addColorTex(boxColorTex);
 	box_m->addNormalTex(boxNormalTex);
-	/*box_m->setOpacity(0.2);
-	box_m->setTransparency(true);*/
+	box_m->setOpacity(0.2);
+	box_m->setTransparency(true);
 
 	Model* box = new Model();
 	box->loadMesh("box.obj");
@@ -66,9 +66,9 @@ void Renderer::SetupScene() {
 
 	createVignette();
 
-	m_Framebuffers["depthFBO"] = new Framebuffer(m_LightManager->getLight(0)->getShadowText(),
-		GL_DEPTH_ATTACHMENT, GL_FALSE, GL_FALSE);
-	//m_Vignette->setTexture(m_Framebuffers["depthFBO"]->getTextureAttachment());
+	if (m_AntialiasingSamples > 0)
+		m_Framebuffers["msaaFBO"] = new Framebuffer(new Texture(m_SWidth, m_SHeight, m_AntialiasingSamples), GL_COLOR_ATTACHMENT0, GL_TRUE, GL_TRUE);
+	m_Framebuffers["depthFBO"] = new Framebuffer(m_LightManager->getLight(0)->getShadowText(), GL_DEPTH_ATTACHMENT, GL_FALSE, GL_FALSE);
 	m_Framebuffers["vignetteFBO"] = new Framebuffer(m_Vignette->getTexture(), GL_COLOR_ATTACHMENT0, GL_TRUE, GL_TRUE);
 
 
@@ -79,8 +79,12 @@ void Renderer::DrawScene() {
 	computeShadows();
 
 
-	//Final pass write to vignette texture
-	bindFramebuffer("vignetteFBO");
+	//Render scene in given fbo
+	if (m_AntialiasingSamples > 0)
+		bindFramebuffer("msaaFBO");
+	else {
+		bindFramebuffer("vignetteFBO");
+	}
 
 	m_MainCam.setProj(45.0f, m_SWidth, m_SHeight);
 
@@ -93,17 +97,20 @@ void Renderer::DrawScene() {
 	glEnable(GL_DEPTH_TEST);
 
 	//renderLights(true);
-
 	//render("floor");
 	//render("demon");
 	//render("box");
+
 	render();
 
 
+	if (m_AntialiasingSamples > 0) {
+		//Blit msaa fbo data to vignette fbo
+		blitFramebuffer("msaaFBO", "vignetteFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	}
 
 
 	//Render to texture for possprocessing
-
 	bindFramebuffer();
 
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -118,15 +125,14 @@ void Renderer::DrawScene() {
 
 void Renderer::Init() {
 	// glfw: initialize and configure
-	  // ------------------------------
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	// ------------------------------
 
 
-	// glfw window creation
-	// --------------------
+  // glfw window creation
 	m_Window = glfwCreateWindow(m_SWidth, m_SHeight, &m_Name, NULL, NULL);
 	if (m_Window == NULL)
 	{
@@ -134,6 +140,7 @@ void Renderer::Init() {
 		glfwTerminate();
 		return;
 	}
+	// --------------------
 
 	glfwSetWindowUserPointer(m_Window, this);
 
@@ -244,6 +251,8 @@ void Renderer::FramebufferResize_Callback(GLFWwindow* window, int width, int hei
 
 }
 
+
+
 void Renderer::createVignette()
 {
 	m_Vignette = new Vignette(m_SWidth, m_SHeight);
@@ -257,11 +266,11 @@ void Renderer::render()
 	std::vector<Model*> blendModels;
 
 
-	for (auto & m : m_Models) {
-		m.second->getMesh()->getMaterial()->getTransparency() ? blendModels.push_back(m.second) :opaqueModels.push_back(m.second);
+	for (auto& m : m_Models) {
+		m.second->getMesh()->getMaterial()->getTransparency() ? blendModels.push_back(m.second) : opaqueModels.push_back(m.second);
 	}
 
-	//FIRST OPAQUE OBJECTS
+	//FIRST = OPAQUE OBJECTS
 	for (auto& m : opaqueModels) {
 		m->draw(m_MainCam.getProj(), m_MainCam.getView());
 	}
@@ -269,18 +278,18 @@ void Renderer::render()
 	if (blendModels.size() == 0) return;
 
 	//Calculate distance
-	std::map<float,Model*> sorted;
+	std::map<float, Model*> sorted;
 	for (unsigned int i = 0; i < blendModels.size(); i++)
 	{
-		float distance = glm::distance(m_MainCam.getPos(),blendModels[i]->getPosition());
+		float distance = glm::distance(m_MainCam.getPos(), blendModels[i]->getPosition());
 		sorted[distance] = blendModels[i];
 	}
-	//SECOND TRANSPARENT OBJECTS SORTED FROM NEAR TO FAR
+	//SECOND = TRANSPARENT OBJECTS SORTED FROM NEAR TO FAR
 	for (std::map<float, Model*>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
 	{
 		it->second->draw(m_MainCam.getProj(), m_MainCam.getView());
 	}
-	
+
 
 }
 
@@ -294,6 +303,30 @@ void Renderer::bindFramebuffer() {
 	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
+void Renderer::bindFramebuffer(std::string name) {
+	m_Framebuffers[name]->bind();
+
+}
+void Renderer::blitFramebuffer(std::string src_name, std::string dst_name, GLbitfield mask, GLenum filter) {
+
+	Framebuffer* src = m_Framebuffers[src_name];
+	Framebuffer* dst = m_Framebuffers[dst_name];
+
+	GLcall(glBindFramebuffer(GL_READ_FRAMEBUFFER, src->getID()));
+	GLcall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dst->getID()));
+	GLcall(glBlitFramebuffer(0, 0, src->getWidth(), src->getHeight(), 0, 0, dst->getWidth(), dst->getHeight(), mask, filter));
+}
+
+void Renderer::blitFramebuffer(std::string src_name, unsigned int src_x_o, unsigned int src_y_o, unsigned int src_x_f, unsigned int src_y_f,
+	std::string dst_name, unsigned int dst_x_o, unsigned int dst_y_o, unsigned int dst_x_f, unsigned int dst_y_f, GLbitfield mask, GLenum filter) {
+
+	Framebuffer* src = m_Framebuffers[src_name];
+	Framebuffer* dst = m_Framebuffers[dst_name];
+
+	GLcall(glBindFramebuffer(GL_READ_FRAMEBUFFER, src->getID()));
+	GLcall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dst->getID()));
+	GLcall(glBlitFramebuffer(src_x_o, src_y_o, src_x_f, src_y_f, dst_x_o, dst_y_o, dst_x_f, dst_y_f, mask, filter));
+}
 
 void Renderer::renderLights(bool enableGizmos)
 {
@@ -338,9 +371,5 @@ void Renderer::computeShadows()
 
 }
 
-void Renderer::bindFramebuffer(std::string name) {
-	m_Framebuffers[name]->bind();
-
-}
 
 
