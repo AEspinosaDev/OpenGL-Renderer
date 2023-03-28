@@ -31,6 +31,7 @@
     <ClCompile Include="src\Core\Materials\BasicPhongMaterial.cpp" />
     <ClCompile Include="src\Core\Materials\UnlitBasicMaterial.cpp" />
     <ClCompile Include="src\Core\Materials\Material.cpp" />
+    <ClCompile Include="src\OGL-Graphics\CubeMapTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\OGL-Graphics\VBO.h" />
@@ -55,6 +56,7 @@
     <ClInclude Include="Resources\Shaders\BasicDepthShader.shader" />
     <ClInclude Include="src\Core\Materials\BasicPhongMaterial.h" />
     <ClInclude Include="src\Core\Materials\UnlitBasicMaterial.h" />
+    <ClInclude Include="src\OGL-Graphics\CubeMapTexture.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\BasicPhongShader.shader" />

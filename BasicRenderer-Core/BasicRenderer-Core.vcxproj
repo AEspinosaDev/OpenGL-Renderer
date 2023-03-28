@@ -172,6 +172,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\OGL-Graphics\CubeMapTexture.cpp" />
     <ClCompile Include="src\Core\Lights\DirectionalLight.cpp" />
     <ClCompile Include="src\Core\Lights\PointLight.cpp" />
     <ClCompile Include="src\Core\Materials\BasicPhongMaterial.cpp" />
@@ -194,6 +195,7 @@
     <ClCompile Include="src\Core\Materials\UnlitBasicMaterial.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\OGL-Graphics\CubeMapTexture.h" />
     <ClInclude Include="Resources\Shaders\BasicDepthShader.shader" />
     <ClInclude Include="src\Core\Lights\DirectionalLight.h" />
     <ClInclude Include="src\Core\Materials\BasicPhongMaterial.h" />

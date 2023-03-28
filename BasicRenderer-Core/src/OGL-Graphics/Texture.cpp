@@ -2,100 +2,69 @@
 
 
 Texture::Texture(const std::string& path) :m_RendererID(0), m_FilePath(texturePath + path), m_LocalBuffer(nullptr), m_Width(0), m_Height(0), m_Samples(1),
-	level(0), internalFormat(GL_RGBA8), border(0), format(GL_RGBA), type(GL_UNSIGNED_BYTE) {
+level(0), internalFormat(GL_RGBA8), border(0), format(GL_RGBA), type(GL_UNSIGNED_BYTE) {
 
-	m_LocalBuffer = loadTexture(m_FilePath.c_str(), m_Width, m_Height);
-	if (!m_LocalBuffer)
-	{
-		std::cout << "Error cargando el fichero: "
-			<< path << std::endl;
-		exit(-1);
-	}
-
-	GLcall(glGenTextures(1, &m_RendererID));
-	GLcall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
-	GLcall(glTexImage2D(GL_TEXTURE_2D, level, internalFormat, m_Width, m_Height, border, format,
-		type, (GLvoid*)m_LocalBuffer));
-
-	GLcall(glGenerateMipmap(GL_TEXTURE_2D));
-
-	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-		GL_LINEAR_MIPMAP_LINEAR));
-	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-
-	//Filtro anisotropico
-	/*if (glewIsExtensionSupported("GL_EXT_texture_filter_anisotropic")) {
-		std::cout << "Filtro anisotropico soportado"<< std::endl;
-	}*/
-
-	GLfloat fLargest;
-	GLcall(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest));
-	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest));
-
-	GLcall(glBindTexture(GL_TEXTURE_2D, 0));
-
-
-	delete[] m_LocalBuffer;
+	generateTexture(true, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT);
 
 }
 
 Texture::Texture(unsigned int w, unsigned int h) : m_RendererID(0), m_FilePath("null"), m_LocalBuffer(nullptr), m_Width(w), m_Height(h), m_Samples(1),
-	level(0), internalFormat(GL_RGBA8), border(0), format(GL_RGBA), type(GL_UNSIGNED_BYTE) {
+level(0), internalFormat(GL_RGBA8), border(0), format(GL_RGBA), type(GL_UNSIGNED_BYTE) {
 
-	GLcall(glGenTextures(1, &m_RendererID));
-	GLcall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
-	GLcall(glTexImage2D(GL_TEXTURE_2D, level, internalFormat, m_Width, m_Height, border, format,
-		type, NULL));
-
+	generateTexture(false, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT);
 	
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-
-
-	GLcall(glBindTexture(GL_TEXTURE_2D, 0));
-
 
 }
 
-Texture::Texture(unsigned int w, unsigned int h, unsigned int samples): m_RendererID(0), m_FilePath("null"), m_LocalBuffer(nullptr), m_Width(w), m_Height(h), m_Samples(samples),
-	level(0), internalFormat(GL_RGBA8), border(0), format(GL_RGBA), type(GL_UNSIGNED_BYTE) {
+Texture::Texture(unsigned int w, unsigned int h, unsigned int samples) : m_RendererID(0), m_FilePath("null"), m_LocalBuffer(nullptr), m_Width(w), m_Height(h), m_Samples(samples),
+level(0), internalFormat(GL_RGBA8), border(0), format(GL_RGBA), type(GL_UNSIGNED_BYTE) {
 
 	GLcall(glGenTextures(1, &m_RendererID));
 	GLcall(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_RendererID));
-	GLcall(glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples,internalFormat, m_Width, m_Height, 
+	GLcall(glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, internalFormat, m_Width, m_Height,
 		GL_TRUE));
 	GLcall(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0));
 
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+}
+
+Texture::Texture(const std::string& path, GLint level, GLint internalFormat, unsigned int w, unsigned int h, GLint border, GLenum format, GLenum type,
+	bool anisotropicFilter, int magFilter, int minFilter, int wrapT, int wrapS) :m_RendererID(0), m_FilePath(texturePath + path), m_LocalBuffer(nullptr), m_Width(0), m_Height(0), m_Samples(1),
+	level(level), internalFormat(internalFormat), border(border), format(format), type(type) {
+
+	generateTexture(anisotropicFilter, magFilter, minFilter, wrapT, wrapS);
 
 }
 
-Texture::Texture(const std::string& path, GLint level, GLint internalFormat, unsigned int w, unsigned int h, GLint border, GLenum format, GLenum type, 
-	bool anisotropicFilter, int magFilter, int minFilter, int wrapT, int wrapS):m_RendererID(0), m_FilePath(texturePath + path), m_LocalBuffer(nullptr), m_Width(0), m_Height(0), m_Samples(1),
+
+Texture::Texture(GLint level, GLint internalFormat, unsigned int w, unsigned int h, GLint border, GLenum format, GLenum type, bool anisotropicFilter,
+	int magFilter, int minFilter, int wrapT, int wrapS) :m_RendererID(0), m_FilePath("null"), m_LocalBuffer(nullptr), m_Width(w), m_Height(h), m_Samples(1),
 	level(level), internalFormat(internalFormat), border(border), format(format), type(type) {
 
+	generateTexture(anisotropicFilter, magFilter, minFilter, wrapT, wrapS);
 
-	m_LocalBuffer = loadTexture(m_FilePath.c_str(), m_Width, m_Height);
-	if (!m_LocalBuffer)
-	{
-		std::cout << "Error cargando el fichero: "
-			<< path << std::endl;
-		exit(-1);
+}
+void Texture::generateTexture(bool anisotropicFilter, int magFilter, int minFilter, int wrapT, int wrapS) {
+
+	if (m_FilePath != "null") {
+		m_LocalBuffer = loadTexture(m_FilePath.c_str(), m_Width, m_Height);
+		if (!m_LocalBuffer)
+		{
+			std::cout << "Error cargando el fichero: "
+				<< m_FilePath << std::endl;
+			exit(-1);
+		}
 	}
 
 	GLcall(glGenTextures(1, &m_RendererID));
 	GLcall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
-	GLcall(glTexImage2D(GL_TEXTURE_2D, level, internalFormat, m_Width, m_Height, border, format,
-		type, (GLvoid*)m_LocalBuffer));
+	if (!m_LocalBuffer) {
+		GLcall(glTexImage2D(GL_TEXTURE_2D, level, internalFormat, m_Width, m_Height, border, format,
+			type,NULL));
+	}
+	else {
+		GLcall(glTexImage2D(GL_TEXTURE_2D, level, internalFormat, m_Width, m_Height, border, format,
+			type, (GLvoid*)m_LocalBuffer));
+	}
 
 	GLcall(glGenerateMipmap(GL_TEXTURE_2D));
 
@@ -112,36 +81,50 @@ Texture::Texture(const std::string& path, GLint level, GLint internalFormat, uns
 	}
 	GLcall(glBindTexture(GL_TEXTURE_2D, 0));
 
+	if (m_LocalBuffer)
+		delete[] m_LocalBuffer;
 
-	delete[] m_LocalBuffer;
 }
 
+void Texture::generateTexture(const std::string& path, GLint level, GLint internalFormat, unsigned int w, unsigned int h, GLint border, GLenum format, GLenum type, bool anisotropicFilter, int magFilter, int minFilter, int wrapT, int wrapS)
+{
+	m_FilePath = path;
+	m_Width = w;
+	m_Height = h;
+	this->level = level;
+	this->internalFormat = internalFormat;
+	this->border = border;
+	this->format = format;
+	this->type = type;
 
-//
-//Texture::Texture(const std::string& path, GLint level, GLint internalFormat, unsigned int w, unsigned int h, unsigned int samples, GLint border, GLenum format,
-//	GLenum type, bool anisotropicFilter, int magFilter, int minFilter, int wrapT, int wrapS) :m_RendererID(0), m_FilePath(texturePath + path), m_LocalBuffer(nullptr), m_Width(0), m_Height(0), m_Samples(samples),
-//	level(level), internalFormat(internalFormat), border(border), format(format), type(type) {
-//
-//
-//}
-
-Texture::Texture(GLint level, GLint internalFormat, unsigned int w, unsigned int h, GLint border, GLenum format, GLenum type, bool anisotropicFilter,
-	int magFilter, int minFilter, int wrapT, int wrapS) :m_RendererID(0), m_FilePath(""), m_LocalBuffer(nullptr), m_Width(w), m_Height(h), m_Samples(1),
-	level(level), internalFormat(internalFormat), border(border), format(format), type(type) {
+	if (m_FilePath != "") {
+		m_LocalBuffer = loadTexture(m_FilePath.c_str(), m_Width, m_Height);
+		if (!m_LocalBuffer)
+		{
+			std::cout << "Error cargando el fichero: "
+				<< m_FilePath << std::endl;
+			exit(-1);
+		}
+	}
 
 	GLcall(glGenTextures(1, &m_RendererID));
 	GLcall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
-	GLcall(glTexImage2D(GL_TEXTURE_2D, level, internalFormat, m_Width, m_Height, border, format,
-		type, NULL));
+	if (!m_LocalBuffer) {
+		GLcall(glTexImage2D(GL_TEXTURE_2D, level, internalFormat, m_Width, m_Height, border, format,
+			type, NULL));
+	}
+	else {
+		GLcall(glTexImage2D(GL_TEXTURE_2D, level, internalFormat, m_Width, m_Height, border, format,
+			type, (GLvoid*)m_LocalBuffer));
+	}
 
+	GLcall(glGenerateMipmap(GL_TEXTURE_2D));
 
 	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
 		minFilter));
 	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
 	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT));
 	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS));
-	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
 	if (anisotropicFilter) {
 		GLfloat fLargest;
@@ -150,8 +133,8 @@ Texture::Texture(GLint level, GLint internalFormat, unsigned int w, unsigned int
 	}
 	GLcall(glBindTexture(GL_TEXTURE_2D, 0));
 
-
-
+	if (m_LocalBuffer)
+		delete[] m_LocalBuffer;
 }
 
 Texture::~Texture() {
