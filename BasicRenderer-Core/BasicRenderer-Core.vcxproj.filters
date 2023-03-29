@@ -32,6 +32,8 @@
     <ClCompile Include="src\Core\Materials\UnlitBasicMaterial.cpp" />
     <ClCompile Include="src\Core\Materials\Material.cpp" />
     <ClCompile Include="src\OGL-Graphics\CubeMapTexture.cpp" />
+    <ClCompile Include="src\OGL-Graphics\SkyboxMesh.cpp" />
+    <ClCompile Include="src\Core\Materials\SkyboxMaterial.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\OGL-Graphics\VBO.h" />
@@ -57,12 +59,15 @@
     <ClInclude Include="src\Core\Materials\BasicPhongMaterial.h" />
     <ClInclude Include="src\Core\Materials\UnlitBasicMaterial.h" />
     <ClInclude Include="src\OGL-Graphics\CubeMapTexture.h" />
+    <ClInclude Include="src\OGL-Graphics\SkyboxMesh.h" />
+    <ClInclude Include="src\Core\Materials\SkyboxMaterial.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\BasicPhongShader.shader" />
     <None Include="packages.config" />
     <None Include="Resources\Shaders\VignetteShader.shader" />
     <None Include="Resources\Shaders\UnlitBasicShader.shader" />
+    <None Include="Resources\Shaders\SkyboxShader.shader" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\Textures\BODY_LP_2_Material _25_Height.png" />

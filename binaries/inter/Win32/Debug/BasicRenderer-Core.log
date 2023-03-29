@@ -1,41 +1,12 @@
-﻿  CubeMapTexture.cpp
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\CubeMapTexture.cpp(33,29): warning C4018: '<': signed/unsigned mismatch
-  DirectionalLight.cpp
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.cpp(1,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  PointLight.cpp
-  BasicPhongMaterial.cpp
-  Framebuffer.cpp
-  Renderer.cpp
+﻿  Renderer.cpp
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\Camera.h(31,8): warning C4305: 'initializing': truncation from 'double' to 'float'
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(23,23): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(65,40): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(193,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(222,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(223,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(227,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(228,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(230,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(231,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(348,23): warning C4018: '<': signed/unsigned mismatch
-  LightManager.cpp
-  Light.cpp
-  main.h
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\Camera.h(31,8): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(9,80): warning C4305: 'argument': truncation from 'int' to 'char'
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(9,36): warning C4309: 'argument': truncation of constant value
-  Texture.cpp
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\Texture.cpp(71,1): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\Texture.cpp(73,2): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\Texture.cpp(74,2): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\Texture.cpp(75,2): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\Texture.cpp(123,1): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\Texture.cpp(125,2): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\Texture.cpp(126,2): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\Texture.cpp(127,2): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
-  Vignette.cpp
-  UnlitBasicMaterial.cpp
-  Generating Code...
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
-glew32s.lib(glew.obj) : warning LNK4099: PDB 'vc120.pdb' was not found with 'glew32s.lib(glew.obj)' or at 'C:\Dev\BasicRenderer\binaries\Win32\Debug\vc120.pdb'; linking object as if no debug info
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(202,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(231,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(232,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(236,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(237,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(239,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(240,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(359,23): warning C4018: '<': signed/unsigned mismatch
   BasicRenderer-Core.vcxproj -> C:\Dev\BasicRenderer\binaries\Win32\Debug\BasicRenderer-Core.exe

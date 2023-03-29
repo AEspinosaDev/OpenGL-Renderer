@@ -10,6 +10,7 @@
 #include <Vignette.h>
 #include <OGL-Graphics/Framebuffer.h>
 #include <Core/LightManager.h>
+#include <OGL-Graphics/SkyboxMesh.h>
 
 enum AntialiasingType {
     NONE = 0,
@@ -45,6 +46,7 @@ private:
     unsigned int  m_AntialiasingSamples;
 
     Vignette* m_Vignette;
+    SkyboxMesh* m_Skybox;
     std::unordered_map<std::string,Framebuffer*> m_Framebuffers;
 
     std::unordered_map<std::string,Model*> m_Models;
@@ -67,6 +69,7 @@ public:
         m_SWidth(width), 
         m_SHeight(height), 
         m_Vignette(nullptr),
+        m_Skybox(nullptr),
         m_ShadowResolution(ShadowMapQuality::MID),
         m_AntialiasingSamples(antialiasing),
         m_LightManager(new LightManager(ShadowMapQuality::MID)),
@@ -81,6 +84,7 @@ public:
     inline AntialiasingType getAntialiasingType() { return (AntialiasingType)m_AntialiasingSamples;  }
     inline void setShadoMapQuality(ShadowMapQuality q) { m_ShadowResolution = q; }
     inline ShadowMapQuality getShadoMapQuality() { return (ShadowMapQuality)m_ShadowResolution; }
+    inline void setSkybox(SkyboxMesh* skybox) { m_Skybox = skybox; }
     
     /// <summary>
     /// Run application
@@ -172,6 +176,12 @@ private:
     /// Compute shadows on all lit shaders
     /// </summary>
     void computeShadows();
+
+
+    void renderSkybox();
+
+   
+
 
 };
 

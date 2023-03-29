@@ -62,7 +62,15 @@ void Renderer::SetupScene() {
 	//l->setCastShadows(false);
 	m_LightManager->addLight(l);
 	m_LightManager->addLight(new PointLight(glm::vec3(-4.0, 1.0, 2.0), glm::vec3(1.0, 0.5, 0.5), 1, 1));
+	m_LightManager->addLight(new PointLight(glm::vec3(-5.0, 3.0, -4.0), glm::vec3(1.0, 1.0, 1.0), 1.5, 1));
 	m_LightManager->setAmbientStrength(0.2);
+
+	/*CubeMapFaces skyFaces;
+	skyFaces.back = "ss";*/
+
+	/*CubeMapTexture* skyText = new CubeMapTexture();
+	SkyboxMesh* skybox = new SkyboxMesh(new SkyboxMaterial(skyText,m_Shaders));
+	setSkybox(skybox);*/
 
 	createVignette();
 
@@ -182,6 +190,7 @@ void Renderer::LateInit()
 	m_Shaders["UnlitBasicShader"] = new Shader("UnlitBasicShader.shader", ShaderType::UNLIT);
 	m_Shaders["BasicDepthShader"] = new Shader("BasicDepthShader.shader", ShaderType::UNLIT);
 	m_Shaders["BasicPhongShader"] = new Shader("BasicPhongShader.shader", ShaderType::LIT);
+	m_Shaders["SkyboxShader"] = new Shader("SkyboxShader.shader", ShaderType::UNLIT);
 
 	m_LightManager->init(m_Shaders);
 }
@@ -290,6 +299,8 @@ void Renderer::render()
 		it->second->draw(m_MainCam.getProj(), m_MainCam.getView());
 	}
 
+	if (m_Skybox)
+		renderSkybox();
 
 }
 
@@ -369,6 +380,10 @@ void Renderer::computeShadows()
 	}
 
 
+}
+void Renderer::renderSkybox() {
+
+	m_Skybox->draw(m_MainCam.getProj(), m_MainCam.getView());
 }
 
 
