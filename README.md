@@ -1,6 +1,7 @@
 # OGLRenderer
 
 WORK IN PROGRESS
+[UNTIL FURTHER ADVANCEMENTS I WILL BE WORKING ON Renderer-CORE]
 
 - Shadow mapping for several types of lights (pointlight supported for now)
 - Antialiasing (Buffer Multisampling)
