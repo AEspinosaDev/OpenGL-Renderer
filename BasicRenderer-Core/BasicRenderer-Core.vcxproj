@@ -195,6 +195,7 @@
     <ClCompile Include="src\OGL-Graphics\VBO.cpp" />
     <ClCompile Include="src\OGL-Graphics\Vignette.cpp" />
     <ClCompile Include="src\Core\Materials\UnlitBasicMaterial.cpp" />
+    <ClCompile Include="src\Utils\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\Materials\SkyboxMaterial.h" />
@@ -222,6 +223,7 @@
     <ClInclude Include="src\OGL-Graphics\Camera.h" />
     <ClInclude Include="src\OGL-Graphics\Vignette.h" />
     <ClInclude Include="src\Core\Materials\UnlitBasicMaterial.h" />
+    <ClInclude Include="src\Utils\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

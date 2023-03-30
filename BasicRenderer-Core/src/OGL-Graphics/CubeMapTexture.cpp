@@ -2,7 +2,7 @@
 
 CubeMapTexture::CubeMapTexture(CubeMapFaces paths) : Texture(), m_FacesPath(paths)
 {
-	generateCubeMapTexture(GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+	generateCubeMapTexture(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 }
 
 void CubeMapTexture::bind(unsigned int slot) const
@@ -16,15 +16,15 @@ void CubeMapTexture::unbind() const
 	GLcall(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
 }
 
-void CubeMapTexture::generateCubeMapTexture( int magFilter, int minFilter, int wrapT, int wrapS, int wrapR)
+void CubeMapTexture::generateCubeMapTexture(int magFilter, int minFilter, int wrapT, int wrapS, int wrapR)
 {
 	std::string faces[] = {
-		m_FacesPath.right,
-		m_FacesPath.left,
-		m_FacesPath.top,
-		m_FacesPath.bottom,
-		m_FacesPath.back,
-		m_FacesPath.front
+		texturePath + m_FacesPath.right,
+		texturePath + m_FacesPath.left,
+		texturePath + m_FacesPath.top,
+		texturePath + m_FacesPath.bottom,
+		texturePath + m_FacesPath.back,
+		texturePath + m_FacesPath.front
 	};
 
 	glGenTextures(1, &m_RendererID);
@@ -32,19 +32,19 @@ void CubeMapTexture::generateCubeMapTexture( int magFilter, int minFilter, int w
 
 	for (unsigned int i = 0; i < NUM_FACES; i++)
 	{
+		int width , height, nrChannels;
 		m_FilePath = faces[i];
-		//load data
-		m_LocalBuffer = loadTexture(m_FilePath.c_str(), m_Width, m_Height);
+		m_LocalBuffer = stbi_load(m_FilePath.c_str(), &width, &height, &nrChannels, 0);
 		if (m_LocalBuffer)
 		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, level, internalFormat, m_Width, m_Height, border, format,
-				type, (GLvoid*)m_LocalBuffer);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB,
+				GL_UNSIGNED_BYTE, m_LocalBuffer);
 		}
 		else
 		{
 			std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
 		}
-		delete[] m_LocalBuffer; 
+		stbi_image_free(m_LocalBuffer);
 	}
 
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, minFilter);

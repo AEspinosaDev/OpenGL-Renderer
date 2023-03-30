@@ -4,12 +4,14 @@
 /// Struct for setting each cubemap face texture path
 /// </summary>
 struct CubeMapFaces {
-	std::string& right;
-	std::string& left;
-	std::string& top;
-	std::string& bottom;
-	std::string& back;
-	std::string& front;
+	std::string right;
+	std::string left;
+	std::string top;
+	std::string bottom;
+	std::string back;
+	std::string front;
+	CubeMapFaces(std::string r, std::string l, std::string t, std::string  b, std::string ba, std::string  f):
+		right(r),left(l),top(t),bottom(b),back(ba),front(f){}
 };
 
 /// <summary>

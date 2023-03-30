@@ -4,6 +4,8 @@
 #include "IBO.h"
 #include "Shader.h"
 #include "FreeImage.h"
+#include <Utils/stb_image.h>
+
 
 
 class Texture {

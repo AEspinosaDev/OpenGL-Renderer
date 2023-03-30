@@ -47,6 +47,10 @@ void Texture::generateTexture(bool anisotropicFilter, int magFilter, int minFilt
 
 	if (m_FilePath != "null") {
 		m_LocalBuffer = loadTexture(m_FilePath.c_str(), m_Width, m_Height);
+		/*int w, h, channels;
+		m_LocalBuffer = stbi_load(m_FilePath.c_str(),&w, &h, &channels,0);
+		m_Width = w;
+		m_Height = h;*/
 		if (!m_LocalBuffer)
 		{
 			std::cout << "Error cargando el fichero: "
@@ -63,7 +67,7 @@ void Texture::generateTexture(bool anisotropicFilter, int magFilter, int minFilt
 	}
 	else {
 		GLcall(glTexImage2D(GL_TEXTURE_2D, level, internalFormat, m_Width, m_Height, border, format,
-			type, (GLvoid*)m_LocalBuffer));
+			type, m_LocalBuffer));
 	}
 
 	GLcall(glGenerateMipmap(GL_TEXTURE_2D));
@@ -83,6 +87,7 @@ void Texture::generateTexture(bool anisotropicFilter, int magFilter, int minFilt
 
 	if (m_LocalBuffer)
 		delete[] m_LocalBuffer;
+		//stbi_image_free(m_LocalBuffer);
 
 }
 
@@ -99,6 +104,10 @@ void Texture::generateTexture(const std::string& path, GLint level, GLint intern
 
 	if (m_FilePath != "") {
 		m_LocalBuffer = loadTexture(m_FilePath.c_str(), m_Width, m_Height);
+		/*int w, h, channels;
+		m_LocalBuffer = stbi_load(m_FilePath.c_str(), &w, &h, &channels, 0);
+		m_Width = w;
+		m_Height = h;*/
 		if (!m_LocalBuffer)
 		{
 			std::cout << "Error cargando el fichero: "
@@ -115,7 +124,7 @@ void Texture::generateTexture(const std::string& path, GLint level, GLint intern
 	}
 	else {
 		GLcall(glTexImage2D(GL_TEXTURE_2D, level, internalFormat, m_Width, m_Height, border, format,
-			type, (GLvoid*)m_LocalBuffer));
+			type, m_LocalBuffer));
 	}
 
 	GLcall(glGenerateMipmap(GL_TEXTURE_2D));
@@ -135,6 +144,7 @@ void Texture::generateTexture(const std::string& path, GLint level, GLint intern
 
 	if (m_LocalBuffer)
 		delete[] m_LocalBuffer;
+		//stbi_image_free(m_LocalBuffer);
 }
 
 Texture::~Texture() {

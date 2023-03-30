@@ -80,4 +80,6 @@ void SkyboxMesh::draw(glm::mat4 proj, glm::mat4 view)
 
     GLcall(glDepthFunc(GL_LESS));
 
+    m_Mat->unbind();
+
 }

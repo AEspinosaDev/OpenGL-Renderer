@@ -34,6 +34,7 @@
     <ClCompile Include="src\OGL-Graphics\CubeMapTexture.cpp" />
     <ClCompile Include="src\OGL-Graphics\SkyboxMesh.cpp" />
     <ClCompile Include="src\Core\Materials\SkyboxMaterial.cpp" />
+    <ClCompile Include="src\Utils\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\OGL-Graphics\VBO.h" />
@@ -61,6 +62,7 @@
     <ClInclude Include="src\OGL-Graphics\CubeMapTexture.h" />
     <ClInclude Include="src\OGL-Graphics\SkyboxMesh.h" />
     <ClInclude Include="src\Core\Materials\SkyboxMaterial.h" />
+    <ClInclude Include="src\Utils\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\BasicPhongShader.shader" />

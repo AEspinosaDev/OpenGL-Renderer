@@ -20,7 +20,7 @@ void Renderer::SetupScene() {
 	BasicPhongMaterial* box_m = new BasicPhongMaterial(m_Shaders);
 	box_m->addColorTex(boxColorTex);
 	box_m->addNormalTex(boxNormalTex);
-	box_m->setOpacity(0.2);
+	box_m->setOpacity(0.9);
 	box_m->setTransparency(true);
 
 	Model* box = new Model();
@@ -58,19 +58,25 @@ void Renderer::SetupScene() {
 
 	m_MainCam.setProj(45.0, m_SWidth, m_SHeight);
 
-	PointLight* l = new PointLight(glm::vec3(5.0, 3.0, 4.0), glm::vec3(1.0, 1.0, 1.0), 1.5, 1);
+	PointLight* l = new PointLight(glm::vec3(5.0, 3.0, 4.0), glm::vec3(1.0, 0.8, 0.8), 1.5, 1);
 	//l->setCastShadows(false);
 	m_LightManager->addLight(l);
 	m_LightManager->addLight(new PointLight(glm::vec3(-4.0, 1.0, 2.0), glm::vec3(1.0, 0.5, 0.5), 1, 1));
 	m_LightManager->addLight(new PointLight(glm::vec3(-5.0, 3.0, -4.0), glm::vec3(1.0, 1.0, 1.0), 1.5, 1));
 	m_LightManager->setAmbientStrength(0.2);
 
-	/*CubeMapFaces skyFaces;
-	skyFaces.back = "ss";*/
 
-	/*CubeMapTexture* skyText = new CubeMapTexture();
+	CubeMapFaces skyFaces("night-sky/px.png",
+		"night-sky/nx.png",
+		"night-sky/py.png",
+		"night-sky/ny.png",
+		"night-sky/pz.png",
+		"night-sky/nz.png");
+
+
+	CubeMapTexture* skyText = new CubeMapTexture(skyFaces);
 	SkyboxMesh* skybox = new SkyboxMesh(new SkyboxMaterial(skyText,m_Shaders));
-	setSkybox(skybox);*/
+	setSkybox(skybox);
 
 	createVignette();
 
@@ -383,7 +389,7 @@ void Renderer::computeShadows()
 }
 void Renderer::renderSkybox() {
 
-	m_Skybox->draw(m_MainCam.getProj(), m_MainCam.getView());
+	m_Skybox->draw(m_MainCam.getProj(), glm::lookAt(glm::vec3(0.0f),m_MainCam.getFront(),m_MainCam.getUp())); //Remove view translation
 }
 
 
