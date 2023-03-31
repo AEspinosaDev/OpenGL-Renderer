@@ -13,7 +13,14 @@ void Renderer::Run() {
 
 void Renderer::SetupScene() {
 
-
+	/*BasicPhongMaterial* sphere_m = new BasicPhongMaterial(m_Shaders);
+	sphere_m->setShininess(500);
+	sphere_m->setSpecularity(3);
+	Model* sphere = new Model();
+	sphere->loadMesh("box.obj");
+	sphere->loadMaterial(sphere_m);
+	sphere->setPosition(glm::vec3(-2.0, 2.0, 0.0));
+	m_Models["sphere"] = sphere;*/
 
 	Texture* boxColorTex = new Texture("SeamlessWood-Diffuse.jpg");
 	Texture* boxNormalTex = new Texture("SeamlessWood-NormalMap.tif");
@@ -36,6 +43,7 @@ void Renderer::SetupScene() {
 	floor_m->addNormalTex(floorNormalTex);
 	floor_m->setTileU(20);
 	floor_m->setTileV(20);
+	//floor_m->setReceiveShadows(false);
 
 	Model* plane = new Model();
 	plane->loadMesh("plane.obj");
@@ -63,7 +71,8 @@ void Renderer::SetupScene() {
 	m_LightManager->addLight(l);
 	m_LightManager->addLight(new PointLight(glm::vec3(-4.0, 1.0, 2.0), glm::vec3(1.0, 0.5, 0.5), 1, 1));
 	m_LightManager->addLight(new PointLight(glm::vec3(-5.0, 3.0, -4.0), glm::vec3(1.0, 1.0, 1.0), 1.5, 1));
-	m_LightManager->setAmbientStrength(0.2);
+	m_LightManager->setAmbientStrength(0.4);
+	m_LightManager->setAmbientColor(glm::vec3(0.2, 0.2, 1.0));
 
 
 	CubeMapFaces skyFaces("night-sky/px.png",
@@ -279,6 +288,11 @@ void Renderer::render()
 
 	std::vector<Model*> opaqueModels;
 	std::vector<Model*> blendModels;
+
+	/*m_Shaders["BasicPhongShader"]->bind();
+	m_Shaders["BasicPhongShader"]->setInt("u_skybox", 5);
+	m_Skybox->getMaterial()->getTexture()->bind(5);
+	m_Shaders["BasicPhongShader"]->unbind();*/
 
 
 	for (auto& m : m_Models) {

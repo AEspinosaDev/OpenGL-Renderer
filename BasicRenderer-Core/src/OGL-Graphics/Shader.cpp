@@ -1,6 +1,6 @@
 #include "Shader.h"
 
-Shader::Shader(const std::string& filename, ShaderType t) :m_filePath(shaderPath + filename), m_RendererID(0),type(t) {
+Shader::Shader(const std::string& filename, ShaderType t) :m_filePath(shaderPath + filename), m_RendererID(0), type(t) {
 	ShaderProgramSource src = parseShader();
 	m_RendererID = createShader(src.VertexSource, src.FragmentSource);
 
@@ -55,10 +55,11 @@ unsigned int Shader::getUniformLocation(const std::string& name) {
 	if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
 		return m_UniformLocationCache[name];
 	GLcall(int location = glGetUniformLocation(m_RendererID, name.c_str()));
-	if (location == -1)
-		std::cout << "Warning: Uniform name doesnt exist\n";
+	//if (location == -1)
+		//std::cout << "Warning: Uniform name doesnt exist\n";
+	//else
 
-	else
+	if (location != -1)
 		m_UniformLocationCache[name] = location;
 
 

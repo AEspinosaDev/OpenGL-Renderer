@@ -97,37 +97,47 @@ struct SpotLight {
 	mat4 lightViewProj;
 };
 
-
-
 struct Material {
+
+	bool hasColorTex;
+	bool hasSpecularTex;
+	bool hasGlossTex;
+	bool hasNormalTex;
+	bool hasOpacityTex;
+
 	sampler2D colorTex;
 	sampler2D normalTex;
 	sampler2D specularTex;
-	float glossTex;
-};
+	sampler2D glossTex;
+	sampler2D opacityTex;
 
+	float opacity;
+	vec3 baseColor;
+	float specularity;
+	float shininess;
+	bool receiveShadows;
+
+};
 
 //Uniforms
 uniform mat4 u_Model;
-
 uniform Material material;
-
 uniform PointLight pointLights[MAX_LIGHTS];
 uniform DirectionalLight directionalLights[MAX_LIGHTS];
 uniform SpotLight spotLights[MAX_LIGHTS];
-
 uniform int pointsLightsNumber;
 uniform int directionalLightsNumber;
 uniform int spotLightsNumber;
-
 uniform float u_ambientStrength;
 uniform vec3 u_ambientColor;
+uniform samplerCube u_skybox;
 
-uniform float u_opacity;
-
-
-
+//Surface properties
 vec3 N;
+vec3 albedo;
+float specularity;
+float opacity;
+float shininess;
 
 
 vec3 color = vec3(1, 1, 1);
@@ -169,17 +179,18 @@ float computeShadow(sampler2D shadowMap, mat4 lightViewProj, vec3 lightDir) {
 
 }
 
+
 vec3 shadePointLight(vec3 lightPos, vec3 color, float intensity, sampler2D shadowMap, mat4 lightViewProj, bool castShadows) {
 
 	//Diffuse
 	vec3 L = normalize(lightPos - pos);
-	vec3 diffuse = max(dot(L, N), 0.0) * texture(material.colorTex, texCoord).rgb;
+	vec3 diffuse = max(dot(L, N), 0.0) * albedo;
 
 	//Specular
 	vec3 V = normalize(-pos);
 	vec3 R = normalize(reflect(-L, N));
 	float factor = max(dot(R, V), 0.0);
-	vec3 specular = pow(factor, 10) * texture(material.colorTex, texCoord).rgb;
+	vec3 specular = pow(factor, shininess) * specularity * albedo;
 
 	//Attenuation
 	float attenuation = computeAttenuation(lightPos, 0.022f, 0.019f);
@@ -188,7 +199,7 @@ vec3 shadePointLight(vec3 lightPos, vec3 color, float intensity, sampler2D shado
 
 	//Shadow 
 	float shadow;
-	castShadows ? shadow = computeShadow(shadowMap,lightViewProj,L) : shadow = 0.0;
+	material.receiveShadows ? shadow = computeShadow(shadowMap, lightViewProj, L) : shadow = 0.0;
 
 	vec3 result = (1.0 - shadow) * (diffuse + specular) * color;
 	result *= intensity;
@@ -199,13 +210,13 @@ vec3 shadeDirectionalLight(vec3 lightDir, vec3 color, float intensity, sampler2D
 
 	//Diffuse
 	vec3 L = normalize(lightDir);
-	vec3 diffuse = max(dot(L, N), 0.0) * texture(material.colorTex, texCoord).rgb;
+	vec3 diffuse = max(dot(L, N), 0.0) * albedo;
 
 	//Specular
 	vec3 V = normalize(-pos);
 	vec3 R = normalize(reflect(-L, N));
 	float factor = max(dot(R, V), 0.0);
-	vec3 specular = pow(factor, 10) * texture(material.colorTex, texCoord).rgb;
+	vec3 specular = pow(factor, shininess) * specularity * albedo;
 
 	//Shadow 
 	float shadow;
@@ -217,7 +228,7 @@ vec3 shadeDirectionalLight(vec3 lightDir, vec3 color, float intensity, sampler2D
 
 }
 vec3 shadeAmbientLight() {
-	return  texture(material.colorTex, texCoord).rgb * u_ambientColor * u_ambientStrength;
+	return albedo * u_ambientColor * u_ambientStrength;
 }
 
 vec3 shade() {
@@ -228,15 +239,16 @@ vec3 shade() {
 	result += shadeAmbientLight();
 
 	for (int i = 0; i < pointsLightsNumber; i++) {
-		result += shadePointLight(pointLights[i].pos, pointLights[i].color, pointLights[i].intensity, pointLights[i].shadowMap, pointLights[i].lightViewProj, pointLights[i].castShadows);
+		result += shadePointLight(pointLights[i].pos, pointLights[i].color, pointLights[i].intensity, pointLights[i].shadowMap, pointLights[i].lightViewProj,
+			pointLights[i].castShadows);
 	}
 	for (int i = 0; i < directionalLightsNumber; i++) {
-		result += shadeDirectionalLight(directionalLights[i].dir, directionalLights[i].color, directionalLights[i].intensity, 
+		result += shadeDirectionalLight(directionalLights[i].dir, directionalLights[i].color, directionalLights[i].intensity,
 			directionalLights[i].shadowMap, directionalLights[i].lightViewProj, directionalLights[i].castShadows);
 	}
-	for (int i = 0; i < spotLightsNumber; i++) {
-		//result += shadePointLight(spotLights[i].pos, spotLights[i].color, spotLights[i].intensity);
-	}
+	//for (int i = 0; i < spotLightsNumber; i++) {
+	//	result += shadePointLight(spotLights[i].pos, spotLights[i].color, spotLights[i].intensity);
+	//}
 
 	return result;
 
@@ -244,12 +256,17 @@ vec3 shade() {
 
 void main()
 {
-	//material.glossTex = 10;
-	vec3 normalK = texture(material.normalTex, texCoord).rgb * 2.0 - 1.0;
-	N = normalize(TBN * normalK);
-	//N = normal;
 
-	FragColor = vec4(shade(), u_opacity);
+	material.hasNormalTex ? N = normalize(TBN * (texture(material.normalTex, texCoord).rgb * 2.0 - 1.0)) : N = normal;
+	material.hasColorTex ? albedo = texture(material.colorTex, texCoord).rgb : albedo = material.baseColor;
+	material.hasSpecularTex ? specularity = texture(material.specularTex, texCoord).r : specularity = material.specularity;
+	material.hasGlossTex ? shininess = texture(material.glossTex, texCoord).r : shininess = material.shininess;
+	material.hasOpacityTex ? opacity = texture(material.opacityTex, texCoord).r : opacity = material.opacity;
+
+	vec3 r = normalize(reflect(normalize(pos), N));
+	vec3 result = mix(shade(), vec3(texture(u_skybox, r).rgb), 0.0);
+
+	FragColor = vec4(result, opacity);
 
 }
 

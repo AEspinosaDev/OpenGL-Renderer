@@ -16,8 +16,8 @@ void Model::setPosition(glm::vec3  p) {
 }
 glm::vec3  Model::getPosition() {
 
-	if (m_Mesh != nullptr)
-		std::cout << m_Name << " position is " << m_Location.x << ", " << m_Location.y << ", " << m_Location.z << "." << std::endl;
+	//if (m_Mesh != nullptr)
+		//std::cout << m_Name << " position is " << m_Location.x << ", " << m_Location.y << ", " << m_Location.z << "." << std::endl;
 	SceneObject::getPosition();
 	return m_Location;
 

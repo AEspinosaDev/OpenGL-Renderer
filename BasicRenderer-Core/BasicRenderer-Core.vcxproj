@@ -185,7 +185,7 @@
     <ClCompile Include="src\Core\Lights\Light.cpp" />
     <ClCompile Include="src\Core\Model.cpp" />
     <ClCompile Include="src\main.h" />
-    <ClCompile Include="src\OGL-Graphics\Camera.cpp" />
+    <ClCompile Include="src\Core\Camera.cpp" />
     <ClCompile Include="src\OGL-Graphics\Graphics_Core.cpp" />
     <ClCompile Include="src\OGL-Graphics\IBO.cpp" />
     <ClCompile Include="src\OGL-Graphics\Mesh.cpp" />
@@ -220,7 +220,7 @@
     <ClInclude Include="src\OGL-Graphics\VAO.h" />
     <ClInclude Include="src\OGL-Graphics\VBLayout.h" />
     <ClInclude Include="src\OGL-Graphics\VBO.h" />
-    <ClInclude Include="src\OGL-Graphics\Camera.h" />
+    <ClInclude Include="src\Core\Camera.h" />
     <ClInclude Include="src\OGL-Graphics\Vignette.h" />
     <ClInclude Include="src\Core\Materials\UnlitBasicMaterial.h" />
     <ClInclude Include="src\Utils\stb_image.h" />

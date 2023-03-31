@@ -12,7 +12,7 @@
     <ClCompile Include="src\main.h">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\OGL-Graphics\Camera.cpp" />
+    <ClCompile Include="src\Core\Camera.cpp" />
     <ClCompile Include="src\OGL-Graphics\IBO.cpp" />
     <ClCompile Include="src\OGL-Graphics\Mesh.cpp" />
     <ClCompile Include="src\OGL-Graphics\Shader.cpp" />
@@ -43,7 +43,7 @@
     <ClInclude Include="src\OGL-Graphics\VBLayout.h" />
     <ClInclude Include="src\OGL-Graphics\Shader.h" />
     <ClInclude Include="src\OGL-Graphics\Texture.h" />
-    <ClInclude Include="src\OGL-Graphics\Camera.h" />
+    <ClInclude Include="src\Core\Camera.h" />
     <ClInclude Include="src\OGL-Graphics\Mesh.h" />
     <ClInclude Include="src\Core\Materials\Material.h" />
     <ClInclude Include="src\Core\SceneObject.h" />
