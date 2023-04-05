@@ -28,5 +28,12 @@ out vec4 fragColor;
 void main() {
 
 	fragColor = vec4(texture(vignetteTex,texCoord).rgb, 1.0);
+
+	//Poss processing
+
+
+	//Gamma correction
+	float gamma = 2.2;
+	fragColor.rgb = pow(fragColor.rgb, vec3(1.0 / gamma));
 }
 

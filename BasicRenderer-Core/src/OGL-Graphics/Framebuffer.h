@@ -28,7 +28,7 @@ public:
 	/// <param name="text">Texture</param>
 	/// <param name="depthAttachment">Depth attachment enabling</param>
 	/// <param name="resizeOnCallback">Resize enabling</param>
-	Framebuffer(Texture* text, int attachmentType, bool depthAttachment, bool resizeOnCallback);
+	Framebuffer(Texture* text, int attachmentType, GLenum textarget, bool depthAttachment, bool resizeOnCallback);
 
 	/// <summary>
 	///  Creates a framebuffer with a renderbuffer as color attachment.
@@ -53,7 +53,7 @@ public:
 	inline unsigned int getWidth() { return width; }
 	inline unsigned int getHeight() { return height; }
 	inline Texture* getTextureAttachment() { return m_TextureAttachment; }
-	void setTextureAttachment(Texture* t);
+	void setTextureAttachment(Texture* t, GLenum textarget);
 
 	/// <summary>
 	/// Tell OpenGL to activate this framebuffer

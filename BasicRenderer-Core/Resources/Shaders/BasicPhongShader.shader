@@ -70,7 +70,8 @@ struct PointLight {
 	float quadratic;
 
 	bool castShadows;
-	sampler2D shadowMap;
+	//sampler2D shadowMap;
+	samplerCube shadowMap;
 	mat4 lightViewProj;
 };
 
@@ -179,18 +180,34 @@ float computeShadow(sampler2D shadowMap, mat4 lightViewProj, vec3 lightDir) {
 
 }
 
+float computePointShadow(samplerCube shadowMap ,vec3 lightPos)
+{
+	// get vector between fragment position and light position
+	vec3 fragToLight = pos - lightPos;
+	// use the light to fragment vector to sample from the depth map    
+	float closestDepth = texture(shadowMap, fragToLight).r;
+	// it is currently in linear range between [0,1]. Re-transform back to original value
+	closestDepth *= 25.0;
+	// now get current linear depth as the length between the fragment and light position
+	float currentDepth = length(fragToLight);
+	// now test for shadows
+	float bias = 0.05;
+	float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
-vec3 shadePointLight(vec3 lightPos, vec3 color, float intensity, sampler2D shadowMap, mat4 lightViewProj, bool castShadows) {
+	return shadow;
+}
+
+vec3 shadePointLight(vec3 lightPos, vec3 color, float intensity, samplerCube shadowMap, mat4 lightViewProj, bool castShadows) {
 
 	//Diffuse
 	vec3 L = normalize(lightPos - pos);
-	vec3 diffuse = max(dot(L, N), 0.0) * albedo;
+	vec3 diffuse = max(dot(L, N), 0.0) * color;
 
 	//Specular
 	vec3 V = normalize(-pos);
 	vec3 R = normalize(reflect(-L, N));
 	float factor = max(dot(R, V), 0.0);
-	vec3 specular = pow(factor, shininess) * specularity * albedo;
+	vec3 specular = pow(factor, shininess) * specularity * color;
 
 	//Attenuation
 	float attenuation = computeAttenuation(lightPos, 0.022f, 0.019f);
@@ -199,9 +216,10 @@ vec3 shadePointLight(vec3 lightPos, vec3 color, float intensity, sampler2D shado
 
 	//Shadow 
 	float shadow;
-	material.receiveShadows ? shadow = computeShadow(shadowMap, lightViewProj, L) : shadow = 0.0;
+	//material.receiveShadows ? shadow = computeShadow(shadowMap, lightViewProj, L) : shadow = 0.0;
+	material.receiveShadows ? shadow = computePointShadow(shadowMap, lightPos) : shadow = 0.0;
 
-	vec3 result = (1.0 - shadow) * (diffuse + specular) * color;
+	vec3 result = (1.0 - shadow) * (diffuse + specular) * albedo;
 	result *= intensity;
 	return result;
 
@@ -210,19 +228,20 @@ vec3 shadeDirectionalLight(vec3 lightDir, vec3 color, float intensity, sampler2D
 
 	//Diffuse
 	vec3 L = normalize(lightDir);
-	vec3 diffuse = max(dot(L, N), 0.0) * albedo;
+	vec3 diffuse = max(dot(L, N), 0.0) * color;
 
 	//Specular
 	vec3 V = normalize(-pos);
 	vec3 R = normalize(reflect(-L, N));
 	float factor = max(dot(R, V), 0.0);
-	vec3 specular = pow(factor, shininess) * specularity * albedo;
+	vec3 specular = pow(factor, shininess) * specularity *color;
+
 
 	//Shadow 
 	float shadow;
 	castShadows ? shadow = computeShadow(shadowMap, lightViewProj, L) : shadow = 0.0;
 
-	vec3 result = (1.0 - shadow) * (diffuse + specular) * color;
+	vec3 result = (1.0 - shadow) * (diffuse + specular) * albedo;
 	result *= intensity;
 	return result;
 

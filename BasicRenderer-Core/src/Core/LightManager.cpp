@@ -1,5 +1,6 @@
 #include "LightManager.h"
 #include <Core/Lights/DirectionalLight.h>
+#include <CubeMapTexture.h>
 
 void LightManager::init(std::unordered_map<std::string, Shader*> shaders)
 {
@@ -26,16 +27,23 @@ void LightManager::addLight(Light* l) {
 	{
 	case 0:
 		pointLightsNumber++;
+		l->setShadowText(new CubeMapTexture(0, GL_DEPTH_COMPONENT, m_ShadowResolution, m_ShadowResolution, 0,
+			GL_DEPTH_COMPONENT, GL_FLOAT, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_EDGE));
+		/*l->setShadowText(new Texture(0, GL_DEPTH_COMPONENT16, m_ShadowResolution, m_ShadowResolution, 0,
+			GL_DEPTH_COMPONENT, GL_FLOAT, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER));*/
 		break;
 	case 1:
 		directionalLightsNumber++;
+		l->setShadowText(new Texture(0, GL_DEPTH_COMPONENT16, m_ShadowResolution, m_ShadowResolution, 0,
+			GL_DEPTH_COMPONENT, GL_FLOAT, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER));
 		break;
 	case 2:
 		spotLightsNumber++;
+		l->setShadowText(new Texture(0, GL_DEPTH_COMPONENT16, m_ShadowResolution, m_ShadowResolution, 0,
+			GL_DEPTH_COMPONENT, GL_FLOAT, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER));
 		break;
 	}
 	lightsNumber++;
-	l->setShadowText(new Texture(0, GL_DEPTH_COMPONENT16, m_ShadowResolution, m_ShadowResolution, 0, GL_DEPTH_COMPONENT, GL_FLOAT, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER));
 	m_Lights.push_back(l);
 }
 
@@ -47,10 +55,10 @@ void LightManager::removeLight()
 void LightManager::drawLights(glm::mat4 proj, glm::mat4 view) {
 	for (Light* l : m_Lights)
 	{
-		
+
 		glm::mat4 model = glm::translate(glm::mat4(1.0f), l->getPosition());
 		model = glm::scale(model, glm::vec3(0.5));
-		
+
 		m_DebugMat->setColor(l->getColor());
 
 		switch (l->getType())
@@ -65,7 +73,7 @@ void LightManager::drawLights(glm::mat4 proj, glm::mat4 view) {
 			break;
 		case 2:
 			m_SLightMesh->setModel(model);
-			m_SLightMesh->draw( proj,  view);
+			m_SLightMesh->draw(proj, view);
 			break;
 		}
 
@@ -95,7 +103,7 @@ void LightManager::uploadLightDataToShader(Shader* s, glm::mat4 view)
 				s->setFloat("pointLights[" + std::to_string(pointLightIndex) + "].intensity", m_Lights[i]->getIntensity());
 				s->setBool("pointLights[" + std::to_string(pointLightIndex) + "].castShadows", m_Lights[i]->getCastShadows());
 				if (m_Lights[i]->getCastShadows()) {
-					s->setMat4("pointLights[" + std::to_string(pointLightIndex) + "].lightViewProj", m_Lights[i]->getLightTransformMatrix());
+					s->setMat4("pointLights[" + std::to_string(pointLightIndex) + "].lightViewProj", m_Lights[i]->getLightTransformMatrix(glm::vec3(0.0f)));
 					m_Lights[i]->getShadowText()->bind(textureSlotIndex);
 					s->setInt("pointLights[" + std::to_string(pointLightIndex) + "].shadowMap", textureSlotIndex);
 					textureSlotIndex++;
@@ -108,8 +116,8 @@ void LightManager::uploadLightDataToShader(Shader* s, glm::mat4 view)
 				s->setFloat("directionalLights[" + std::to_string(dirLightIndex) + "].intensity", m_Lights[i]->getIntensity());
 				s->setBool("directionalLights[" + std::to_string(dirLightIndex) + "].castShadows", m_Lights[i]->getCastShadows());
 				if (m_Lights[i]->getCastShadows()) {
-					s->setMat4("directionalLights[" + std::to_string(dirLightIndex) + "].lightViewProj", m_Lights[i]->getLightTransformMatrix());
-					m_Lights[i]->getShadowText()->bind(textureSlotIndex); 
+					s->setMat4("directionalLights[" + std::to_string(dirLightIndex) + "].lightViewProj", m_Lights[i]->getLightTransformMatrix(glm::vec3(0.0f)));
+					m_Lights[i]->getShadowText()->bind(textureSlotIndex);
 					s->setInt("directionalLights[" + std::to_string(dirLightIndex) + "].shadowMap", textureSlotIndex);
 					textureSlotIndex++;
 				}

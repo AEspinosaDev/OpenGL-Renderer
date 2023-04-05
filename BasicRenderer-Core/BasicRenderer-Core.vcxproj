@@ -173,6 +173,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Materials\SkyboxMaterial.cpp" />
+    <ClCompile Include="src\Core\SceneObject.cpp" />
     <ClCompile Include="src\OGL-Graphics\SkyboxMesh.cpp" />
     <ClCompile Include="src\OGL-Graphics\CubeMapTexture.cpp" />
     <ClCompile Include="src\Core\Lights\DirectionalLight.cpp" />

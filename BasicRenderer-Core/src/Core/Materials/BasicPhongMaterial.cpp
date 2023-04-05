@@ -17,12 +17,14 @@ void BasicPhongMaterial::addNormalTex(Texture* t) {
 	m_shader->unbind();
 }
 
+
 void BasicPhongMaterial::addSpecularTex(Texture* t) {
 	specularTex = t;
 	m_shader->bind();
 	m_shader->setInt("material.specularTex", 2);
 	m_shader->unbind();
 }
+
 
 void BasicPhongMaterial::addRoughnessTex(Texture* t) {
 	roughnessTex = t;
@@ -31,6 +33,7 @@ void BasicPhongMaterial::addRoughnessTex(Texture* t) {
 	m_shader->unbind();
 }
 
+
 void BasicPhongMaterial::addOpacityTex(Texture* t)
 {
 	opacityTex = t;
@@ -38,6 +41,7 @@ void BasicPhongMaterial::addOpacityTex(Texture* t)
 	m_shader->setInt("material.opacityTex", 5);
 	m_shader->unbind();
 }
+
 
 void BasicPhongMaterial::bind(glm::mat4 proj, glm::mat4 view, glm::mat4 model)
 {

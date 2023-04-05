@@ -27,6 +27,9 @@ class CubeMapTexture: public Texture
 public:
 	CubeMapTexture(CubeMapFaces paths);
 
+	CubeMapTexture(GLint level, GLint internalFormat, unsigned int w, unsigned int h, GLint border, GLenum format, GLenum type,
+		 int magFilter, int minFilter, int wrapT, int wrapS, int wrapR);
+
 
 	void bind(unsigned int slot) const;
 

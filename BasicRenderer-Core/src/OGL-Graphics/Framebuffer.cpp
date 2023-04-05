@@ -1,6 +1,6 @@
 #include "Framebuffer.h"
 
-Framebuffer::Framebuffer(Texture* text, int attachmentType, bool depthAttachment, bool resizeOnCallback) : m_TextureAttachment(text), resizeOnCallback(resizeOnCallback),
+Framebuffer::Framebuffer(Texture* text, int attachmentType, GLenum textarget,bool depthAttachment, bool resizeOnCallback) : m_TextureAttachment(text), resizeOnCallback(resizeOnCallback),
 attachmentType(attachmentType)
 {
 	width = text->getWidth();
@@ -12,7 +12,8 @@ attachmentType(attachmentType)
 	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID));
 
 	if (text->getSamples() == 1) {
-		GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D, m_MainAttachmentID, 0));
+		GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textarget, m_MainAttachmentID, 0));
+		//GLcall(glFramebufferTexture(GL_FRAMEBUFFER, attachmentType, m_MainAttachmentID, 0));
 	}
 	else {
 		GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D_MULTISAMPLE, m_MainAttachmentID, 0));
@@ -36,7 +37,7 @@ attachmentType(attachmentType)
 	}
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+		std::cout << "ERROR::FRAMEBUFFER::"<< m_RendererID <<":: Framebuffer is not complete!" << std::endl;
 
 	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
@@ -49,7 +50,7 @@ attachmentType(attachmentType)
 
 }
 
-void Framebuffer::setTextureAttachment(Texture* t)
+void Framebuffer::setTextureAttachment(Texture* t, GLenum textarget)
 {
 	m_TextureAttachment = t;
 	m_MainAttachmentID = t->getID();
@@ -57,7 +58,8 @@ void Framebuffer::setTextureAttachment(Texture* t)
 	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID));
 
 	if (t->getSamples() == 1) {
-		GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D, m_MainAttachmentID, 0));
+		GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textarget, m_MainAttachmentID, 0));
+		//GLcall(glFramebufferTexture(GL_FRAMEBUFFER, attachmentType, m_MainAttachmentID, 0));
 	}
 	else {
 		GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D_MULTISAMPLE, m_MainAttachmentID, 0));

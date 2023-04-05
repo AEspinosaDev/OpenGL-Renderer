@@ -23,6 +23,7 @@ void Renderer::SetupScene() {
 	m_Models["sphere"] = sphere;*/
 
 	Texture* boxColorTex = new Texture("SeamlessWood-Diffuse.jpg");
+	//Texture* boxColorTex = new Texture("SeamlessWood-Diffuse.jpg", 0, GL_SRGB_ALPHA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, true, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT);
 	Texture* boxNormalTex = new Texture("SeamlessWood-NormalMap.tif");
 	BasicPhongMaterial* box_m = new BasicPhongMaterial(m_Shaders);
 	box_m->addColorTex(boxColorTex);
@@ -35,8 +36,13 @@ void Renderer::SetupScene() {
 	box->loadMaterial(box_m);
 	box->setPosition(glm::vec3(2.0, 0.5, 0.0));
 	m_Models["box"] = box;
+	m_Models["box1"] = box->clone();
+	m_Models["box1"]->setPosition(glm::vec3(2.0, 0.5, 2.0));
+	m_Models["box2"] = box->clone();
+	m_Models["box2"]->setPosition(glm::vec3(2.0, 0.5, -2.0));
 
 	Texture* floorAlbedoTex = new Texture("floor.jpg");
+	//Texture* floorAlbedoTex = new Texture("floor.jpg", 0, GL_SRGB_ALPHA, 0, 0, 0, GL_RGBA,  GL_UNSIGNED_BYTE, true, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT);
 	Texture* floorNormalTex = new Texture("floor-normal.jpg");
 	BasicPhongMaterial* floor_m = new BasicPhongMaterial(m_Shaders);
 	floor_m->addColorTex(floorAlbedoTex);
@@ -52,6 +58,7 @@ void Renderer::SetupScene() {
 
 
 	Texture* tenguColorTex = new Texture("tengu-color.png");
+	//Texture* tenguColorTex = new Texture("tengu-color.png", 0, GL_SRGB_ALPHA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, true, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT);
 	Texture* tenguNormalTex = new Texture("tengu-normal.png");
 	BasicPhongMaterial* tengu_m = new BasicPhongMaterial(m_Shaders);
 	tengu_m->addColorTex(tenguColorTex);
@@ -69,9 +76,9 @@ void Renderer::SetupScene() {
 	PointLight* l = new PointLight(glm::vec3(5.0, 3.0, 4.0), glm::vec3(1.0, 0.8, 0.8), 1.5, 1);
 	//l->setCastShadows(false);
 	m_LightManager->addLight(l);
-	m_LightManager->addLight(new PointLight(glm::vec3(-4.0, 1.0, 2.0), glm::vec3(1.0, 0.5, 0.5), 1, 1));
-	m_LightManager->addLight(new PointLight(glm::vec3(-5.0, 3.0, -4.0), glm::vec3(1.0, 1.0, 1.0), 1.5, 1));
-	m_LightManager->setAmbientStrength(0.4);
+	//m_LightManager->addLight(new PointLight(glm::vec3(-4.0, 1.0, 2.0), glm::vec3(1.0, 0.5, 0.5), 1, 1));
+	//m_LightManager->addLight(new PointLight(glm::vec3(-5.0, 3.0, -4.0), glm::vec3(1.0, 1.0, 1.0), 1.5, 1));
+	m_LightManager->setAmbientStrength(0.1);
 	m_LightManager->setAmbientColor(glm::vec3(0.2, 0.2, 1.0));
 
 
@@ -84,15 +91,17 @@ void Renderer::SetupScene() {
 
 
 	CubeMapTexture* skyText = new CubeMapTexture(skyFaces);
-	SkyboxMesh* skybox = new SkyboxMesh(new SkyboxMaterial(skyText,m_Shaders));
+	SkyboxMesh* skybox = new SkyboxMesh(new SkyboxMaterial(skyText, m_Shaders));
 	setSkybox(skybox);
 
 	createVignette();
 
 	if (m_AntialiasingSamples > 0)
-		m_Framebuffers["msaaFBO"] = new Framebuffer(new Texture(m_SWidth, m_SHeight, m_AntialiasingSamples), GL_COLOR_ATTACHMENT0, GL_TRUE, GL_TRUE);
-	m_Framebuffers["depthFBO"] = new Framebuffer(m_LightManager->getLight(0)->getShadowText(), GL_DEPTH_ATTACHMENT, GL_FALSE, GL_FALSE);
-	m_Framebuffers["vignetteFBO"] = new Framebuffer(m_Vignette->getTexture(), GL_COLOR_ATTACHMENT0, GL_TRUE, GL_TRUE);
+		m_Framebuffers["msaaFBO"] = new Framebuffer(new Texture(m_SWidth, m_SHeight, m_AntialiasingSamples), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
+	//m_Framebuffers["depthFBO"] = new Framebuffer(m_LightManager->getLight(0)->getShadowText(), GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, GL_FALSE, GL_FALSE);
+	m_Framebuffers["depthFBO"] = new Framebuffer(new Texture(0, GL_DEPTH_COMPONENT16, m_ShadowResolution, m_ShadowResolution, 0,
+		GL_DEPTH_COMPONENT, GL_FLOAT, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER), GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, GL_FALSE, GL_FALSE);
+	m_Framebuffers["postprocessingFBO"] = new Framebuffer(m_Vignette->getTexture(), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
 
 
 }
@@ -106,7 +115,7 @@ void Renderer::DrawScene() {
 	if (m_AntialiasingSamples > 0)
 		bindFramebuffer("msaaFBO");
 	else {
-		bindFramebuffer("vignetteFBO");
+		bindFramebuffer("postprocessingFBO");
 	}
 
 	m_MainCam.setProj(45.0f, m_SWidth, m_SHeight);
@@ -129,7 +138,7 @@ void Renderer::DrawScene() {
 
 	if (m_AntialiasingSamples > 0) {
 		//Blit msaa fbo data to vignette fbo
-		blitFramebuffer("msaaFBO", "vignetteFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		blitFramebuffer("msaaFBO", "postprocessingFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	}
 
 
@@ -380,7 +389,41 @@ void Renderer::computeShadows()
 	{
 		if (m_LightManager->getLight(i)->getCastShadows()) {
 
-			m_Framebuffers["depthFBO"]->setTextureAttachment(m_LightManager->getLight(i)->getShadowText());
+
+			if (m_LightManager->getLight(i)->getType() == 0) {
+
+				std::vector<glm::vec3> targets;
+				targets.push_back(m_LightManager->getLight(i)->getPosition() + glm::vec3(1.0, 0.0, 0.0));
+				targets.push_back(m_LightManager->getLight(i)->getPosition() + glm::vec3(-1.0, 0.0, 0.0));
+				targets.push_back(m_LightManager->getLight(i)->getPosition() + glm::vec3(0.0, 1.0, 0.0));
+				targets.push_back(m_LightManager->getLight(i)->getPosition() + glm::vec3(0.0, -1.0, 0.0));
+				targets.push_back(m_LightManager->getLight(i)->getPosition() + glm::vec3(0.0, 0.0, 1.0));
+				targets.push_back(m_LightManager->getLight(i)->getPosition() + glm::vec3(0.0, 0.0, -1.0));
+
+				for (size_t j = 0; j < 6; j++)
+				{
+					m_Framebuffers["depthFBO"]->setTextureAttachment(m_LightManager->getLight(i)->getShadowText(), GL_TEXTURE_CUBE_MAP_POSITIVE_X + j);
+
+					bindFramebuffer("depthFBO");
+
+					glDrawBuffer(GL_NONE);
+					glReadBuffer(GL_NONE);
+					glEnable(GL_DEPTH_TEST);
+					glEnable(GL_CULL_FACE);
+					glCullFace(GL_FRONT);
+
+					glClear(GL_DEPTH_BUFFER_BIT);
+
+					for (auto& m : m_Models) {
+						m.second->drawDepth(m_Shaders["BasicDepthShader"], m_LightManager->getLight(i)->getLightTransformMatrix(targets[j]));
+					}
+
+				}
+
+			}
+			else {
+
+			m_Framebuffers["depthFBO"]->setTextureAttachment(m_LightManager->getLight(i)->getShadowText(), GL_TEXTURE_2D);
 
 			bindFramebuffer("depthFBO");
 
@@ -393,7 +436,8 @@ void Renderer::computeShadows()
 			glClear(GL_DEPTH_BUFFER_BIT);
 
 			for (auto& m : m_Models) {
-				m.second->getMesh()->drawShadows(m_Shaders["BasicDepthShader"], m_LightManager->getLight(i)->getLightTransformMatrix());
+				m.second->drawDepth(m_Shaders["BasicDepthShader"], m_LightManager->getLight(i)->getLightTransformMatrix(glm::vec3(0.0f)));
+			}
 			}
 		}
 
@@ -403,7 +447,7 @@ void Renderer::computeShadows()
 }
 void Renderer::renderSkybox() {
 
-	m_Skybox->draw(m_MainCam.getProj(), glm::lookAt(glm::vec3(0.0f),m_MainCam.getFront(),m_MainCam.getUp())); //Remove view translation
+	m_Skybox->draw(m_MainCam.getProj(), glm::lookAt(glm::vec3(0.0f), m_MainCam.getFront(), m_MainCam.getUp())); //Remove view translation
 }
 
 

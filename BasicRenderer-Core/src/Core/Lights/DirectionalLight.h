@@ -47,6 +47,6 @@ public:
 
 	inline glm::vec3 getDirection() { return m_Direction; }
 
-	glm::mat4 getLightTransformMatrix();
+	glm::mat4 getLightTransformMatrix(glm::vec3 target);
 };
 

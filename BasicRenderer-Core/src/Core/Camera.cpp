@@ -4,7 +4,9 @@
 void Camera::camMovement(GLFWwindow* window, const float deltaTime) {
 
 	//Movimiento
-	float cameraSpeed = speed * deltaTime;
+	//float cameraSpeed = speed * deltaTime;
+	float cameraSpeed = 0.1f;
+	//float cameraSpeed = 0.4F;
 	const float angle = 0.05f;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 		cameraPos += cameraFront * cameraSpeed;

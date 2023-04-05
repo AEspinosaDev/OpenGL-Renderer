@@ -89,6 +89,8 @@ void Texture::generateTexture(bool anisotropicFilter, int magFilter, int minFilt
 		delete[] m_LocalBuffer;
 		//stbi_image_free(m_LocalBuffer);
 
+	std::cout << "Texture loaded" << std::endl;
+
 }
 
 void Texture::generateTexture(const std::string& path, GLint level, GLint internalFormat, unsigned int w, unsigned int h, GLint border, GLenum format, GLenum type, bool anisotropicFilter, int magFilter, int minFilter, int wrapT, int wrapS)
@@ -145,6 +147,9 @@ void Texture::generateTexture(const std::string& path, GLint level, GLint intern
 	if (m_LocalBuffer)
 		delete[] m_LocalBuffer;
 		//stbi_image_free(m_LocalBuffer);
+
+	std::cout << "Texture loaded" << std::endl;
+
 }
 
 Texture::~Texture() {

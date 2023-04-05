@@ -21,28 +21,15 @@ class Mesh
 	glm::mat4	 m_Model;
 	Material*    m_Mat;
 
-
-	glm::vec3 position;
-	glm::vec3 rotation;
-	float scale;
 	bool castShadows;
 
-	void setTransform();
 
 public:
-	Mesh() :m_IndexBufferID(-1), m_Triangles(-1), m_Model(glm::mat4(1.0f)), m_Mat(nullptr), position(glm::vec3(0.0f)), rotation(glm::vec3(0.0f)), scale(1.0), castShadows(true){}
+	Mesh() :m_IndexBufferID(-1), m_Triangles(-1), m_Model(glm::mat4(1.0f)), m_Mat(nullptr), castShadows(true){}
 
 	~Mesh() {}
 	
 	inline glm::mat4 getModel() const { return m_Model; }
-	
-	inline void setPos(glm::vec3 p) { position = p; setTransform(); }
-	
-	inline void setOffset(glm::vec3 p){this->m_Model = glm::translate(m_Model, p);}
-	
-	inline void setSize(float n) { scale = n; setTransform(); }
-	
-	inline void setRotation(glm::vec3 r){ rotation = r; setTransform(); }
 	
 	inline void setModel(glm::mat4 m) {	m_Model = m;}
 

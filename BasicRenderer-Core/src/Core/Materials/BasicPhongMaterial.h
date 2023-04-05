@@ -43,13 +43,9 @@ public:
 	inline bool getReceiveShadows() { return receiveShadows; }
 
 	void addColorTex(Texture* t);
-
 	void addNormalTex(Texture* t);
-
 	void addSpecularTex(Texture* t);
-
 	void addRoughnessTex(Texture* t);
-
 	void addOpacityTex(Texture* t);
 
 	void bind(glm::mat4 proj, glm::mat4 view, glm::mat4 model);

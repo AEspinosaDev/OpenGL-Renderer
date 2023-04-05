@@ -1,17 +1,6 @@
 #include "Mesh.h"
 
-void Mesh::setTransform()
-{
-	m_Model = glm::mat4(1.0f);
-	m_Model = glm::scale(m_Model, glm::vec3(scale));
-	m_Model = glm::rotate(m_Model, rotation.x ,glm::vec3(1,0,0));
-	m_Model = glm::rotate(m_Model, rotation.y ,glm::vec3(0,1,0));
-	m_Model = glm::rotate(m_Model, rotation.z ,glm::vec3(0,0,1));
-	m_Model = glm::translate(m_Model, position);
 
-
-
-}
 
 void Mesh::init(unsigned int nTris, unsigned int nVertex, const unsigned int* triangleId, const float* vertexPos,
 	const float* vertexColor, const float* vertexNormal,

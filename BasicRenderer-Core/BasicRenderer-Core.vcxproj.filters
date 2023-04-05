@@ -35,6 +35,7 @@
     <ClCompile Include="src\OGL-Graphics\SkyboxMesh.cpp" />
     <ClCompile Include="src\Core\Materials\SkyboxMaterial.cpp" />
     <ClCompile Include="src\Utils\stb_image.cpp" />
+    <ClCompile Include="src\Core\SceneObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\OGL-Graphics\VBO.h" />
