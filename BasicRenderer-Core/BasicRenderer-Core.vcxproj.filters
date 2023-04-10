@@ -71,6 +71,7 @@
     <None Include="Resources\Shaders\VignetteShader.shader" />
     <None Include="Resources\Shaders\UnlitBasicShader.shader" />
     <None Include="Resources\Shaders\SkyboxShader.shader" />
+    <None Include="Resources\Shaders\NormalVisualizationShader.shader" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\Textures\BODY_LP_2_Material _25_Height.png" />

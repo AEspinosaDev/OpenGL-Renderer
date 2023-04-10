@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\BasicRenderer-Core",
+    "\\BasicRenderer-Core\\Resources",
+    "\\BasicRenderer-Core\\Resources\\Shaders",
+    "\\BasicRenderer-Core\\src",
+    "\\BasicRenderer-Core\\src\\Core"
+  ],
+  "SelectedNode": "\\BasicRenderer-Core\\Resources\\Shaders\\BasicPhongShader.shader",
+  "PreviewInSolutionExplorer": false
+}

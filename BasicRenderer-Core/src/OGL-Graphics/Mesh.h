@@ -52,7 +52,7 @@ public:
 	
 	void draw(glm::mat4 proj, glm::mat4 view);
 
-	
+	void drawNormals(Shader* normalShader ,glm::mat4 proj, glm::mat4 view);
 
 	void drawShadows(Shader* depthShader, glm::mat4 lightViewProj);
 

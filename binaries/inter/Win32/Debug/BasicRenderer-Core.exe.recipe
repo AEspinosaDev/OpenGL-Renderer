@@ -2,7 +2,7 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\Dev\BasicRenderer\binaries\Win32\Debug\BasicRenderer-Core.exe</FullPath>
+      <FullPath>C:\dev\OpenGL-Renderer\binaries\Win32\Debug\BasicRenderer-Core.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />

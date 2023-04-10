@@ -30,6 +30,8 @@ public:
 
 	void drawDepth(Shader* depthShader, glm::mat4 viewProjMatrix);
 
+	void drawNormals(Shader* normalShader, glm::mat4 proj, glm::mat4 view);
+
 	Model* clone();
 
 };

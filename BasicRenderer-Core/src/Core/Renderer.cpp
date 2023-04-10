@@ -28,7 +28,7 @@ void Renderer::SetupScene() {
 	BasicPhongMaterial* box_m = new BasicPhongMaterial(m_Shaders);
 	box_m->addColorTex(boxColorTex);
 	box_m->addNormalTex(boxNormalTex);
-	box_m->setOpacity(0.9);
+	//box_m->setOpacity(0.9);
 	box_m->setTransparency(true);
 
 	Model* box = new Model();
@@ -76,8 +76,8 @@ void Renderer::SetupScene() {
 	PointLight* l = new PointLight(glm::vec3(5.0, 3.0, 4.0), glm::vec3(1.0, 0.8, 0.8), 1.5, 1);
 	//l->setCastShadows(false);
 	m_LightManager->addLight(l);
-	//m_LightManager->addLight(new PointLight(glm::vec3(-4.0, 1.0, 2.0), glm::vec3(1.0, 0.5, 0.5), 1, 1));
-	//m_LightManager->addLight(new PointLight(glm::vec3(-5.0, 3.0, -4.0), glm::vec3(1.0, 1.0, 1.0), 1.5, 1));
+	m_LightManager->addLight(new PointLight(glm::vec3(-4.0, 1.0, 2.0), glm::vec3(1.0, 0.5, 0.5), 1, 1));
+	m_LightManager->addLight(new PointLight(glm::vec3(-5.0, 3.0, -4.0), glm::vec3(1.0, 1.0, 1.0), 1.5, 1));
 	m_LightManager->setAmbientStrength(0.1);
 	m_LightManager->setAmbientColor(glm::vec3(0.2, 0.2, 1.0));
 
@@ -128,12 +128,10 @@ void Renderer::DrawScene() {
 
 	glEnable(GL_DEPTH_TEST);
 
-	//renderLights(true);
-	//render("floor");
-	//render("demon");
-	//render("box");
 
 	render();
+
+	//debugObjectNormals();
 
 
 	if (m_AntialiasingSamples > 0) {
@@ -211,10 +209,12 @@ void Renderer::Init() {
 void Renderer::LateInit()
 {
 	std::cout << "Compiling shaders..." << std::endl;
+
 	m_Shaders["UnlitBasicShader"] = new Shader("UnlitBasicShader.shader", ShaderType::UNLIT);
 	m_Shaders["BasicDepthShader"] = new Shader("BasicDepthShader.shader", ShaderType::UNLIT);
 	m_Shaders["BasicPhongShader"] = new Shader("BasicPhongShader.shader", ShaderType::LIT);
 	m_Shaders["SkyboxShader"] = new Shader("SkyboxShader.shader", ShaderType::UNLIT);
+	m_Shaders["NormalDebugShader"] = new Shader("NormalVisualizationShader.shader", ShaderType::UNLIT);
 
 	m_LightManager->init(m_Shaders);
 }
@@ -448,6 +448,18 @@ void Renderer::computeShadows()
 void Renderer::renderSkybox() {
 
 	m_Skybox->draw(m_MainCam.getProj(), glm::lookAt(glm::vec3(0.0f), m_MainCam.getFront(), m_MainCam.getUp())); //Remove view translation
+}
+
+void Renderer::debugObjectNormals()
+{
+	Shader* normalShader = m_Shaders["NormalDebugShader"];
+	normalShader->bind();
+
+	for (auto& m : m_Models) {
+		m.second->drawNormals(normalShader, m_MainCam.getProj(), m_MainCam.getView());
+	}
+
+	normalShader->unbind();
 }
 
 

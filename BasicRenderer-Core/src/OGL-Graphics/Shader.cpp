@@ -2,7 +2,7 @@
 
 Shader::Shader(const std::string& filename, ShaderType t) :m_filePath(shaderPath + filename), m_RendererID(0), type(t) {
 	ShaderProgramSource src = parseShader();
-	m_RendererID = createShader(src.VertexSource, src.FragmentSource);
+	m_RendererID = createShader(src.VertexSource, src.FragmentSource, src.GeometrySource);
 
 }
 Shader:: ~Shader() {
@@ -79,8 +79,18 @@ unsigned int Shader::compileShader(unsigned int type, const std::string& source)
 		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
 		char* message = (char*)alloca(length * sizeof(char));
 		glGetShaderInfoLog(id, length, &length, message);
-		std::cout << "Failed to compile shader" <<
-			(type == GL_VERTEX_SHADER ? " vertex" : "fragment") << std::endl;
+		switch (type)
+		{
+		case GL_VERTEX_SHADER:
+			std::cout << "Failed to compile VERTEX shader" << std::endl;
+			break;
+		case GL_FRAGMENT_SHADER:
+			std::cout << "Failed to compile FRAGMENT shader" << std::endl;
+			break;
+		case GL_GEOMETRY_SHADER:
+			std::cout << "Failed to compile GEOMETRY shader" << std::endl;
+			break;
+		}
 
 		std::cout << message << std::endl;
 
@@ -90,16 +100,21 @@ unsigned int Shader::compileShader(unsigned int type, const std::string& source)
 
 	return id;
 }
-unsigned int Shader::createShader(const std::string& vertexShader, const std::string& fragmentShader) {
+unsigned int Shader::createShader(const std::string& vertexShader, const std::string& fragmentShader, const std::string& geometryShader) {
 
 
 
 	unsigned int program = glCreateProgram();
 	unsigned int vs = compileShader(GL_VERTEX_SHADER, vertexShader);
 	unsigned int fs = compileShader(GL_FRAGMENT_SHADER, fragmentShader);
+	unsigned int gs = 0;
+	if (geometryShader.size() != 0)
+		gs = compileShader(GL_GEOMETRY_SHADER, geometryShader);
 
 	GLcall(glAttachShader(program, vs));
 	GLcall(glAttachShader(program, fs));
+	if (geometryShader.size() != 0)
+		glAttachShader(program, gs);
 
 	GLcall(glLinkProgram(program));
 	GLcall(glValidateProgram(program));
@@ -107,6 +122,8 @@ unsigned int Shader::createShader(const std::string& vertexShader, const std::st
 
 	GLcall(glDeleteShader(vs));
 	GLcall(glDeleteShader(fs));
+	if (geometryShader.size() != 0)
+		GLcall(glDeleteShader(gs));
 
 	return program;
 
@@ -118,13 +135,13 @@ ShaderProgramSource Shader::parseShader() {
 
 	enum class ShaderType
 	{
-		NONE = -1, VERTEX = 0, FRAGMENT = 1
+		NONE = -1, VERTEX = 0, FRAGMENT = 1, GEOMETRY = 2
 
 
 	};
 
 	std::string line;
-	std::stringstream ss[2];
+	std::stringstream ss[3];
 	ShaderType type = ShaderType::NONE;
 
 	while (getline(stream, line)) {
@@ -137,11 +154,15 @@ ShaderProgramSource Shader::parseShader() {
 				type = ShaderType::FRAGMENT;
 
 			}
+			else if (line.find("geometry") != std::string::npos) {
+				type = ShaderType::GEOMETRY;
+
+			}
 		}
 		else {
 			ss[(int)type] << line << '\n';
 
 		}
 	}
-	return { ss[0].str(), ss[1].str() };
+	return { ss[0].str(), ss[1].str(), ss[2].str() };
 }

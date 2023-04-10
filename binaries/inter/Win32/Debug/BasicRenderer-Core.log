@@ -1,2 +1,12 @@
-﻿  LightManager.cpp
-  BasicRenderer-Core.vcxproj -> C:\Dev\BasicRenderer\binaries\Win32\Debug\BasicRenderer-Core.exe
+﻿  Renderer.cpp
+C:\dev\OpenGL-Renderer\BasicRenderer-Core\src\Core\Camera.h(31,8): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\dev\OpenGL-Renderer\BasicRenderer-Core\src\Core\Renderer.cpp(81,40): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\dev\OpenGL-Renderer\BasicRenderer-Core\src\Core\Renderer.cpp(226,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\dev\OpenGL-Renderer\BasicRenderer-Core\src\Core\Renderer.cpp(255,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\dev\OpenGL-Renderer\BasicRenderer-Core\src\Core\Renderer.cpp(256,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\dev\OpenGL-Renderer\BasicRenderer-Core\src\Core\Renderer.cpp(260,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\dev\OpenGL-Renderer\BasicRenderer-Core\src\Core\Renderer.cpp(261,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\dev\OpenGL-Renderer\BasicRenderer-Core\src\Core\Renderer.cpp(263,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\dev\OpenGL-Renderer\BasicRenderer-Core\src\Core\Renderer.cpp(264,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\dev\OpenGL-Renderer\BasicRenderer-Core\src\Core\Renderer.cpp(388,23): warning C4018: '<': signed/unsigned mismatch
+  BasicRenderer-Core.vcxproj -> C:\dev\OpenGL-Renderer\binaries\Win32\Debug\BasicRenderer-Core.exe

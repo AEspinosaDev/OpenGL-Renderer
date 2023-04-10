@@ -177,11 +177,13 @@ private:
     /// </summary>
     void computeShadows();
 
-
+    /// <summary>
+    /// Render scene skybox if its using one
+    /// </summary>
     void renderSkybox();
 
    
-
+    void debugObjectNormals();
 
 };
 
