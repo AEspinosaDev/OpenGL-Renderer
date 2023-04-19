@@ -80,6 +80,8 @@ void Mesh::drawShadows(Shader* depthShader, glm::mat4 lightViewProj)
 	depthShader->bind();
 
 	depthShader->setMat4("u_Light_ModelViewProj", lightViewProj * m_Model);
+	depthShader->setMat4("model", m_Model);
+
 
 	m_Vao.bind();
 	GLcall(glDrawElements(GL_TRIANGLES, m_Triangles, GL_UNSIGNED_INT, (void*)0));

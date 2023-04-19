@@ -63,6 +63,7 @@ in vec3 normal;
 //Lights
 struct PointLight {
 	vec3 pos;
+	vec3 worldPos;
 	vec3 color;
 	float intensity;
 	float constant;
@@ -70,7 +71,6 @@ struct PointLight {
 	float quadratic;
 
 	bool castShadows;
-	//sampler2D shadowMap;
 	samplerCube shadowMap;
 	mat4 lightViewProj;
 };
@@ -123,7 +123,7 @@ struct Material {
 //Uniforms
 uniform mat4 u_Model;
 uniform Material material;
-uniform PointLight pointLights[MAX_LIGHTS];
+uniform PointLight pointLights[2];
 uniform DirectionalLight directionalLights[MAX_LIGHTS];
 uniform SpotLight spotLights[MAX_LIGHTS];
 uniform int pointsLightsNumber;
@@ -183,7 +183,7 @@ float computeShadow(sampler2D shadowMap, mat4 lightViewProj, vec3 lightDir) {
 float computePointShadow(samplerCube shadowMap ,vec3 lightPos)
 {
 	// get vector between fragment position and light position
-	vec3 fragToLight = pos - lightPos;
+	vec3 fragToLight = modelPos - lightPos;
 	// use the light to fragment vector to sample from the depth map    
 	float closestDepth = texture(shadowMap, fragToLight).r;
 	// it is currently in linear range between [0,1]. Re-transform back to original value
@@ -194,10 +194,11 @@ float computePointShadow(samplerCube shadowMap ,vec3 lightPos)
 	float bias = 0.05;
 	float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
+	if (currentDepth > 25.0) shadow = 0.0;
 	return shadow;
 }
 
-vec3 shadePointLight(vec3 lightPos, vec3 color, float intensity, samplerCube shadowMap, mat4 lightViewProj, bool castShadows) {
+vec3 shadePointLight(vec3 lightPos, vec3 color, float intensity, samplerCube shadowMap, vec3 worldPos, bool castShadows) {
 
 	//Diffuse
 	vec3 L = normalize(lightPos - pos);
@@ -217,7 +218,7 @@ vec3 shadePointLight(vec3 lightPos, vec3 color, float intensity, samplerCube sha
 	//Shadow 
 	float shadow;
 	//material.receiveShadows ? shadow = computeShadow(shadowMap, lightViewProj, L) : shadow = 0.0;
-	material.receiveShadows ? shadow = computePointShadow(shadowMap, lightPos) : shadow = 0.0;
+	material.receiveShadows ? shadow = computePointShadow(shadowMap, worldPos) : shadow = 0.0;
 
 	vec3 result = (1.0 - shadow) * (diffuse + specular) * albedo;
 	result *= intensity;
@@ -258,7 +259,7 @@ vec3 shade() {
 	result += shadeAmbientLight();
 
 	for (int i = 0; i < pointsLightsNumber; i++) {
-		result += shadePointLight(pointLights[i].pos, pointLights[i].color, pointLights[i].intensity, pointLights[i].shadowMap, pointLights[i].lightViewProj,
+		result += shadePointLight(pointLights[i].pos, pointLights[i].color, pointLights[i].intensity, pointLights[i].shadowMap, pointLights[i].worldPos,
 			pointLights[i].castShadows);
 	}
 	for (int i = 0; i < directionalLightsNumber; i++) {

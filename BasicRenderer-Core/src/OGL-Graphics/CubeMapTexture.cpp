@@ -1,12 +1,13 @@
 #include "CubeMapTexture.h"
 
-CubeMapTexture::CubeMapTexture(CubeMapFaces paths) : Texture(), m_FacesPath(paths)
+CubeMapTexture::CubeMapTexture(CubeMapFaces paths) : Texture(TextureType::TEXTURE_CUBE), m_FacesPath(paths)
 {
 	generateCubeMapTexture(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 }
 
-CubeMapTexture::CubeMapTexture(GLint level, GLint internalFormat, unsigned int w, unsigned int h, GLint border, GLenum format, GLenum type, int magFilter, int minFilter, int wrapT, int wrapS, int wrapR):Texture(), m_FacesPath(CubeMapFaces("", "", "", "", "", ""))
+CubeMapTexture::CubeMapTexture(GLint level, GLint internalFormat, unsigned int w, unsigned int h, GLint border, GLenum format, GLenum type, int magFilter, int minFilter, int wrapT, int wrapS, int wrapR):Texture(TextureType::TEXTURE_CUBE), m_FacesPath(CubeMapFaces("", "", "", "", "", ""))
 {
+	
 	m_Width = w; m_Height = h;
 
 	this->level = level;

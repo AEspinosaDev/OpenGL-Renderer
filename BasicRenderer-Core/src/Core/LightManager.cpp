@@ -99,6 +99,7 @@ void LightManager::uploadLightDataToShader(Shader* s, glm::mat4 view)
 			case 0:
 
 				s->setVec3("pointLights[" + std::to_string(pointLightIndex) + "].pos", view * glm::vec4(m_Lights[i]->getPosition(), 1.0));
+				s->setVec3("pointLights[" + std::to_string(pointLightIndex) + "].worldPos", m_Lights[i]->getPosition());
 				s->setVec3("pointLights[" + std::to_string(pointLightIndex) + "].color", m_Lights[i]->getColor());
 				s->setFloat("pointLights[" + std::to_string(pointLightIndex) + "].intensity", m_Lights[i]->getIntensity());
 				s->setBool("pointLights[" + std::to_string(pointLightIndex) + "].castShadows", m_Lights[i]->getCastShadows());

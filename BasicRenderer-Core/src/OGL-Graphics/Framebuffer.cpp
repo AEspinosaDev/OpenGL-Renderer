@@ -1,6 +1,6 @@
 #include "Framebuffer.h"
 
-Framebuffer::Framebuffer(Texture* text, int attachmentType, GLenum textarget,bool depthAttachment, bool resizeOnCallback) : m_TextureAttachment(text), resizeOnCallback(resizeOnCallback),
+Framebuffer::Framebuffer(Texture* text, int attachmentType, GLenum textarget, bool depthAttachment, bool resizeOnCallback) : m_TextureAttachment(text), resizeOnCallback(resizeOnCallback),
 attachmentType(attachmentType)
 {
 	width = text->getWidth();
@@ -11,13 +11,23 @@ attachmentType(attachmentType)
 	GLcall(glGenFramebuffers(1, &m_RendererID));
 	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID));
 
-	if (text->getSamples() == 1) {
-		GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textarget, m_MainAttachmentID, 0));
-		//GLcall(glFramebufferTexture(GL_FRAMEBUFFER, attachmentType, m_MainAttachmentID, 0));
+	switch (text->getType())
+	{
+	case TEXTURE_2D:
+		if (text->getSamples() == 1) {
+			GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textarget, m_MainAttachmentID, 0));
+			
+		}
+		else {
+			GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D_MULTISAMPLE, m_MainAttachmentID, 0));
+		}
+
+		break;
+	case TEXTURE_CUBE:
+		GLcall(glFramebufferTexture(GL_FRAMEBUFFER, attachmentType, m_MainAttachmentID, 0));
+		break;
 	}
-	else {
-		GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D_MULTISAMPLE, m_MainAttachmentID, 0));
-	}
+	
 
 	if (depthAttachment) {
 
@@ -37,7 +47,7 @@ attachmentType(attachmentType)
 	}
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR::FRAMEBUFFER::"<< m_RendererID <<":: Framebuffer is not complete!" << std::endl;
+		std::cout << "ERROR::FRAMEBUFFER::" << m_RendererID << ":: Framebuffer is not complete!" << std::endl;
 
 	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
@@ -57,16 +67,28 @@ void Framebuffer::setTextureAttachment(Texture* t, GLenum textarget)
 
 	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID));
 
-	if (t->getSamples() == 1) {
-		GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textarget, m_MainAttachmentID, 0));
-		//GLcall(glFramebufferTexture(GL_FRAMEBUFFER, attachmentType, m_MainAttachmentID, 0));
+	switch (t->getType())
+	{
+	case TEXTURE_2D:
+		if (t->getSamples() == 1) {
+			GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textarget, m_MainAttachmentID, 0));
+
+		}
+		else {
+			GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D_MULTISAMPLE, m_MainAttachmentID, 0));
+		}
+
+		break;
+	case TEXTURE_CUBE:
+		GLcall(glFramebufferTexture(GL_FRAMEBUFFER, attachmentType, m_MainAttachmentID, 0));
+		break;
 	}
-	else {
-		GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D_MULTISAMPLE, m_MainAttachmentID, 0));
-	}
+
 
 	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
+
+
 
 void Framebuffer::bind()
 {

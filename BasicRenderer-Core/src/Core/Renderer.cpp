@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include <Core/Lights/PointLight.h>
+#include <Core/Lights/DirectionalLight.h>
 #include <Core/Materials/BasicPhongMaterial.h>
 #include <map>
 
@@ -77,7 +78,9 @@ void Renderer::SetupScene() {
 	//l->setCastShadows(false);
 	m_LightManager->addLight(l);
 	m_LightManager->addLight(new PointLight(glm::vec3(-4.0, 1.0, 2.0), glm::vec3(1.0, 0.5, 0.5), 1, 1));
-	m_LightManager->addLight(new PointLight(glm::vec3(-5.0, 3.0, -4.0), glm::vec3(1.0, 1.0, 1.0), 1.5, 1));
+	//m_LightManager->addLight(new DirectionalLight(glm::vec3(-5.0, -5.0, -5.0), glm::vec3(1.0, 0.5, 0.5), 1, 1));
+		
+	//m_LightManager->addLight(new PointLight(glm::vec3(-5.0, 3.0, -4.0), glm::vec3(1.0, 1.0, 1.0), 1.5, 1));
 	m_LightManager->setAmbientStrength(0.1);
 	m_LightManager->setAmbientColor(glm::vec3(0.2, 0.2, 1.0));
 
@@ -98,9 +101,9 @@ void Renderer::SetupScene() {
 
 	if (m_AntialiasingSamples > 0)
 		m_Framebuffers["msaaFBO"] = new Framebuffer(new Texture(m_SWidth, m_SHeight, m_AntialiasingSamples), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
-	//m_Framebuffers["depthFBO"] = new Framebuffer(m_LightManager->getLight(0)->getShadowText(), GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, GL_FALSE, GL_FALSE);
-	m_Framebuffers["depthFBO"] = new Framebuffer(new Texture(0, GL_DEPTH_COMPONENT16, m_ShadowResolution, m_ShadowResolution, 0,
-		GL_DEPTH_COMPONENT, GL_FLOAT, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER), GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, GL_FALSE, GL_FALSE);
+	//m_Framebuffers["depthFBO"] = new Framebuffer(new Texture(0, GL_DEPTH_COMPONENT16, m_ShadowResolution, m_ShadowResolution, 0,
+	//	GL_DEPTH_COMPONENT, GL_FLOAT, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER), GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, GL_FALSE, GL_FALSE);
+	m_Framebuffers["depthFBO"] = new Framebuffer(m_LightManager->getLight(0)->getShadowText(), GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, GL_FALSE, GL_FALSE);
 	m_Framebuffers["postprocessingFBO"] = new Framebuffer(m_Vignette->getTexture(), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
 
 
@@ -108,7 +111,8 @@ void Renderer::SetupScene() {
 void Renderer::DrawScene() {
 
 	//Shadow mapping pass
-	computeShadows();
+	if (m_LightManager->getLightsCount() != 0)
+		computeShadows();
 
 
 	//Render scene in given fbo
@@ -212,6 +216,7 @@ void Renderer::LateInit()
 
 	m_Shaders["UnlitBasicShader"] = new Shader("UnlitBasicShader.shader", ShaderType::UNLIT);
 	m_Shaders["BasicDepthShader"] = new Shader("BasicDepthShader.shader", ShaderType::UNLIT);
+	m_Shaders["PointShadowDepthShader"] = new Shader("PointShadowDepthShader.shader", ShaderType::UNLIT);
 	m_Shaders["BasicPhongShader"] = new Shader("BasicPhongShader.shader", ShaderType::LIT);
 	m_Shaders["SkyboxShader"] = new Shader("SkyboxShader.shader", ShaderType::UNLIT);
 	m_Shaders["NormalDebugShader"] = new Shader("NormalVisualizationShader.shader", ShaderType::UNLIT);
@@ -293,7 +298,8 @@ void Renderer::createVignette()
 
 void Renderer::render()
 {
-	renderLights(true);
+	if (m_LightManager->getLightsCount() != 0)
+		renderLights(true);
 
 	std::vector<Model*> opaqueModels;
 	std::vector<Model*> blendModels;
@@ -392,52 +398,65 @@ void Renderer::computeShadows()
 
 			if (m_LightManager->getLight(i)->getType() == 0) {
 
-				std::vector<glm::vec3> targets;
-				targets.push_back(m_LightManager->getLight(i)->getPosition() + glm::vec3(1.0, 0.0, 0.0));
-				targets.push_back(m_LightManager->getLight(i)->getPosition() + glm::vec3(-1.0, 0.0, 0.0));
-				targets.push_back(m_LightManager->getLight(i)->getPosition() + glm::vec3(0.0, 1.0, 0.0));
-				targets.push_back(m_LightManager->getLight(i)->getPosition() + glm::vec3(0.0, -1.0, 0.0));
-				targets.push_back(m_LightManager->getLight(i)->getPosition() + glm::vec3(0.0, 0.0, 1.0));
-				targets.push_back(m_LightManager->getLight(i)->getPosition() + glm::vec3(0.0, 0.0, -1.0));
+				glm::mat4 lightProj = glm::perspective(glm::radians(90.0f), 1.0f, 1.0f, 25.0f);
+				
+				std::vector<glm::mat4> shadowTransforms;
+				shadowTransforms.push_back(lightProj *
+					glm::lookAt(m_LightManager->getLight(i)->getPosition(), m_LightManager->getLight(i)->getPosition() + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+				shadowTransforms.push_back(lightProj *
+					glm::lookAt(m_LightManager->getLight(i)->getPosition(), m_LightManager->getLight(i)->getPosition() + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+				shadowTransforms.push_back(lightProj *
+					glm::lookAt(m_LightManager->getLight(i)->getPosition(), m_LightManager->getLight(i)->getPosition() + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
+				shadowTransforms.push_back(lightProj *
+					glm::lookAt(m_LightManager->getLight(i)->getPosition(), m_LightManager->getLight(i)->getPosition() + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
+				shadowTransforms.push_back(lightProj *
+					glm::lookAt(m_LightManager->getLight(i)->getPosition(), m_LightManager->getLight(i)->getPosition() + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
+				shadowTransforms.push_back(lightProj *
+					glm::lookAt(m_LightManager->getLight(i)->getPosition(), m_LightManager->getLight(i)->getPosition() + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
 
-				for (size_t j = 0; j < 6; j++)
-				{
-					m_Framebuffers["depthFBO"]->setTextureAttachment(m_LightManager->getLight(i)->getShadowText(), GL_TEXTURE_CUBE_MAP_POSITIVE_X + j);
+				m_Shaders["PointShadowDepthShader"]->bind();
+				for (unsigned int i = 0; i < 6; ++i)
+					m_Shaders["PointShadowDepthShader"]->setMat4("cubeMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
+				m_Shaders["PointShadowDepthShader"]->setVec3("lightPos", m_LightManager->getLight(i)->getPosition());
+				m_Shaders["PointShadowDepthShader"]->setFloat("far_plane", 25.0f);
+				m_Shaders["PointShadowDepthShader"]->unbind();
 
-					bindFramebuffer("depthFBO");
+				m_Framebuffers["depthFBO"]->setTextureAttachment(m_LightManager->getLight(i)->getShadowText(), GL_DEPTH_ATTACHMENT);
 
-					glDrawBuffer(GL_NONE);
-					glReadBuffer(GL_NONE);
-					glEnable(GL_DEPTH_TEST);
-					glEnable(GL_CULL_FACE);
-					glCullFace(GL_FRONT);
+				bindFramebuffer("depthFBO");
 
-					glClear(GL_DEPTH_BUFFER_BIT);
+				glDrawBuffer(GL_NONE);
+				glReadBuffer(GL_NONE);
+				glEnable(GL_DEPTH_TEST);
+				glEnable(GL_CULL_FACE);
+				glCullFace(GL_FRONT);
 
-					for (auto& m : m_Models) {
-						m.second->drawDepth(m_Shaders["BasicDepthShader"], m_LightManager->getLight(i)->getLightTransformMatrix(targets[j]));
-					}
+				glClear(GL_DEPTH_BUFFER_BIT);
 
+				for (auto& m : m_Models) {
+					m.second->drawDepth(m_Shaders["PointShadowDepthShader"], m_LightManager->getLight(i)->getLightTransformMatrix(glm::vec3(0.0, -1.0, 0.0)));
 				}
+
+
 
 			}
 			else {
 
-			m_Framebuffers["depthFBO"]->setTextureAttachment(m_LightManager->getLight(i)->getShadowText(), GL_TEXTURE_2D);
+				m_Framebuffers["depthFBO"]->setTextureAttachment(m_LightManager->getLight(i)->getShadowText(), GL_TEXTURE_2D);
 
-			bindFramebuffer("depthFBO");
+				bindFramebuffer("depthFBO");
 
-			glDrawBuffer(GL_NONE);
-			glReadBuffer(GL_NONE);
-			glEnable(GL_DEPTH_TEST);
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_FRONT);
+				glDrawBuffer(GL_NONE);
+				glReadBuffer(GL_NONE);
+				glEnable(GL_DEPTH_TEST);
+				glEnable(GL_CULL_FACE);
+				glCullFace(GL_FRONT);
 
-			glClear(GL_DEPTH_BUFFER_BIT);
+				glClear(GL_DEPTH_BUFFER_BIT);
 
-			for (auto& m : m_Models) {
-				m.second->drawDepth(m_Shaders["BasicDepthShader"], m_LightManager->getLight(i)->getLightTransformMatrix(glm::vec3(0.0f)));
-			}
+				for (auto& m : m_Models) {
+					m.second->drawDepth(m_Shaders["BasicDepthShader"], m_LightManager->getLight(i)->getLightTransformMatrix(glm::vec3(0.0f)));
+				}
 			}
 		}
 

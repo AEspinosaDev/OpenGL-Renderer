@@ -6,7 +6,10 @@
 #include "FreeImage.h"
 #include <Utils/stb_image.h>
 
-
+enum TextureType {
+	TEXTURE_2D,
+	TEXTURE_CUBE
+};
 
 class Texture {
 protected:
@@ -15,7 +18,7 @@ protected:
 	unsigned char* m_LocalBuffer;
 	unsigned int m_Width, m_Height;
 	unsigned int m_Samples;
-
+	TextureType m_TextureType;
 	GLint level;
 	GLint internalFormat;
 	GLint border;
@@ -123,6 +126,7 @@ public:
 	inline int getWidth() const { return m_Width; }
 	inline int getHeight() const { return m_Height; }
 	inline int getSamples() const { return m_Samples; }
+	inline TextureType getType() const { return m_TextureType; }
 
 	virtual void resize(unsigned int w, unsigned int h);
 
@@ -134,8 +138,8 @@ protected:
 	/// <summary>
 	/// Instanciates ungenerated texture
 	/// </summary>
-	Texture() : m_RendererID(-1), m_FilePath(""), m_LocalBuffer(nullptr), m_Width(0), m_Height(0), m_Samples(1),
-		level(0), internalFormat(GL_RGB), border(0), format(GL_RGB), type(GL_UNSIGNED_BYTE) {}
+	Texture(TextureType t_type) : m_RendererID(-1), m_FilePath(""), m_LocalBuffer(nullptr), m_Width(0), m_Height(0), m_Samples(1),
+		level(0), internalFormat(GL_RGB), border(0), format(GL_RGB), type(GL_UNSIGNED_BYTE), m_TextureType(t_type) {}
 private:
 	void generateTexture(bool anisotropicFilter, int magFilter, int minFilter, int wrapT, int wrapS);
 

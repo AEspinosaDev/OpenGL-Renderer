@@ -230,6 +230,7 @@
     <None Include="packages.config" />
     <None Include="Resources\Shaders\BasicPhongShader.shader" />
     <None Include="Resources\Shaders\NormalVisualizationShader.shader" />
+    <None Include="Resources\Shaders\PointShadowDepthShader.shader" />
     <None Include="Resources\Shaders\SkyboxShader.shader" />
     <None Include="Resources\Shaders\UnlitBasicShader.shader" />
     <None Include="Resources\Shaders\VignetteShader.shader" />

@@ -2,14 +2,14 @@
 
 
 Texture::Texture(const std::string& path) :m_RendererID(0), m_FilePath(texturePath + path), m_LocalBuffer(nullptr), m_Width(0), m_Height(0), m_Samples(1),
-level(0), internalFormat(GL_RGBA8), border(0), format(GL_RGBA), type(GL_UNSIGNED_BYTE) {
+level(0), internalFormat(GL_RGBA8), border(0), format(GL_RGBA), type(GL_UNSIGNED_BYTE),m_TextureType(TextureType::TEXTURE_2D) {
 
 	generateTexture(true, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT);
 
 }
 
 Texture::Texture(unsigned int w, unsigned int h) : m_RendererID(0), m_FilePath("null"), m_LocalBuffer(nullptr), m_Width(w), m_Height(h), m_Samples(1),
-level(0), internalFormat(GL_RGBA8), border(0), format(GL_RGBA), type(GL_UNSIGNED_BYTE) {
+level(0), internalFormat(GL_RGBA8), border(0), format(GL_RGBA), type(GL_UNSIGNED_BYTE), m_TextureType(TextureType::TEXTURE_2D) {
 
 	generateTexture(false, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT);
 	
@@ -17,7 +17,7 @@ level(0), internalFormat(GL_RGBA8), border(0), format(GL_RGBA), type(GL_UNSIGNED
 }
 
 Texture::Texture(unsigned int w, unsigned int h, unsigned int samples) : m_RendererID(0), m_FilePath("null"), m_LocalBuffer(nullptr), m_Width(w), m_Height(h), m_Samples(samples),
-level(0), internalFormat(GL_RGBA8), border(0), format(GL_RGBA), type(GL_UNSIGNED_BYTE) {
+level(0), internalFormat(GL_RGBA8), border(0), format(GL_RGBA), type(GL_UNSIGNED_BYTE), m_TextureType(TextureType::TEXTURE_2D) {
 
 	GLcall(glGenTextures(1, &m_RendererID));
 	GLcall(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_RendererID));
@@ -29,7 +29,7 @@ level(0), internalFormat(GL_RGBA8), border(0), format(GL_RGBA), type(GL_UNSIGNED
 
 Texture::Texture(const std::string& path, GLint level, GLint internalFormat, unsigned int w, unsigned int h, GLint border, GLenum format, GLenum type,
 	bool anisotropicFilter, int magFilter, int minFilter, int wrapT, int wrapS) :m_RendererID(0), m_FilePath(texturePath + path), m_LocalBuffer(nullptr), m_Width(0), m_Height(0), m_Samples(1),
-	level(level), internalFormat(internalFormat), border(border), format(format), type(type) {
+	level(level), internalFormat(internalFormat), border(border), format(format), type(type) , m_TextureType(TextureType::TEXTURE_2D) {
 
 	generateTexture(anisotropicFilter, magFilter, minFilter, wrapT, wrapS);
 
@@ -38,7 +38,7 @@ Texture::Texture(const std::string& path, GLint level, GLint internalFormat, uns
 
 Texture::Texture(GLint level, GLint internalFormat, unsigned int w, unsigned int h, GLint border, GLenum format, GLenum type, bool anisotropicFilter,
 	int magFilter, int minFilter, int wrapT, int wrapS) :m_RendererID(0), m_FilePath("null"), m_LocalBuffer(nullptr), m_Width(w), m_Height(h), m_Samples(1),
-	level(level), internalFormat(internalFormat), border(border), format(format), type(type) {
+	level(level), internalFormat(internalFormat), border(border), format(format), type(type), m_TextureType(TextureType::TEXTURE_2D) {
 
 	generateTexture(anisotropicFilter, magFilter, minFilter, wrapT, wrapS);
 
