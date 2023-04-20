@@ -123,15 +123,18 @@ struct Material {
 //Uniforms
 uniform mat4 u_Model;
 uniform Material material;
-uniform PointLight pointLights[2];
-uniform DirectionalLight directionalLights[MAX_LIGHTS];
-uniform SpotLight spotLights[MAX_LIGHTS];
+uniform PointLight pointLights[5];
+uniform DirectionalLight directionalLights[5];
+uniform SpotLight spotLights[5];
 uniform int pointsLightsNumber;
 uniform int directionalLightsNumber;
 uniform int spotLightsNumber;
+uniform float u_shadowsFarPlane;
 uniform float u_ambientStrength;
 uniform vec3 u_ambientColor;
 uniform samplerCube u_skybox;
+
+int number = 2;
 
 //Surface properties
 vec3 N;
@@ -187,14 +190,14 @@ float computePointShadow(samplerCube shadowMap ,vec3 lightPos)
 	// use the light to fragment vector to sample from the depth map    
 	float closestDepth = texture(shadowMap, fragToLight).r;
 	// it is currently in linear range between [0,1]. Re-transform back to original value
-	closestDepth *= 25.0;
+	closestDepth *= u_shadowsFarPlane;
 	// now get current linear depth as the length between the fragment and light position
 	float currentDepth = length(fragToLight);
 	// now test for shadows
 	float bias = 0.05;
 	float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
-
-	if (currentDepth > 25.0) shadow = 0.0;
+	// discard shadowing fragments further away
+	if (currentDepth > u_shadowsFarPlane) shadow = 0.0;
 	return shadow;
 }
 
@@ -217,7 +220,6 @@ vec3 shadePointLight(vec3 lightPos, vec3 color, float intensity, samplerCube sha
 
 	//Shadow 
 	float shadow;
-	//material.receiveShadows ? shadow = computeShadow(shadowMap, lightViewProj, L) : shadow = 0.0;
 	material.receiveShadows ? shadow = computePointShadow(shadowMap, worldPos) : shadow = 0.0;
 
 	vec3 result = (1.0 - shadow) * (diffuse + specular) * albedo;
@@ -240,7 +242,7 @@ vec3 shadeDirectionalLight(vec3 lightDir, vec3 color, float intensity, sampler2D
 
 	//Shadow 
 	float shadow;
-	castShadows ? shadow = computeShadow(shadowMap, lightViewProj, L) : shadow = 0.0;
+	material.receiveShadows ? shadow = computeShadow(shadowMap, lightViewProj, L) : shadow = 0.0;
 
 	vec3 result = (1.0 - shadow) * (diffuse + specular) * albedo;
 	result *= intensity;
@@ -262,6 +264,7 @@ vec3 shade() {
 		result += shadePointLight(pointLights[i].pos, pointLights[i].color, pointLights[i].intensity, pointLights[i].shadowMap, pointLights[i].worldPos,
 			pointLights[i].castShadows);
 	}
+
 	for (int i = 0; i < directionalLightsNumber; i++) {
 		result += shadeDirectionalLight(directionalLights[i].dir, directionalLights[i].color, directionalLights[i].intensity,
 			directionalLights[i].shadowMap, directionalLights[i].lightViewProj, directionalLights[i].castShadows);

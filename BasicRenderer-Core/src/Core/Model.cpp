@@ -33,27 +33,6 @@ void Model::draw(glm::mat4 proj, glm::mat4 view) {
 		std::cout << "Model doesnt have any mesh loaded" << std::endl;
 }
 
-void Model::drawDepth(Shader* depthShader, glm::mat4 viewProjMatrix)
-{
-	if (!isActive()) return;
-
-	if (m_Mesh != nullptr) {
-		m_Mesh->setModel(m_Transform);
-		m_Mesh->drawShadows(depthShader, viewProjMatrix);
-	}
-	else
-		std::cout << "Model doesnt have any mesh loaded" << std::endl;
-}
-
-void Model::drawNormals(Shader* normalShader, glm::mat4 proj, glm::mat4 view)
-{
-	if (m_Mesh != nullptr) {
-		m_Mesh->setModel(m_Transform);
-		m_Mesh->drawNormals(normalShader, proj,view);
-	}
-	else
-		std::cout << "Model doesnt have any mesh loaded" << std::endl;
-}
 
 Model* Model::clone()
 {

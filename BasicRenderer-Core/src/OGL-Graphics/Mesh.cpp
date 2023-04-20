@@ -62,33 +62,13 @@ void Mesh::draw(glm::mat4 proj, glm::mat4 view) {
 	m_Mat->unbind();
 }
 
-void Mesh::drawNormals(Shader* normalShader, glm::mat4 proj, glm::mat4 view)
+void Mesh::draw()
 {
-	normalShader->setMat4("u_modelView", view * m_Model);
-	normalShader->setMat4("u_projection", proj);
-
 	m_Vao.bind();
 	GLcall(glDrawElements(GL_TRIANGLES, m_Triangles, GL_UNSIGNED_INT, (void*)0));
-
 }
 
 
-
-void Mesh::drawShadows(Shader* depthShader, glm::mat4 lightViewProj)
-{
-	if (!castShadows) return;
-	depthShader->bind();
-
-	depthShader->setMat4("u_Light_ModelViewProj", lightViewProj * m_Model);
-	depthShader->setMat4("model", m_Model);
-
-
-	m_Vao.bind();
-	GLcall(glDrawElements(GL_TRIANGLES, m_Triangles, GL_UNSIGNED_INT, (void*)0));
-
-	depthShader->unbind();
-
-}
 
 void Mesh::importFile(const std::string& pname) {
 

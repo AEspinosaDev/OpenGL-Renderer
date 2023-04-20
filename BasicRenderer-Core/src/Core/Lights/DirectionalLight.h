@@ -5,6 +5,8 @@ class DirectionalLight : public Light
 {
 private:
 	glm::vec3 m_Direction;
+	
+	glm::vec3 m_ShadowTarget;
 
 public:
 	/// <summary>
@@ -13,7 +15,7 @@ public:
 	/// <param name="p">World direction</param>
 	/// <param name="c">Color</param>
 	/// <param name="t">Attenuation radious</param>
-	DirectionalLight(glm::vec3 d, glm::vec3  c, float a) :Light(glm::vec3(0.0, 5.0 ,0.0), c, 0), m_Direction(d) {}
+	DirectionalLight(glm::vec3 d, glm::vec3  c, float a) :Light(glm::vec3(0.0, 5.0 ,0.0), c, 1), m_Direction(d),m_ShadowTarget(glm::vec3(0.0f)) {}
 
 	/// <summary>
 	/// Instanciates a directional light
@@ -22,7 +24,7 @@ public:
 	/// <param name="p">World direction</param>
 	/// <param name="c">Color</param>
 	/// <param name="t">Attenuation radious</param>
-	DirectionalLight(const std::string na, glm::vec3 d, glm::vec3  c, float a) :Light(na, glm::vec3(0.0, 5.0, 0.0), c, 0), m_Direction(d) {}
+	DirectionalLight(const std::string na, glm::vec3 d, glm::vec3  c, float a) :Light(na, glm::vec3(0.0, 5.0, 0.0), c, 1), m_Direction(d), m_ShadowTarget(glm::vec3(0.0f)) {}
 
 	/// <summary>
 	/// Instanciates a directional light
@@ -31,7 +33,7 @@ public:
 	/// <param name="c">Color</param>
 	/// <param name="i">Intensity</param>
 	/// <param name="t">Attenuation radious</param>
-	DirectionalLight(glm::vec3 d, glm::vec3  c, float i, float a) :Light(glm::vec3(0.0, 5.0, 0.0), c, i, 0), m_Direction(d) {}
+	DirectionalLight(glm::vec3 d, glm::vec3  c, float i, float a) :Light(glm::vec3(0.0, 5.0, 0.0), c, i, 1), m_Direction(d), m_ShadowTarget(glm::vec3(0.0f)) {}
 
 	/// <summary>
 	/// Instanciates a directional light
@@ -41,12 +43,17 @@ public:
 	/// <param name="c">Color</param>
 	/// <param name="i">Intensity</param>
 	/// <param name="t">Attenuation radious</param>
-	DirectionalLight(const std::string na, glm::vec3 d, glm::vec3  c, float i, float a) :Light(na, glm::vec3(0.0, 5.0, 0.0), c, i, 0), m_Direction(d) {}
+	DirectionalLight(const std::string na, glm::vec3 d, glm::vec3  c, float i, float a) :Light(na, glm::vec3(0.0, 5.0, 0.0), c, i, 1), m_Direction(d), m_ShadowTarget(glm::vec3(0.0f)) {}
 
 	inline void setDirection(glm::vec3 d) { m_Direction = d; }
 
 	inline glm::vec3 getDirection() { return m_Direction; }
 
-	glm::mat4 getLightTransformMatrix(glm::vec3 target);
+	inline void setShadowTarget(glm::vec3 d) { m_ShadowTarget = d; }
+
+	inline glm::vec3 getShadowTarget() { return m_ShadowTarget; }
+
+	glm::mat4 getLightTransformMatrix();
+
 };
 

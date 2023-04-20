@@ -72,9 +72,9 @@ public:
 
 	virtual inline void setShadowText(Texture* t) { m_ShadowText = t; }
 
-	virtual glm::mat4 getLightTransformMatrix(glm::vec3 target) = 0;
-
 	inline const unsigned int getType() { return type; }
+
+	virtual glm::mat4 getLightTransformMatrix() = 0;
 
 	void draw(glm::mat4 proj, glm::mat4 view);
 

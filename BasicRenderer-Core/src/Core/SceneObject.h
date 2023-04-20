@@ -41,6 +41,8 @@ public:
 
 	virtual inline glm::vec3 getScale() { return m_Scale; }
 
+	virtual inline glm::mat4 getTransform() { return m_Transform; }
+
 	virtual inline void setActive(const bool  s) { enabled = s; }
 
 	virtual inline bool isActive() { return enabled; }

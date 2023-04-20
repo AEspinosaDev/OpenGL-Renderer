@@ -77,10 +77,12 @@ void Renderer::SetupScene() {
 	PointLight* l = new PointLight(glm::vec3(5.0, 3.0, 4.0), glm::vec3(1.0, 0.8, 0.8), 1.5, 1);
 	//l->setCastShadows(false);
 	m_LightManager->addLight(l);
-	m_LightManager->addLight(new PointLight(glm::vec3(-4.0, 1.0, 2.0), glm::vec3(1.0, 0.5, 0.5), 1, 1));
-	//m_LightManager->addLight(new DirectionalLight(glm::vec3(-5.0, -5.0, -5.0), glm::vec3(1.0, 0.5, 0.5), 1, 1));
+	//m_LightManager->addLight(new PointLight(glm::vec3(-4.0, 1.0, 2.0), glm::vec3(1.0, 0.5, 0.5), 1, 1));
+	//m_LightManager->addLight(new DirectionalLight(glm::vec3(5.0, 8.0, 5.0), glm::vec3(1.0, 0.5, 0.5), 0.8, 1));
 		
 	//m_LightManager->addLight(new PointLight(glm::vec3(-5.0, 3.0, -4.0), glm::vec3(1.0, 1.0, 1.0), 1.5, 1));
+	//m_LightManager->addLight(new PointLight(glm::vec3(5.0, 3.0, -4.0), glm::vec3(1.0, 0.0, 1.0), 1.5, 1));
+
 	m_LightManager->setAmbientStrength(0.1);
 	m_LightManager->setAmbientColor(glm::vec3(0.2, 0.2, 1.0));
 
@@ -101,9 +103,8 @@ void Renderer::SetupScene() {
 
 	if (m_AntialiasingSamples > 0)
 		m_Framebuffers["msaaFBO"] = new Framebuffer(new Texture(m_SWidth, m_SHeight, m_AntialiasingSamples), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
-	//m_Framebuffers["depthFBO"] = new Framebuffer(new Texture(0, GL_DEPTH_COMPONENT16, m_ShadowResolution, m_ShadowResolution, 0,
-	//	GL_DEPTH_COMPONENT, GL_FLOAT, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER), GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, GL_FALSE, GL_FALSE);
-	m_Framebuffers["depthFBO"] = new Framebuffer(m_LightManager->getLight(0)->getShadowText(), GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, GL_FALSE, GL_FALSE);
+	
+	//m_Framebuffers["depthFBO"] = new Framebuffer(m_LightManager->getLight(0)->getShadowText(), GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, GL_FALSE, GL_FALSE);
 	m_Framebuffers["postprocessingFBO"] = new Framebuffer(m_Vignette->getTexture(), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
 
 
@@ -393,12 +394,15 @@ void Renderer::computeShadows()
 
 	for (size_t i = 0; i < lights; i++)
 	{
+		if (!m_Framebuffers["depthFBO"])
+			m_Framebuffers["depthFBO"] = new Framebuffer(m_LightManager->getLight(i)->getShadowText(), GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, GL_FALSE, GL_FALSE);
+
 		if (m_LightManager->getLight(i)->getCastShadows()) {
 
 
 			if (m_LightManager->getLight(i)->getType() == 0) {
 
-				glm::mat4 lightProj = glm::perspective(glm::radians(90.0f), 1.0f, 1.0f, 25.0f);
+				glm::mat4 lightProj = glm::perspective(glm::radians(90.0f), 1.0f, 1.0f, m_LightManager->getShadowsFarPlane());
 				
 				std::vector<glm::mat4> shadowTransforms;
 				shadowTransforms.push_back(lightProj *
@@ -418,8 +422,11 @@ void Renderer::computeShadows()
 				for (unsigned int i = 0; i < 6; ++i)
 					m_Shaders["PointShadowDepthShader"]->setMat4("cubeMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
 				m_Shaders["PointShadowDepthShader"]->setVec3("lightPos", m_LightManager->getLight(i)->getPosition());
-				m_Shaders["PointShadowDepthShader"]->setFloat("far_plane", 25.0f);
+				m_Shaders["PointShadowDepthShader"]->setFloat("far_plane", m_LightManager->getShadowsFarPlane());
 				m_Shaders["PointShadowDepthShader"]->unbind();
+
+				
+
 
 				m_Framebuffers["depthFBO"]->setTextureAttachment(m_LightManager->getLight(i)->getShadowText(), GL_DEPTH_ATTACHMENT);
 
@@ -434,13 +441,26 @@ void Renderer::computeShadows()
 				glClear(GL_DEPTH_BUFFER_BIT);
 
 				for (auto& m : m_Models) {
-					m.second->drawDepth(m_Shaders["PointShadowDepthShader"], m_LightManager->getLight(i)->getLightTransformMatrix(glm::vec3(0.0, -1.0, 0.0)));
+
+					if (!m.second->isActive()) return;
+					if (!m.second->getMesh()->getCastShadows()) return;
+
+					m.second->getMesh()->setModel(m.second->getTransform());
+
+					m_Shaders["PointShadowDepthShader"]->bind();
+
+					m_Shaders["PointShadowDepthShader"]->setMat4("u_model",m.second->getMesh()->getModel());
+
+					m.second->getMesh()->draw();
+
+					m_Shaders["PointShadowDepthShader"]->unbind();
+
 				}
-
-
 
 			}
 			else {
+
+			
 
 				m_Framebuffers["depthFBO"]->setTextureAttachment(m_LightManager->getLight(i)->getShadowText(), GL_TEXTURE_2D);
 
@@ -455,7 +475,20 @@ void Renderer::computeShadows()
 				glClear(GL_DEPTH_BUFFER_BIT);
 
 				for (auto& m : m_Models) {
-					m.second->drawDepth(m_Shaders["BasicDepthShader"], m_LightManager->getLight(i)->getLightTransformMatrix(glm::vec3(0.0f)));
+
+					if (!m.second->isActive()) return;
+					if (!m.second->getMesh()->getCastShadows()) return;
+
+					m.second->getMesh()->setModel(m.second->getTransform());
+
+					m_Shaders["PointShadowDepthShader"]->bind();
+
+					m_Shaders["PointShadowDepthShader"]->setMat4("u_Light_ModelViewProj", m_LightManager->getLight(i)->getLightTransformMatrix() * m.second->getMesh()->getModel());
+
+					m.second->getMesh()->draw();
+
+					m_Shaders["PointShadowDepthShader"]->unbind();
+					
 				}
 			}
 		}
@@ -464,22 +497,38 @@ void Renderer::computeShadows()
 
 
 }
-void Renderer::renderSkybox() {
 
-	m_Skybox->draw(m_MainCam.getProj(), glm::lookAt(glm::vec3(0.0f), m_MainCam.getFront(), m_MainCam.getUp())); //Remove view translation
-}
 
-void Renderer::debugObjectNormals()
+
+void Renderer::drawObjectNormals()
 {
 	Shader* normalShader = m_Shaders["NormalDebugShader"];
 	normalShader->bind();
 
 	for (auto& m : m_Models) {
-		m.second->drawNormals(normalShader, m_MainCam.getProj(), m_MainCam.getView());
+		if (!m.second->isActive()) continue;
+		auto mesh = m.second->getMesh();
+		if (mesh != nullptr) {
+			mesh->setModel(m.second->getTransform());
+			normalShader->setMat4("u_modelView", m_MainCam.getView() * m.second->getMesh()->getModel());
+			normalShader->setMat4("u_projection", m_MainCam.getProj());
+			mesh->draw();
+		}
+		else
+			std::cout << "Model doesnt have any mesh loaded" << std::endl;
+
+	
+
 	}
 
 	normalShader->unbind();
 }
+
+void Renderer::renderSkybox() {
+
+	m_Skybox->draw(m_MainCam.getProj(), glm::lookAt(glm::vec3(0.0f), m_MainCam.getFront(), m_MainCam.getUp())); //Remove view translation
+}
+
 
 
 

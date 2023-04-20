@@ -182,8 +182,11 @@ private:
     /// </summary>
     void renderSkybox();
 
-   
-    void debugObjectNormals();
+    /// <summary>
+    /// Render all objects normals in scene for debugging purposes
+    /// </summary>
+    void drawObjectNormals();
+
 
 };
 

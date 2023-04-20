@@ -1,12 +1,12 @@
 ﻿  Renderer.cpp
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Camera.h(31,8): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(84,40): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(231,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(260,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(86,40): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(232,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(261,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(265,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(262,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(266,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(268,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(267,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(269,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(394,23): warning C4018: '<': signed/unsigned mismatch
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(270,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(395,23): warning C4018: '<': signed/unsigned mismatch
   BasicRenderer-Core.vcxproj -> C:\Dev\BasicRenderer\binaries\Win32\Debug\BasicRenderer-Core.exe

@@ -11,11 +11,11 @@ private:
 
 public:
 
-	Model(const std::string na, Mesh* me) :SceneObject(na), m_Mesh(me), m_Mat(nullptr){}
+	Model(const std::string na, Mesh* me) :SceneObject(na), m_Mesh(me), m_Mat(nullptr) {}
 
 	Model(const std::string na, Mesh* me, Material* ma) : SceneObject(na), m_Mesh(me), m_Mat(ma) {}
 
-	Model() :SceneObject(), m_Mesh(nullptr), m_Mat(nullptr){}
+	Model() :SceneObject(), m_Mesh(nullptr), m_Mat(nullptr) {}
 
 	~Model() {}
 
@@ -28,10 +28,7 @@ public:
 
 	void draw(glm::mat4 proj, glm::mat4 view);
 
-	void drawDepth(Shader* depthShader, glm::mat4 viewProjMatrix);
-
-	void drawNormals(Shader* normalShader, glm::mat4 proj, glm::mat4 view);
-
 	Model* clone();
+
 
 };

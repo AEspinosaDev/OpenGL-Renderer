@@ -19,6 +19,7 @@ private:
 	glm::vec3 m_AmbientColor;
 
 	unsigned int m_ShadowResolution;
+	float m_ShadowFarPlane;
 
 	const int MAX_LIGHTS = 32;
 	int pointLightsNumber;
@@ -34,7 +35,9 @@ public:
 		m_PLightMesh(nullptr),
 		m_DLightMesh(nullptr),
 		m_SLightMesh(nullptr),
-		m_DebugMat(nullptr) {}
+		m_DebugMat(nullptr),
+		m_ShadowFarPlane(100.0)
+	{}
 	
 	inline Light* getLight(int index) {
 		return m_Lights[index];
@@ -44,6 +47,8 @@ public:
 	inline void setAmbientColor(glm::vec3 ambientColor ) { m_AmbientColor = ambientColor; }
 	inline glm::vec3 getAmbientColor() { return m_AmbientColor; }
 	inline int getLightsCount() { return lightsNumber; }
+	inline float getShadowsFarPlane() { return m_ShadowFarPlane; }
+	inline void setShadowsFarPlane(float f) { m_ShadowFarPlane=f; }
 
 	//void init(std::unordered_map<std::string, Shader*> shaders);
 	void init(std::unordered_map<std::string, Shader*> shaders);
