@@ -36,5 +36,7 @@ void Model::draw(glm::mat4 proj, glm::mat4 view) {
 
 Model* Model::clone()
 {
-	return new Model("", m_Mesh, m_Mat);
+	m_Clones++;
+	//Ask for the last symbol of the name, if its a number increase it by one and change it
+	return new Model(getName()+"clone"+std::to_string(m_Clones-1), m_Mesh, m_Mat);
 }

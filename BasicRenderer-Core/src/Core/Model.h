@@ -11,11 +11,14 @@ private:
 
 public:
 
-	Model(const std::string na, Mesh* me) :SceneObject(na), m_Mesh(me), m_Mat(nullptr) {}
+	Model(const std::string na, Mesh* me) :SceneObject(na, ObjectType::MODEL ), m_Mesh(me), m_Mat(nullptr) {}
 
-	Model(const std::string na, Mesh* me, Material* ma) : SceneObject(na), m_Mesh(me), m_Mat(ma) {}
+	Model(const std::string na, Mesh* me, Material* ma) : SceneObject(na, ObjectType::MODEL), m_Mesh(me), m_Mat(ma) {}
 
-	Model() :SceneObject(), m_Mesh(nullptr), m_Mat(nullptr) {}
+	Model() :SceneObject(ObjectType::MODEL), m_Mesh(nullptr), m_Mat(nullptr) {}
+
+	Model(const std::string na) :SceneObject(na, ObjectType::MODEL), m_Mesh(nullptr), m_Mat(nullptr) {}
+
 
 	~Model() {}
 

@@ -123,9 +123,9 @@ struct Material {
 //Uniforms
 uniform mat4 u_Model;
 uniform Material material;
-uniform PointLight pointLights[5];
-uniform DirectionalLight directionalLights[5];
-uniform SpotLight spotLights[5];
+uniform PointLight pointLights[2];
+uniform DirectionalLight directionalLights[MAX_LIGHTS];
+uniform SpotLight spotLights[MAX_LIGHTS];
 uniform int pointsLightsNumber;
 uniform int directionalLightsNumber;
 uniform int spotLightsNumber;
@@ -133,8 +133,6 @@ uniform float u_shadowsFarPlane;
 uniform float u_ambientStrength;
 uniform vec3 u_ambientColor;
 uniform samplerCube u_skybox;
-
-int number = 2;
 
 //Surface properties
 vec3 N;
@@ -194,7 +192,7 @@ float computePointShadow(samplerCube shadowMap ,vec3 lightPos)
 	// now get current linear depth as the length between the fragment and light position
 	float currentDepth = length(fragToLight);
 	// now test for shadows
-	float bias = 0.05;
+	float bias = 0.0; //for now
 	float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 	// discard shadowing fragments further away
 	if (currentDepth > u_shadowsFarPlane) shadow = 0.0;

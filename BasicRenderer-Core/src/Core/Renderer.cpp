@@ -4,15 +4,21 @@
 #include <Core/Materials/BasicPhongMaterial.h>
 #include <map>
 
-void Renderer::Run() {
-	Init();
-	LateInit();
-	SetupScene();
-	Tick();
+void Renderer::run() {
+	setupScene();
+	tick();
 	glfwTerminate();
 }
 
-void Renderer::SetupScene() {
+void Renderer::createScene(std::string sceneName) {
+	m_Scenes[sceneName] = new Scene(sceneName);
+}
+
+Scene* Renderer::getScene(std::string sceneName) {
+	return m_Scenes[sceneName];
+}
+
+void Renderer::setupScene() {
 
 	/*BasicPhongMaterial* sphere_m = new BasicPhongMaterial(m_Shaders);
 	sphere_m->setShininess(500);
@@ -23,81 +29,19 @@ void Renderer::SetupScene() {
 	sphere->setPosition(glm::vec3(-2.0, 2.0, 0.0));
 	m_Models["sphere"] = sphere;*/
 
-	Texture* boxColorTex = new Texture("SeamlessWood-Diffuse.jpg");
-	//Texture* boxColorTex = new Texture("SeamlessWood-Diffuse.jpg", 0, GL_SRGB_ALPHA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, true, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT);
-	Texture* boxNormalTex = new Texture("SeamlessWood-NormalMap.tif");
-	BasicPhongMaterial* box_m = new BasicPhongMaterial(m_Shaders);
-	box_m->addColorTex(boxColorTex);
-	box_m->addNormalTex(boxNormalTex);
-	//box_m->setOpacity(0.9);
-	box_m->setTransparency(true);
-
-	Model* box = new Model();
-	box->loadMesh("box.obj");
-	box->loadMaterial(box_m);
-	box->setPosition(glm::vec3(2.0, 0.5, 0.0));
-	m_Models["box"] = box;
-	m_Models["box1"] = box->clone();
-	m_Models["box1"]->setPosition(glm::vec3(2.0, 0.5, 2.0));
-	m_Models["box2"] = box->clone();
-	m_Models["box2"]->setPosition(glm::vec3(2.0, 0.5, -2.0));
-
-	Texture* floorAlbedoTex = new Texture("floor.jpg");
-	//Texture* floorAlbedoTex = new Texture("floor.jpg", 0, GL_SRGB_ALPHA, 0, 0, 0, GL_RGBA,  GL_UNSIGNED_BYTE, true, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT);
-	Texture* floorNormalTex = new Texture("floor-normal.jpg");
-	BasicPhongMaterial* floor_m = new BasicPhongMaterial(m_Shaders);
-	floor_m->addColorTex(floorAlbedoTex);
-	floor_m->addNormalTex(floorNormalTex);
-	floor_m->setTileU(20);
-	floor_m->setTileV(20);
-	//floor_m->setReceiveShadows(false);
-
-	Model* plane = new Model();
-	plane->loadMesh("plane.obj");
-	plane->loadMaterial(floor_m);
-	m_Models["floor"] = plane;
-
-
-	Texture* tenguColorTex = new Texture("tengu-color.png");
-	//Texture* tenguColorTex = new Texture("tengu-color.png", 0, GL_SRGB_ALPHA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, true, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT);
-	Texture* tenguNormalTex = new Texture("tengu-normal.png");
-	BasicPhongMaterial* tengu_m = new BasicPhongMaterial(m_Shaders);
-	tengu_m->addColorTex(tenguColorTex);
-	tengu_m->addNormalTex(tenguNormalTex);
-
-
-	Model* demon = new Model();
-	demon->loadMesh("tengu.obj");
-	demon->loadMaterial(tengu_m);
-	//demon->setActive(false);
-	m_Models["demon"] = demon;
-
-	m_MainCam.setProj(45.0, m_SWidth, m_SHeight);
-
-	PointLight* l = new PointLight(glm::vec3(5.0, 3.0, 4.0), glm::vec3(1.0, 0.8, 0.8), 1.5, 1);
-	//l->setCastShadows(false);
-	m_LightManager->addLight(l);
-	//m_LightManager->addLight(new PointLight(glm::vec3(-4.0, 1.0, 2.0), glm::vec3(1.0, 0.5, 0.5), 1, 1));
-	//m_LightManager->addLight(new DirectionalLight(glm::vec3(5.0, 8.0, 5.0), glm::vec3(1.0, 0.5, 0.5), 0.8, 1));
-		
-	//m_LightManager->addLight(new PointLight(glm::vec3(-5.0, 3.0, -4.0), glm::vec3(1.0, 1.0, 1.0), 1.5, 1));
-	//m_LightManager->addLight(new PointLight(glm::vec3(5.0, 3.0, -4.0), glm::vec3(1.0, 0.0, 1.0), 1.5, 1));
+	
 
 	m_LightManager->setAmbientStrength(0.1);
 	m_LightManager->setAmbientColor(glm::vec3(0.2, 0.2, 1.0));
 
+	if (m_CurrentScene) {
+		auto lights = m_CurrentScene->getLights();
 
-	CubeMapFaces skyFaces("night-sky/px.png",
-		"night-sky/nx.png",
-		"night-sky/py.png",
-		"night-sky/ny.png",
-		"night-sky/pz.png",
-		"night-sky/nz.png");
-
-
-	CubeMapTexture* skyText = new CubeMapTexture(skyFaces);
-	SkyboxMesh* skybox = new SkyboxMesh(new SkyboxMaterial(skyText, m_Shaders));
-	setSkybox(skybox);
+		for (auto& l : lights) {
+			m_LightManager->addLight(l.second);
+		}
+	}
+	
 
 	createVignette();
 
@@ -109,7 +53,12 @@ void Renderer::SetupScene() {
 
 
 }
-void Renderer::DrawScene() {
+void Renderer::renderScene() {
+
+	if (!m_CurrentScene) {
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		return;
+	}
 
 	//Shadow mapping pass
 	if (m_LightManager->getLightsCount() != 0)
@@ -123,7 +72,7 @@ void Renderer::DrawScene() {
 		bindFramebuffer("postprocessingFBO");
 	}
 
-	m_MainCam.setProj(45.0f, m_SWidth, m_SHeight);
+	m_CurrentScene->getActiveCamera()->setProj(45.0f, m_SWidth, m_SHeight);
 
 	glViewport(0, 0, m_SWidth, m_SHeight);
 
@@ -134,7 +83,7 @@ void Renderer::DrawScene() {
 	glEnable(GL_DEPTH_TEST);
 
 
-	render();
+	renderModelMeshes();
 
 	//debugObjectNormals();
 
@@ -158,7 +107,7 @@ void Renderer::DrawScene() {
 
 }
 
-void Renderer::Init() {
+void Renderer::init() {
 	// glfw: initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -211,7 +160,7 @@ void Renderer::Init() {
 
 }
 
-void Renderer::LateInit()
+void Renderer::lateInit()
 {
 	std::cout << "Compiling shaders..." << std::endl;
 
@@ -225,14 +174,14 @@ void Renderer::LateInit()
 	m_LightManager->init(m_Shaders);
 }
 
-void Renderer::Tick()
+void Renderer::tick()
 {
 	while (!glfwWindowShouldClose(m_Window))
 	{
 		float currentFrame = glfwGetTime();
 		m_DeltaTime = currentFrame - m_LastFrame;
 		m_LastFrame = currentFrame;
-		DrawScene();
+		renderScene();
 		glfwSwapBuffers(m_Window);
 		glfwPollEvents();
 	}
@@ -242,7 +191,7 @@ void Renderer::Key_Callback(GLFWwindow* window, int key, int scancode, int actio
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 
-	m_MainCam.camMovement(window, m_DeltaTime);
+	m_CurrentScene->getActiveCamera()->camMovement(window, m_DeltaTime);
 
 	//WIP LIGHT CONTROLS
 	Light* l = m_LightManager->getLight(0);
@@ -269,7 +218,7 @@ void Renderer::Mouse_Callback(GLFWwindow* window, double xpos, double ypos) {
 		m_lastX = xpos;
 		m_lastY = ypos;
 
-		m_MainCam.camRotation(xoffset, yoffset);
+		m_CurrentScene->getActiveCamera()->camRotation(xoffset, yoffset);
 	}
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE) {
 		m_FirstMouse = true;
@@ -297,7 +246,7 @@ void Renderer::createVignette()
 	m_Vignette = new Vignette(m_SWidth, m_SHeight);
 }
 
-void Renderer::render()
+void Renderer::renderModelMeshes()
 {
 	if (m_LightManager->getLightsCount() != 0)
 		renderLights(true);
@@ -311,13 +260,13 @@ void Renderer::render()
 	m_Shaders["BasicPhongShader"]->unbind();*/
 
 
-	for (auto& m : m_Models) {
+	for (auto& m : m_CurrentScene->getModels()) {
 		m.second->getMesh()->getMaterial()->getTransparency() ? blendModels.push_back(m.second) : opaqueModels.push_back(m.second);
 	}
 
 	//FIRST = OPAQUE OBJECTS
 	for (auto& m : opaqueModels) {
-		m->draw(m_MainCam.getProj(), m_MainCam.getView());
+		m->draw(m_CurrentScene->getActiveCamera()->getProj(), m_CurrentScene->getActiveCamera()->getView());
 	}
 
 	if (blendModels.size() == 0) return;
@@ -326,26 +275,68 @@ void Renderer::render()
 	std::map<float, Model*> sorted;
 	for (unsigned int i = 0; i < blendModels.size(); i++)
 	{
-		float distance = glm::distance(m_MainCam.getPos(), blendModels[i]->getPosition());
+		float distance = glm::distance(m_CurrentScene->getActiveCamera()->getPos(), blendModels[i]->getPosition());
 		sorted[distance] = blendModels[i];
 	}
 	//SECOND = TRANSPARENT OBJECTS SORTED FROM NEAR TO FAR
 	for (std::map<float, Model*>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
 	{
-		it->second->draw(m_MainCam.getProj(), m_MainCam.getView());
+		it->second->draw( m_CurrentScene->getActiveCamera()->getProj(), m_CurrentScene->getActiveCamera()->getView());
 	}
 
-	if (m_Skybox)
+	if (m_CurrentScene->getSkybox())
 		renderSkybox();
 
 }
 
-void Renderer::render(std::string name) {
+void Renderer::renderObject(std::string name) {
 
-	Model* m = m_Models[name];
-	m->draw(m_MainCam.getProj(), m_MainCam.getView());
+	/*Model* m = m_Models[name];
+	m->draw(m_CurrentScene->getActiveCamera()->getProj(), m_CurrentScene->getActiveCamera()->getView());*/
 
 }
+
+
+void Renderer::renderLights(bool enableGizmos)
+{
+	for (auto& shader : m_Shaders) {
+		if (shader.second->getType() == ShaderType::LIT)
+			m_LightManager->uploadLightDataToShader(shader.second, m_CurrentScene->getActiveCamera()->getView());
+	}
+	if (enableGizmos)
+		m_LightManager->drawLights(m_CurrentScene->getActiveCamera()->getProj(), m_CurrentScene->getActiveCamera()->getView());
+
+}
+
+void Renderer::renderObjectNormals()
+{
+	Shader* normalShader = m_Shaders["NormalDebugShader"];
+	normalShader->bind();
+
+	for (auto& m : m_CurrentScene->getModels()) {
+		if (!m.second->isActive()) continue;
+		auto mesh = m.second->getMesh();
+		if (mesh != nullptr) {
+			mesh->setModel(m.second->getTransform());
+			normalShader->setMat4("u_modelView", m_CurrentScene->getActiveCamera()->getView() * m.second->getMesh()->getModel());
+			normalShader->setMat4("u_projection", m_CurrentScene->getActiveCamera()->getProj());
+			mesh->draw();
+		}
+		else
+			std::cout << "Model doesnt have any mesh loaded" << std::endl;
+
+
+
+	}
+
+	normalShader->unbind();
+}
+
+void Renderer::renderSkybox() {
+
+	m_CurrentScene->getSkybox()->draw(m_CurrentScene->getActiveCamera()->getProj(), glm::lookAt(glm::vec3(0.0f), m_CurrentScene->getActiveCamera()->getFront(), m_CurrentScene->getActiveCamera()->getUp())); //Remove view translation
+}
+
 void Renderer::bindFramebuffer() {
 	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
@@ -375,16 +366,7 @@ void Renderer::blitFramebuffer(std::string src_name, unsigned int src_x_o, unsig
 	GLcall(glBlitFramebuffer(src_x_o, src_y_o, src_x_f, src_y_f, dst_x_o, dst_y_o, dst_x_f, dst_y_f, mask, filter));
 }
 
-void Renderer::renderLights(bool enableGizmos)
-{
-	for (auto& shader : m_Shaders) {
-		if (shader.second->getType() == ShaderType::LIT)
-			m_LightManager->uploadLightDataToShader(shader.second, m_MainCam.getView());
-	}
-	if (enableGizmos)
-		m_LightManager->drawLights(m_MainCam.getProj(), m_MainCam.getView());
 
-}
 
 void Renderer::computeShadows()
 {
@@ -440,7 +422,7 @@ void Renderer::computeShadows()
 
 				glClear(GL_DEPTH_BUFFER_BIT);
 
-				for (auto& m : m_Models) {
+				for (auto& m : m_CurrentScene->getModels()) {
 
 					if (!m.second->isActive()) return;
 					if (!m.second->getMesh()->getCastShadows()) return;
@@ -474,7 +456,7 @@ void Renderer::computeShadows()
 
 				glClear(GL_DEPTH_BUFFER_BIT);
 
-				for (auto& m : m_Models) {
+				for (auto& m : m_CurrentScene->getModels()) {
 
 					if (!m.second->isActive()) return;
 					if (!m.second->getMesh()->getCastShadows()) return;
@@ -500,34 +482,7 @@ void Renderer::computeShadows()
 
 
 
-void Renderer::drawObjectNormals()
-{
-	Shader* normalShader = m_Shaders["NormalDebugShader"];
-	normalShader->bind();
 
-	for (auto& m : m_Models) {
-		if (!m.second->isActive()) continue;
-		auto mesh = m.second->getMesh();
-		if (mesh != nullptr) {
-			mesh->setModel(m.second->getTransform());
-			normalShader->setMat4("u_modelView", m_MainCam.getView() * m.second->getMesh()->getModel());
-			normalShader->setMat4("u_projection", m_MainCam.getProj());
-			mesh->draw();
-		}
-		else
-			std::cout << "Model doesnt have any mesh loaded" << std::endl;
-
-	
-
-	}
-
-	normalShader->unbind();
-}
-
-void Renderer::renderSkybox() {
-
-	m_Skybox->draw(m_MainCam.getProj(), glm::lookAt(glm::vec3(0.0f), m_MainCam.getFront(), m_MainCam.getUp())); //Remove view translation
-}
 
 
 
