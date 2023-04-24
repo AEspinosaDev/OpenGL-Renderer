@@ -70,9 +70,9 @@ void Mesh::draw()
 
 
 
-void Mesh::importFile(const std::string& pname) {
+void Mesh::importFile() {
 
-	const std::string pFile = modelPath + pname;
+	const std::string pFile = modelPath + fileRoute;
 	Assimp::Importer importer;
 
 	const aiScene* sc;

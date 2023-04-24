@@ -5,41 +5,26 @@
 
 void BasicPhongMaterial::addColorTex(Texture* t) {
 	colorTex = t;
-	m_shader->bind();
-	m_shader->setInt("material.colorTex", 0);
-	m_shader->unbind();
 }
 
 void BasicPhongMaterial::addNormalTex(Texture* t) {
 	normalTex = t;
-	m_shader->bind();
-	m_shader->setInt("material.normalTex", 1);
-	m_shader->unbind();
 }
 
 
 void BasicPhongMaterial::addSpecularTex(Texture* t) {
 	specularTex = t;
-	m_shader->bind();
-	m_shader->setInt("material.specularTex", 2);
-	m_shader->unbind();
 }
 
 
 void BasicPhongMaterial::addRoughnessTex(Texture* t) {
 	roughnessTex = t;
-	m_shader->bind();
-	m_shader->setInt("material.glossTex", 3);
-	m_shader->unbind();
 }
 
 
 void BasicPhongMaterial::addOpacityTex(Texture* t)
 {
 	opacityTex = t;
-	m_shader->bind();
-	m_shader->setInt("material.opacityTex", 5);
-	m_shader->unbind();
 }
 
 
@@ -59,6 +44,7 @@ void BasicPhongMaterial::bind(glm::mat4 proj, glm::mat4 view, glm::mat4 model)
 
 	//Mat properties
 	if (colorTex != nullptr) {
+		m_shader->setInt("material.colorTex", 0);
 		colorTex->bind(0);
 		m_shader->setBool("material.hasColorTex", true);
 	}
@@ -67,6 +53,7 @@ void BasicPhongMaterial::bind(glm::mat4 proj, glm::mat4 view, glm::mat4 model)
 		m_shader->setVec3("material.baseColor", baseColor);
 	}
 	if (normalTex != nullptr) {
+		m_shader->setInt("material.normalTex", 1);
 		normalTex->bind(1);
 		m_shader->setBool("material.hasNormalTex", true);
 	}
@@ -74,6 +61,7 @@ void BasicPhongMaterial::bind(glm::mat4 proj, glm::mat4 view, glm::mat4 model)
 		m_shader->setBool("material.hasNormalTex", false);
 	}
 	if (specularTex != nullptr) {
+		m_shader->setInt("material.specularTex", 2);
 		specularTex->bind(2);
 		m_shader->setBool("material.hasSpecularTex", true);
 	}
@@ -82,6 +70,7 @@ void BasicPhongMaterial::bind(glm::mat4 proj, glm::mat4 view, glm::mat4 model)
 		m_shader->setFloat("material.specularity", specularity);
 	}
 	if (roughnessTex != nullptr) {
+		m_shader->setInt("material.glossTex", 3);
 		roughnessTex->bind(3);
 		m_shader->setBool("material.hasGlossTex", true);
 	}
@@ -93,6 +82,7 @@ void BasicPhongMaterial::bind(glm::mat4 proj, glm::mat4 view, glm::mat4 model)
 		emiTex->bind(4);
 	}
 	if (opacityTex != nullptr) {
+		m_shader->setInt("material.opacityTex", 5);
 		opacityTex->bind(5);
 		m_shader->setBool("material.hasOpacityTex", true);
 	}

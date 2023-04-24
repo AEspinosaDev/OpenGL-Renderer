@@ -2,16 +2,16 @@
 
 
 
-void Model::loadMesh(const std::string& pname) {
+void Model::setMesh(const std::string& pname) {
 	if (m_Mesh != nullptr)
 		delete m_Mesh;
-	m_Mesh = new Mesh();
-	m_Mesh->importFile(pname);
+	m_Mesh = new Mesh(pname);
+	//m_Mesh->importFile(pname);
 	
 }
 
 
-void Model::loadMaterial(Material* m) {
+void Model::setMaterial(Material* m) {
 	if (m_Mat != nullptr)
 		delete m_Mat;
 	m_Mat = m;

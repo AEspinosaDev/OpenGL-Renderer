@@ -5,105 +5,80 @@
 #include <map>
 
 void Renderer::run() {
-	setupScene();
+	cacheData();
 	tick();
 	glfwTerminate();
 }
 
-void Renderer::createScene(std::string sceneName) {
-	m_Scenes[sceneName] = new Scene(sceneName);
+void Renderer::addScene(Scene* sc) {
+	m_Scenes[sc->getName()] = sc;
 }
 
 Scene* Renderer::getScene(std::string sceneName) {
 	return m_Scenes[sceneName];
 }
 
-void Renderer::setupScene() {
-
-	/*BasicPhongMaterial* sphere_m = new BasicPhongMaterial(m_Shaders);
-	sphere_m->setShininess(500);
-	sphere_m->setSpecularity(3);
-	Model* sphere = new Model();
-	sphere->loadMesh("box.obj");
-	sphere->loadMaterial(sphere_m);
-	sphere->setPosition(glm::vec3(-2.0, 2.0, 0.0));
-	m_Models["sphere"] = sphere;*/
-
-	
-
-	m_LightManager->setAmbientStrength(0.1);
-	m_LightManager->setAmbientColor(glm::vec3(0.2, 0.2, 1.0));
+void Renderer::setCurrentScene(std::string sceneName) {
 
 	if (m_CurrentScene) {
-		auto lights = m_CurrentScene->getLights();
-
-		for (auto& l : lights) {
-			m_LightManager->addLight(l.second);
-		}
+		////////////////////
+		//DECACHE ALL DATA UPLOADED TO CLIENT AND SERVER
+		//////////////////////
 	}
-	
 
-	createVignette();
+	m_CurrentScene = m_Scenes[sceneName];
+};
 
-	if (m_AntialiasingSamples > 0)
-		m_Framebuffers["msaaFBO"] = new Framebuffer(new Texture(m_SWidth, m_SHeight, m_AntialiasingSamples), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
-	
-	//m_Framebuffers["depthFBO"] = new Framebuffer(m_LightManager->getLight(0)->getShadowText(), GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, GL_FALSE, GL_FALSE);
-	m_Framebuffers["postprocessingFBO"] = new Framebuffer(m_Vignette->getTexture(), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
-
-
-}
 void Renderer::renderScene() {
 
 	if (!m_CurrentScene) {
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(m_UtilParameters.clearColor.r,
+			m_UtilParameters.clearColor.g,
+			m_UtilParameters.clearColor.b,
+			m_UtilParameters.clearColor.a);
 		return;
 	}
-
 	//Shadow mapping pass
 	if (m_LightManager->getLightsCount() != 0)
 		computeShadows();
-
 
 	//Render scene in given fbo
 	if (m_AntialiasingSamples > 0)
 		bindFramebuffer("msaaFBO");
 	else {
-		bindFramebuffer("postprocessingFBO");
+		if (m_PossProcess)
+			bindFramebuffer("postprocessingFBO");
+		else
+			bindFramebuffer();
 	}
 
-	m_CurrentScene->getActiveCamera()->setProj(45.0f, m_SWidth, m_SHeight);
-
-	glViewport(0, 0, m_SWidth, m_SHeight);
-
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
-
-
-	glEnable(GL_DEPTH_TEST);
-
-
-	renderModelMeshes();
-
-	//debugObjectNormals();
-
+	renderSceneObjects();
 
 	if (m_AntialiasingSamples > 0) {
-		//Blit msaa fbo data to vignette fbo
-		blitFramebuffer("msaaFBO", "postprocessingFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		if (m_PossProcess)
+			//Blit msaa fbo data to vignette fbo
+			blitFramebuffer("msaaFBO", "postprocessingFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		else
+			//Blit to standard framebuffer
+			blitFramebuffer("msaaFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	}
 
+	if (m_PossProcess) {
+		possProcessPass();
+	}
+}
 
-	//Render to texture for possprocessing
-	bindFramebuffer();
+void  Renderer::setPostProcessPass(bool op) {
+	if (op) {
+		m_PossProcess = true;
+		createVignette();
+		m_Framebuffers["postprocessingFBO"] = new Framebuffer(m_Vignette->getTexture(), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
+	}
+	else {
+		m_PossProcess = false;
 
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	/*glClear(GL_COLOR_BUFFER_BIT);*/
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glDisable(GL_DEPTH_TEST);
-
-	m_Vignette->draw();
+		//Delete vignette and possprocessingFBO
+	}
 
 }
 
@@ -171,7 +146,42 @@ void Renderer::lateInit()
 	m_Shaders["SkyboxShader"] = new Shader("SkyboxShader.shader", ShaderType::UNLIT);
 	m_Shaders["NormalDebugShader"] = new Shader("NormalVisualizationShader.shader", ShaderType::UNLIT);
 
-	m_LightManager->init(m_Shaders);
+	m_LightManager->init();
+	m_LightManager->getDebugMaterial()->setShader(m_Shaders[m_LightManager->getDebugMaterial()->getShaderNameID()]);
+}
+
+void Renderer::cacheData() {
+
+
+	//Set all shaders to materials and import and bind meshes
+	for (auto& m : m_CurrentScene->getModels()) {
+		m.second->getMesh()->importFile();
+
+		auto shaderID = m.second->getMaterialReference()->getShaderNameID();
+		m.second->getMaterialReference()->setShader(m_Shaders[shaderID]);
+	}
+	if (m_CurrentScene->getSkybox()) {
+		auto shaderID = m_CurrentScene->getSkybox()->getMaterial()->getShaderNameID();
+		m_CurrentScene->getSkybox()->getMaterial()->setShader(m_Shaders[shaderID]);
+	}
+
+
+	//Upload lights to light manager
+	if (m_CurrentScene) {
+		m_LightManager->setAmbientStrength(m_CurrentScene->getAmbientStrength());
+		m_LightManager->setAmbientColor(m_CurrentScene->getAmbientColor());
+		auto lights = m_CurrentScene->getLights();
+
+		for (auto& l : lights) {
+			m_LightManager->addLight(l.second);
+		}
+	}
+
+
+	//Create and setup basic FBs
+	if (m_AntialiasingSamples > 0)
+		m_Framebuffers["msaaFBO"] = new Framebuffer(new Texture(m_SWidth, m_SHeight, m_AntialiasingSamples), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
+
 }
 
 void Renderer::tick()
@@ -179,8 +189,8 @@ void Renderer::tick()
 	while (!glfwWindowShouldClose(m_Window))
 	{
 		float currentFrame = glfwGetTime();
-		m_DeltaTime = currentFrame - m_LastFrame;
-		m_LastFrame = currentFrame;
+		m_UtilParameters.deltaTime = currentFrame - m_UtilParameters.lastFrame;
+		m_UtilParameters.lastFrame = currentFrame;
 		renderScene();
 		glfwSwapBuffers(m_Window);
 		glfwPollEvents();
@@ -191,7 +201,7 @@ void Renderer::Key_Callback(GLFWwindow* window, int key, int scancode, int actio
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 
-	m_CurrentScene->getActiveCamera()->camMovement(window, m_DeltaTime);
+	m_CurrentScene->getActiveCamera()->camMovement(window, m_UtilParameters.deltaTime);
 
 	//WIP LIGHT CONTROLS
 	Light* l = m_LightManager->getLight(0);
@@ -205,23 +215,23 @@ void Renderer::Key_Callback(GLFWwindow* window, int key, int scancode, int actio
 
 void Renderer::Mouse_Callback(GLFWwindow* window, double xpos, double ypos) {
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
-		if (m_FirstMouse)
+		if (m_UtilParameters.firstMouse)
 		{
-			m_lastX = xpos;
-			m_lastY = ypos;
-			m_FirstMouse = false;
+			m_UtilParameters.mouselastX = xpos;
+			m_UtilParameters.mouselastY = ypos;
+			m_UtilParameters.firstMouse = false;
 		}
 
-		float xoffset = xpos - m_lastX;
-		float yoffset = m_lastY - ypos; // reversed since y-coordinates go from bottom to top
+		float xoffset = xpos - m_UtilParameters.mouselastX;
+		float yoffset = m_UtilParameters.mouselastY - ypos; // reversed since y-coordinates go from bottom to top
 
-		m_lastX = xpos;
-		m_lastY = ypos;
+		m_UtilParameters.mouselastX = xpos;
+		m_UtilParameters.mouselastY = ypos;
 
 		m_CurrentScene->getActiveCamera()->camRotation(xoffset, yoffset);
 	}
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE) {
-		m_FirstMouse = true;
+		m_UtilParameters.firstMouse = true;
 	}
 
 }
@@ -246,8 +256,22 @@ void Renderer::createVignette()
 	m_Vignette = new Vignette(m_SWidth, m_SHeight);
 }
 
-void Renderer::renderModelMeshes()
+void Renderer::renderSceneObjects()
 {
+	glViewport(0, 0, m_SWidth, m_SHeight);
+
+	m_CurrentScene->getActiveCamera()->setProj(45.0f, m_SWidth, m_SHeight);
+
+	glClearColor(m_UtilParameters.clearColor.r,
+		m_UtilParameters.clearColor.g,
+		m_UtilParameters.clearColor.b,
+		m_UtilParameters.clearColor.a);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//Just in case although each material handles depth testing
+	glEnable(GL_DEPTH_TEST);
+
 	if (m_LightManager->getLightsCount() != 0)
 		renderLights(true);
 
@@ -281,7 +305,7 @@ void Renderer::renderModelMeshes()
 	//SECOND = TRANSPARENT OBJECTS SORTED FROM NEAR TO FAR
 	for (std::map<float, Model*>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
 	{
-		it->second->draw( m_CurrentScene->getActiveCamera()->getProj(), m_CurrentScene->getActiveCamera()->getView());
+		it->second->draw(m_CurrentScene->getActiveCamera()->getProj(), m_CurrentScene->getActiveCamera()->getView());
 	}
 
 	if (m_CurrentScene->getSkybox())
@@ -337,6 +361,29 @@ void Renderer::renderSkybox() {
 	m_CurrentScene->getSkybox()->draw(m_CurrentScene->getActiveCamera()->getProj(), glm::lookAt(glm::vec3(0.0f), m_CurrentScene->getActiveCamera()->getFront(), m_CurrentScene->getActiveCamera()->getUp())); //Remove view translation
 }
 
+void Renderer::possProcessPass() {
+	//Render to texture for possprocessing
+	bindFramebuffer();
+
+	glClearColor(m_UtilParameters.clearColor.r,
+		m_UtilParameters.clearColor.g,
+		m_UtilParameters.clearColor.b,
+		m_UtilParameters.clearColor.a);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glDisable(GL_DEPTH_TEST);
+
+	//Setup poss process effects
+	m_Vignette->getShader()->bind();
+	m_Vignette->getShader()->setBool("useGammaCorrection", m_PPEffects.gammaCorrection);
+
+
+	///*************
+
+	m_Vignette->draw();
+}
+
 void Renderer::bindFramebuffer() {
 	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
@@ -366,6 +413,14 @@ void Renderer::blitFramebuffer(std::string src_name, unsigned int src_x_o, unsig
 	GLcall(glBlitFramebuffer(src_x_o, src_y_o, src_x_f, src_y_f, dst_x_o, dst_y_o, dst_x_f, dst_y_f, mask, filter));
 }
 
+void Renderer::blitFramebuffer(std::string src_name, GLbitfield mask, GLenum filter) {
+
+	Framebuffer* src = m_Framebuffers[src_name];
+
+	GLcall(glBindFramebuffer(GL_READ_FRAMEBUFFER, src->getID()));
+	GLcall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
+	GLcall(glBlitFramebuffer(0, 0, src->getWidth(), src->getHeight(), 0, 0, m_SWidth, m_SHeight, mask, filter));
+}
 
 
 void Renderer::computeShadows()
@@ -385,7 +440,7 @@ void Renderer::computeShadows()
 			if (m_LightManager->getLight(i)->getType() == 0) {
 
 				glm::mat4 lightProj = glm::perspective(glm::radians(90.0f), 1.0f, 1.0f, m_LightManager->getShadowsFarPlane());
-				
+
 				std::vector<glm::mat4> shadowTransforms;
 				shadowTransforms.push_back(lightProj *
 					glm::lookAt(m_LightManager->getLight(i)->getPosition(), m_LightManager->getLight(i)->getPosition() + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
@@ -407,7 +462,7 @@ void Renderer::computeShadows()
 				m_Shaders["PointShadowDepthShader"]->setFloat("far_plane", m_LightManager->getShadowsFarPlane());
 				m_Shaders["PointShadowDepthShader"]->unbind();
 
-				
+
 
 
 				m_Framebuffers["depthFBO"]->setTextureAttachment(m_LightManager->getLight(i)->getShadowText(), GL_DEPTH_ATTACHMENT);
@@ -431,7 +486,7 @@ void Renderer::computeShadows()
 
 					m_Shaders["PointShadowDepthShader"]->bind();
 
-					m_Shaders["PointShadowDepthShader"]->setMat4("u_model",m.second->getMesh()->getModel());
+					m_Shaders["PointShadowDepthShader"]->setMat4("u_model", m.second->getMesh()->getModel());
 
 					m.second->getMesh()->draw();
 
@@ -442,7 +497,7 @@ void Renderer::computeShadows()
 			}
 			else {
 
-			
+
 
 				m_Framebuffers["depthFBO"]->setTextureAttachment(m_LightManager->getLight(i)->getShadowText(), GL_TEXTURE_2D);
 
@@ -470,7 +525,7 @@ void Renderer::computeShadows()
 					m.second->getMesh()->draw();
 
 					m_Shaders["PointShadowDepthShader"]->unbind();
-					
+
 				}
 			}
 		}

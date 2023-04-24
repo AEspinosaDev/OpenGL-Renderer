@@ -29,15 +29,21 @@ struct MaterialParameters {
 /// </summary>
 class Material {
 protected:
+	const std::string m_ShaderName_ID;
 	Shader* m_shader;
 	MaterialParameters m_Parameters;
+
 	
 public:
 
-	Material(Shader* shader) : m_shader(shader){}
+	Material(std::string shaderName) : m_shader(nullptr) , m_ShaderName_ID(shaderName) {}
 
-	Material(Shader* shader, MaterialParameters params) : m_shader(shader),m_Parameters(params){}
+	Material(std::string shaderName, MaterialParameters params) : m_shader(nullptr),m_Parameters(params) , m_ShaderName_ID(shaderName) {}
+
+	virtual inline const std::string getShaderNameID() { return m_ShaderName_ID; }
 	
+	virtual inline void setShader(Shader* s) { m_shader = s; }
+
 	virtual inline Shader* getShader() { return m_shader; }
 
 	virtual inline MaterialParameters getParameters() { return m_Parameters; }

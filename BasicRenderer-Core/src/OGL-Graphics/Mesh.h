@@ -20,12 +20,14 @@ class Mesh
 	unsigned int m_Triangles;
 	glm::mat4	 m_Model;
 	Material*    m_Mat;
-
+	std::string fileRoute;
 	bool castShadows;
 
 
 public:
-	Mesh() :m_IndexBufferID(-1), m_Triangles(-1), m_Model(glm::mat4(1.0f)), m_Mat(nullptr), castShadows(true){}
+	Mesh() :m_IndexBufferID(-1), m_Triangles(-1), m_Model(glm::mat4(1.0f)), m_Mat(nullptr), castShadows(true), fileRoute("") {}
+
+	Mesh(const std::string r) :m_IndexBufferID(-1), m_Triangles(-1), m_Model(glm::mat4(1.0f)), m_Mat(nullptr), castShadows(true), fileRoute(r) {}
 
 	~Mesh() {}
 	
@@ -54,7 +56,7 @@ public:
 
 	void draw();
 
-	void importFile(const std::string& pname);
+	void importFile();
 
 };
 

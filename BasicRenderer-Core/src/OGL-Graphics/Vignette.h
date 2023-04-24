@@ -20,6 +20,7 @@ public:
 
 	void draw();
 
+	inline Shader* getShader() { return shader; }
 	inline Texture* getTexture() { return texture; }
 	inline void setTexture(Texture* t) { /*delete[] texture;*/ texture = t; }
 

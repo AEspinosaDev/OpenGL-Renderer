@@ -1,29 +1,20 @@
-﻿  LightManager.cpp
-  DirectionalLight.cpp
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.cpp(1,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  Light.cpp
-  PointLight.cpp
-  Model.cpp
-  Renderer.cpp
+﻿  Renderer.cpp
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Camera.h(31,8): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(34,40): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(181,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(210,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(211,14): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(215,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(216,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(218,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(219,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(377,23): warning C4018: '<': signed/unsigned mismatch
-  Scene.cpp
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Camera.h(31,8): warning C4305: 'initializing': truncation from 'double' to 'float'
-  SceneObject.cpp
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Scene.h(44,1): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(191,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(220,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(221,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(225,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(226,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(228,33): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(229,33): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(432,23): warning C4018: '<': signed/unsigned mismatch
+  Mesh.cpp
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\Mesh.cpp(147,22): warning C4018: '<': signed/unsigned mismatch
   main.h
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Camera.h(31,8): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Scene.h(44,1): warning C4305: 'initializing': truncation from 'double' to 'float'
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(12,78): warning C4305: 'argument': truncation from 'int' to 'char'
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(12,29): warning C4309: 'argument': truncation of constant value
   Generating Code...
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
-glew32s.lib(glew.obj) : warning LNK4099: PDB 'vc120.pdb' was not found with 'glew32s.lib(glew.obj)' or at 'C:\Dev\BasicRenderer\binaries\Win32\Debug\vc120.pdb'; linking object as if no debug info
   BasicRenderer-Core.vcxproj -> C:\Dev\BasicRenderer\binaries\Win32\Debug\BasicRenderer-Core.exe

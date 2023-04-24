@@ -21,10 +21,10 @@ private:
 
 public:
 
-	BasicPhongMaterial(std::unordered_map<std::string, Shader*> shaders) : Material(shaders["BasicPhongShader"]), itileU(1.0), itileV(1.0), opacity(1.0), baseColor(glm::vec3(1.0f)), specularity(1), shininess(10),
+	BasicPhongMaterial() : Material("BasicPhongShader"), itileU(1.0), itileV(1.0), opacity(1.0), baseColor(glm::vec3(1.0f)), specularity(1), shininess(10),
 		colorTex(nullptr), normalTex(nullptr), specularTex(nullptr), roughnessTex(nullptr), emiTex(nullptr), opacityTex(nullptr), receiveShadows(true){}
 
-	BasicPhongMaterial(std::unordered_map<std::string, Shader*> shaders, MaterialParameters params) : Material(shaders["BasicPhongShader"],params), itileU(1.0), itileV(1.0), opacity(1.0), baseColor(glm::vec3(1.0f)), specularity(1), shininess(10),
+	BasicPhongMaterial(MaterialParameters params) : Material("BasicPhongShader",params), itileU(1.0), itileV(1.0), opacity(1.0), baseColor(glm::vec3(1.0f)), specularity(1), shininess(10),
 		colorTex(nullptr), normalTex(nullptr), specularTex(nullptr), roughnessTex(nullptr), emiTex(nullptr), opacityTex(nullptr), receiveShadows(true) {}
 	
 	inline void setTileU(float u)	{	itileU = u;}

@@ -49,9 +49,10 @@ public:
 	inline int getLightsCount() { return lightsNumber; }
 	inline float getShadowsFarPlane() { return m_ShadowFarPlane; }
 	inline void setShadowsFarPlane(float f) { m_ShadowFarPlane=f; }
+	inline Material* getDebugMaterial() { return m_DebugMat; }
 
 	//void init(std::unordered_map<std::string, Shader*> shaders);
-	void init(std::unordered_map<std::string, Shader*> shaders);
+	void init();
 
 	/// <summary>
 	/// Adds a light to the scene. Point, spot and directional lights can be added.

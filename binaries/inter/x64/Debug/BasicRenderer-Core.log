@@ -1,0 +1,80 @@
+﻿CubeMapTexture.obj : error LNK2001: unresolved external symbol __glewActiveTexture
+Texture.obj : error LNK2001: unresolved external symbol __glewActiveTexture
+Material.obj : error LNK2001: unresolved external symbol __glewBlendFuncSeparate
+Framebuffer.obj : error LNK2001: unresolved external symbol __glewFramebufferTexture
+Framebuffer.obj : error LNK2001: unresolved external symbol __glewBindFramebuffer
+Renderer.obj : error LNK2001: unresolved external symbol __glewBindFramebuffer
+Framebuffer.obj : error LNK2001: unresolved external symbol __glewBindRenderbuffer
+Framebuffer.obj : error LNK2001: unresolved external symbol __glewCheckFramebufferStatus
+Framebuffer.obj : error LNK2001: unresolved external symbol __glewFramebufferRenderbuffer
+Framebuffer.obj : error LNK2001: unresolved external symbol __glewFramebufferTexture2D
+Framebuffer.obj : error LNK2001: unresolved external symbol __glewGenFramebuffers
+Framebuffer.obj : error LNK2001: unresolved external symbol __glewGenRenderbuffers
+Framebuffer.obj : error LNK2001: unresolved external symbol __glewRenderbufferStorage
+Framebuffer.obj : error LNK2001: unresolved external symbol __glewRenderbufferStorageMultisample
+Renderer.obj : error LNK2019: unresolved external symbol glewInit referenced in function "private: void __cdecl Renderer::init(void)" (?init@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol glfwInit referenced in function "private: void __cdecl Renderer::init(void)" (?init@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol glfwTerminate referenced in function "private: void __cdecl Renderer::init(void)" (?init@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol glfwWindowHint referenced in function "private: void __cdecl Renderer::init(void)" (?init@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol glfwCreateWindow referenced in function "private: void __cdecl Renderer::init(void)" (?init@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol glfwWindowShouldClose referenced in function "private: void __cdecl Renderer::tick(void)" (?tick@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol glfwSetWindowShouldClose referenced in function "private: void __cdecl Renderer::Key_Callback(struct GLFWwindow *,int,int,int,int)" (?Key_Callback@Renderer@@AEAAXPEAUGLFWwindow@@HHHH@Z)
+Renderer.obj : error LNK2019: unresolved external symbol glfwSetWindowUserPointer referenced in function "private: void __cdecl Renderer::init(void)" (?init@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol glfwGetWindowUserPointer referenced in function "public: __cdecl `private: void __cdecl Renderer::init(void)'::`2'::<lambda_1>::operator()(struct GLFWwindow *,int,int)const " (??R<lambda_1>@?1??init@Renderer@@AEAAXXZ@QEBA@PEAUGLFWwindow@@HH@Z)
+Renderer.obj : error LNK2019: unresolved external symbol glfwSetFramebufferSizeCallback referenced in function "private: void __cdecl Renderer::init(void)" (?init@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol glfwPollEvents referenced in function "private: void __cdecl Renderer::tick(void)" (?tick@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol glfwGetKey referenced in function "private: void __cdecl Renderer::Key_Callback(struct GLFWwindow *,int,int,int,int)" (?Key_Callback@Renderer@@AEAAXPEAUGLFWwindow@@HHHH@Z)
+Camera.obj : error LNK2001: unresolved external symbol glfwGetKey
+Renderer.obj : error LNK2019: unresolved external symbol glfwGetMouseButton referenced in function "private: void __cdecl Renderer::Mouse_Callback(struct GLFWwindow *,double,double)" (?Mouse_Callback@Renderer@@AEAAXPEAUGLFWwindow@@NN@Z)
+Renderer.obj : error LNK2019: unresolved external symbol glfwSetKeyCallback referenced in function "private: void __cdecl Renderer::init(void)" (?init@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol glfwSetCursorPosCallback referenced in function "private: void __cdecl Renderer::init(void)" (?init@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol glfwGetTime referenced in function "private: void __cdecl Renderer::tick(void)" (?tick@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol glfwMakeContextCurrent referenced in function "private: void __cdecl Renderer::init(void)" (?init@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2019: unresolved external symbol glfwSwapBuffers referenced in function "private: void __cdecl Renderer::tick(void)" (?tick@Renderer@@AEAAXXZ)
+Renderer.obj : error LNK2001: unresolved external symbol __glewBlitFramebuffer
+IBO.obj : error LNK2001: unresolved external symbol __glewBindBuffer
+VBO.obj : error LNK2001: unresolved external symbol __glewBindBuffer
+IBO.obj : error LNK2001: unresolved external symbol __glewBufferData
+VBO.obj : error LNK2001: unresolved external symbol __glewBufferData
+IBO.obj : error LNK2001: unresolved external symbol __glewGenBuffers
+VBO.obj : error LNK2001: unresolved external symbol __glewGenBuffers
+Shader.obj : error LNK2001: unresolved external symbol __glewAttachShader
+Shader.obj : error LNK2001: unresolved external symbol __glewCompileShader
+Shader.obj : error LNK2001: unresolved external symbol __glewCreateProgram
+Shader.obj : error LNK2001: unresolved external symbol __glewCreateShader
+Shader.obj : error LNK2001: unresolved external symbol __glewDeleteProgram
+Shader.obj : error LNK2001: unresolved external symbol __glewDeleteShader
+Shader.obj : error LNK2001: unresolved external symbol __glewGetShaderInfoLog
+Shader.obj : error LNK2001: unresolved external symbol __glewGetShaderiv
+Shader.obj : error LNK2001: unresolved external symbol __glewGetUniformLocation
+Shader.obj : error LNK2001: unresolved external symbol __glewLinkProgram
+Shader.obj : error LNK2001: unresolved external symbol __glewShaderSource
+Shader.obj : error LNK2001: unresolved external symbol __glewUniform1f
+Shader.obj : error LNK2001: unresolved external symbol __glewUniform1i
+Shader.obj : error LNK2001: unresolved external symbol __glewUniform3fv
+Shader.obj : error LNK2001: unresolved external symbol __glewUniform4fv
+Shader.obj : error LNK2001: unresolved external symbol __glewUniformMatrix4fv
+Shader.obj : error LNK2001: unresolved external symbol __glewUseProgram
+Shader.obj : error LNK2001: unresolved external symbol __glewValidateProgram
+Texture.obj : error LNK2019: unresolved external symbol __imp_FreeImage_Initialise referenced in function "protected: unsigned char * __cdecl Texture::loadTexture(char const *,unsigned int &,unsigned int &)" (?loadTexture@Texture@@IEAAPEAEPEBDAEAI1@Z)
+Texture.obj : error LNK2019: unresolved external symbol __imp_FreeImage_DeInitialise referenced in function "protected: unsigned char * __cdecl Texture::loadTexture(char const *,unsigned int &,unsigned int &)" (?loadTexture@Texture@@IEAAPEAEPEBDAEAI1@Z)
+Texture.obj : error LNK2019: unresolved external symbol __imp_FreeImage_Unload referenced in function "protected: unsigned char * __cdecl Texture::loadTexture(char const *,unsigned int &,unsigned int &)" (?loadTexture@Texture@@IEAAPEAEPEBDAEAI1@Z)
+Texture.obj : error LNK2019: unresolved external symbol __imp_FreeImage_Load referenced in function "protected: unsigned char * __cdecl Texture::loadTexture(char const *,unsigned int &,unsigned int &)" (?loadTexture@Texture@@IEAAPEAEPEBDAEAI1@Z)
+Texture.obj : error LNK2019: unresolved external symbol __imp_FreeImage_GetFIFFromFilename referenced in function "protected: unsigned char * __cdecl Texture::loadTexture(char const *,unsigned int &,unsigned int &)" (?loadTexture@Texture@@IEAAPEAEPEBDAEAI1@Z)
+Texture.obj : error LNK2019: unresolved external symbol __imp_FreeImage_FIFSupportsReading referenced in function "protected: unsigned char * __cdecl Texture::loadTexture(char const *,unsigned int &,unsigned int &)" (?loadTexture@Texture@@IEAAPEAEPEBDAEAI1@Z)
+Texture.obj : error LNK2019: unresolved external symbol __imp_FreeImage_GetFileType referenced in function "protected: unsigned char * __cdecl Texture::loadTexture(char const *,unsigned int &,unsigned int &)" (?loadTexture@Texture@@IEAAPEAEPEBDAEAI1@Z)
+Texture.obj : error LNK2019: unresolved external symbol __imp_FreeImage_GetBits referenced in function "protected: unsigned char * __cdecl Texture::loadTexture(char const *,unsigned int &,unsigned int &)" (?loadTexture@Texture@@IEAAPEAEPEBDAEAI1@Z)
+Texture.obj : error LNK2019: unresolved external symbol __imp_FreeImage_GetWidth referenced in function "protected: unsigned char * __cdecl Texture::loadTexture(char const *,unsigned int &,unsigned int &)" (?loadTexture@Texture@@IEAAPEAEPEBDAEAI1@Z)
+Texture.obj : error LNK2019: unresolved external symbol __imp_FreeImage_GetHeight referenced in function "protected: unsigned char * __cdecl Texture::loadTexture(char const *,unsigned int &,unsigned int &)" (?loadTexture@Texture@@IEAAPEAEPEBDAEAI1@Z)
+Texture.obj : error LNK2019: unresolved external symbol __imp_FreeImage_ConvertTo32Bits referenced in function "protected: unsigned char * __cdecl Texture::loadTexture(char const *,unsigned int &,unsigned int &)" (?loadTexture@Texture@@IEAAPEAEPEBDAEAI1@Z)
+Texture.obj : error LNK2001: unresolved external symbol __glewGenerateMipmap
+Texture.obj : error LNK2001: unresolved external symbol __glewTexImage2DMultisample
+VAO.obj : error LNK2001: unresolved external symbol __glewEnableVertexAttribArray
+VAO.obj : error LNK2001: unresolved external symbol __glewVertexAttribPointer
+VAO.obj : error LNK2001: unresolved external symbol __glewBindVertexArray
+VAO.obj : error LNK2001: unresolved external symbol __glewDeleteVertexArrays
+VAO.obj : error LNK2001: unresolved external symbol __glewGenVertexArrays
+C:\Dev\BasicRenderer\Dependencies\OpenGL\lib-vc2019\glfw3.lib : warning LNK4272: library machine type 'x86' conflicts with target machine type 'x64'
+C:\Dev\BasicRenderer\Dependencies\OpenGL_GLEW\lib\Release\Win32\glew32s.lib : warning LNK4272: library machine type 'x86' conflicts with target machine type 'x64'
+C:\Dev\BasicRenderer\Dependencies\FreeImage\lib\FreeImage.lib : warning LNK4272: library machine type 'x86' conflicts with target machine type 'x64'
+C:\Dev\BasicRenderer\binaries\x64\Debug\BasicRenderer-Core.exe : fatal error LNK1120: 70 unresolved externals

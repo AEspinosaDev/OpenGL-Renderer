@@ -2,18 +2,18 @@
 #include <Core/Lights/DirectionalLight.h>
 #include <CubeMapTexture.h>
 
-void LightManager::init(std::unordered_map<std::string, Shader*> shaders)
+void LightManager::init()
 {
-	m_PLightMesh = new Mesh();
-	m_PLightMesh->importFile("Sphere.obj");
+	m_PLightMesh = new Mesh("Sphere.obj");
+	m_PLightMesh->importFile();
 
-	m_SLightMesh = new Mesh();
-	m_SLightMesh->importFile("Sphere.obj");
+	m_SLightMesh = new Mesh("Sphere.obj");
+	m_SLightMesh->importFile();
 
-	m_DLightMesh = new Mesh();
-	m_DLightMesh->importFile("cylinder.obj");
+	m_DLightMesh = new Mesh("cylinder.obj");
+	m_DLightMesh->importFile();
 
-	m_DebugMat = new UnlitBasicMaterial(shaders);
+	m_DebugMat = new UnlitBasicMaterial();
 	m_PLightMesh->setMaterial(m_DebugMat);
 	m_SLightMesh->setMaterial(m_DebugMat);
 	m_DLightMesh->setMaterial(m_DebugMat);

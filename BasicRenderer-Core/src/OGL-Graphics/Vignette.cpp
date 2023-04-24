@@ -47,6 +47,7 @@ void Vignette::draw()
 
 	shader->bind();
 
+
 	shader->setMat4("u_proj", glm::ortho(-1, 1, -1, 1, 2, 250));
 
 	texture->bind(0);

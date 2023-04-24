@@ -11,10 +11,10 @@ private:
 	float itileU;
 	float itileV;
 public:
-	UnlitBasicMaterial(std::unordered_map<std::string, Shader*> shaders) : Material(shaders["UnlitBasicShader"]), itileU(1.0), itileV(1.0),opacity(1.0), color(glm::vec3(1.0, 1.0, 1.0)),
+	UnlitBasicMaterial() : Material("UnlitBasicShader"), itileU(1.0), itileV(1.0),opacity(1.0), color(glm::vec3(1.0, 1.0, 1.0)),
 		colorTex(nullptr) {}
 
-	UnlitBasicMaterial(std::unordered_map<std::string, Shader*> shaders, MaterialParameters params) : Material(shaders["UnlitBasicShader"],params), itileU(1.0), itileV(1.0), opacity(1.0), color(glm::vec3(1.0, 1.0, 1.0)),
+	UnlitBasicMaterial(MaterialParameters params) : Material("UnlitBasicShader",params), itileU(1.0), itileV(1.0), opacity(1.0), color(glm::vec3(1.0, 1.0, 1.0)),
 		colorTex(nullptr) {}
 
 	inline void setTileU(float u) { itileU = u; }

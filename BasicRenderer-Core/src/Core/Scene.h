@@ -18,12 +18,15 @@ private:
 	SkyboxMesh* m_Skybox;
 	Camera* m_ActiveCamera;
 	bool m_Fog;
+	float m_AmbientStrength;
+	glm::vec3 m_AmbientColor;
 
-	int modelNameIndexCount;
-	int pointlightNameIndexCount;
-	int spotlightNameIndexCount;
-	int directionallightNameIndexCount;
-	int cameraNameIndexCount;
+	unsigned int modelNameIndexCount;
+	unsigned int pointlightNameIndexCount;
+	unsigned int spotlightNameIndexCount;
+	unsigned int directionallightNameIndexCount;
+	unsigned int cameraNameIndexCount;
+	
 
 
 public:
@@ -31,6 +34,8 @@ public:
 		m_Name(name),
 		m_Skybox(nullptr),
 		m_Fog(false),
+		m_AmbientStrength(0.1),
+		m_AmbientColor(glm::vec3(1.0f)),
 		modelNameIndexCount(0),
 		pointlightNameIndexCount(0),
 		spotlightNameIndexCount(0),
@@ -55,6 +60,11 @@ public:
 
 	inline SkyboxMesh* getSkybox() { return m_Skybox; }
 	inline void setSkybox(SkyboxMesh* skybox) { m_Skybox = skybox; }
+
+	inline void setAmbientStrength(float n) { m_AmbientStrength = n; }
+	inline float getAmbientStrength() { return m_AmbientStrength; }
+	inline void setAmbientColor(glm::vec3 ambientColor) { m_AmbientColor = ambientColor; }
+	inline glm::vec3 getAmbientColor() { return m_AmbientColor; }
 
 	void add(SceneObject* obj);
 

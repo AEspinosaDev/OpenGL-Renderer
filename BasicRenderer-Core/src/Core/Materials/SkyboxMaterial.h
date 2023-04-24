@@ -7,10 +7,10 @@ class SkyboxMaterial : public Material
 	CubeMapTexture* cubeMapText;
 
 public:
-	SkyboxMaterial(std::unordered_map<std::string, Shader*> shaders) : Material(shaders["SkyboxShader"]), cubeMapText(nullptr)
+	SkyboxMaterial() : Material("SkyboxShader"), cubeMapText(nullptr)
 	{}
 
-	SkyboxMaterial(CubeMapTexture* cubemap ,std::unordered_map<std::string, Shader*> shaders) : Material(shaders["SkyboxShader"]), cubeMapText(cubemap)
+	SkyboxMaterial(CubeMapTexture* cubemap) : Material("SkyboxShader"), cubeMapText(cubemap)
 	{}
 
 	inline CubeMapTexture* getTexture() { return cubeMapText; }

@@ -11,24 +11,29 @@ int main()
 {
 	Renderer* r = new Renderer('test', WIDTH, HEIGHT, AntialiasingType::MSAAx16);
 
-	r->createScene("mainScene");
-	Scene* sc = r->getScene("mainScene");
+	Scene* sc = new Scene("mainScene");
 
 	//SETUP SCENE
 	//------------------------------------
-	auto m_Shaders = r->getShaders();
+	/*BasicPhongMaterial* sphere_m = new BasicPhongMaterial(m_Shaders);
+	sphere_m->setShininess(500);
+	sphere_m->setSpecularity(3);
+	Model* sphere = new Model();
+	sphere->loadMesh("box.obj");
+	sphere->loadMaterial(sphere_m);
+	sphere->setPosition(glm::vec3(-2.0, 2.0, 0.0));
+	m_Models["sphere"] = sphere;*/
+
 
 	Texture* boxColorTex = new Texture("SeamlessWood-Diffuse.jpg");
 	Texture* boxNormalTex = new Texture("SeamlessWood-NormalMap.tif");
-	BasicPhongMaterial* box_m = new BasicPhongMaterial(m_Shaders);
+	BasicPhongMaterial* box_m = new BasicPhongMaterial();
 	box_m->addColorTex(boxColorTex);
 	box_m->addNormalTex(boxNormalTex);
 	//box_m->setOpacity(0.9);
 	box_m->setTransparency(true);
 
-	Model* box = new Model("pablo");
-	box->loadMesh("box.obj");
-	box->loadMaterial(box_m);
+	Model* box = new Model("pablo", "box.obj", box_m);
 	box->setPosition(glm::vec3(2.0, 0.5, 0.0));
 	sc->add(box);
 	Model* box2 = box->clone();
@@ -41,29 +46,25 @@ int main()
 
 	Texture* floorAlbedoTex = new Texture("floor.jpg");
 	Texture* floorNormalTex = new Texture("floor-normal.jpg");
-	BasicPhongMaterial* floor_m = new BasicPhongMaterial(m_Shaders);
+	BasicPhongMaterial* floor_m = new BasicPhongMaterial();
 	floor_m->addColorTex(floorAlbedoTex);
 	floor_m->addNormalTex(floorNormalTex);
 	floor_m->setTileU(20);
 	floor_m->setTileV(20);
 	//floor_m->setReceiveShadows(false);
 
-	Model* plane = new Model();
-	plane->loadMesh("plane.obj");
-	plane->loadMaterial(floor_m);
+	Model* plane = new Model("plane.obj", floor_m);
 	sc->add(plane);
 
 
 	Texture* tenguColorTex = new Texture("tengu-color.png");
 	Texture* tenguNormalTex = new Texture("tengu-normal.png");
-	BasicPhongMaterial* tengu_m = new BasicPhongMaterial(m_Shaders);
+	BasicPhongMaterial* tengu_m = new BasicPhongMaterial();
 	tengu_m->addColorTex(tenguColorTex);
 	tengu_m->addNormalTex(tenguNormalTex);
 
 
-	Model* demon = new Model();
-	demon->loadMesh("tengu.obj");
-	demon->loadMaterial(tengu_m);
+	Model* demon = new Model("tengu.obj", tengu_m);
 	//demon->setActive(false);
 	sc->add(demon);
 
@@ -82,10 +83,12 @@ int main()
 
 
 	CubeMapTexture* skyText = new CubeMapTexture(skyFaces);
-	SkyboxMesh* skybox = new SkyboxMesh(new SkyboxMaterial(skyText, m_Shaders));
+	SkyboxMesh* skybox = new SkyboxMesh(new SkyboxMaterial(skyText));
 	sc->setSkybox(skybox);
 
+	r->addScene(sc);
 	r->setCurrentScene("mainScene");
+	r->setPostProcessPass(true);
 
 	r->run();
 

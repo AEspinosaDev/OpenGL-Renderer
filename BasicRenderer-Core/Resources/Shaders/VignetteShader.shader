@@ -22,6 +22,7 @@ void main() {
 in vec2 texCoord;
 
 uniform sampler2D vignetteTex;
+uniform bool useGammaCorrection;
 
 out vec4 fragColor;
 
@@ -33,7 +34,9 @@ void main() {
 
 
 	//Gamma correction
-	float gamma = 2.2;
-	fragColor.rgb = pow(fragColor.rgb, vec3(1.0 / gamma));
+	if (useGammaCorrection) {
+		float gamma = 2.2;
+		fragColor.rgb = pow(fragColor.rgb, vec3(1.0 / gamma));
+	}
 }
 
