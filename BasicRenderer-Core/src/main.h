@@ -30,7 +30,7 @@ int main()
 	BasicPhongMaterial* box_m = new BasicPhongMaterial();
 	box_m->addColorTex(boxColorTex);
 	box_m->addNormalTex(boxNormalTex);
-	//box_m->setOpacity(0.9);
+	box_m->setOpacity(0.7);
 	box_m->setTransparency(true);
 
 	Model* box = new Model("pablo", "box.obj", box_m);

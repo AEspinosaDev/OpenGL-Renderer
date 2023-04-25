@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 #include <Core/Lights/Light.h>
-#include <OGL-Graphics/Mesh.h>
 #include <Core/Materials/UnlitBasicMaterial.h>
+#include "Model.h"
 /// <summary>
 /// Class that manages all lights instances and data.
 /// </summary>
@@ -10,9 +10,9 @@ class LightManager
 {
 private:
 	std::vector<Light*> m_Lights;
-	Mesh* m_PLightMesh;
-	Mesh* m_DLightMesh;
-	Mesh* m_SLightMesh;
+	Model* m_PLightMesh;
+	Model* m_DLightMesh;
+	Model* m_SLightMesh;
 	UnlitBasicMaterial* m_DebugMat;
 
 	float m_AmbientStrength;

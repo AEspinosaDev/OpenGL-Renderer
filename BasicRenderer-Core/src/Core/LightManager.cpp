@@ -4,19 +4,17 @@
 
 void LightManager::init()
 {
-	m_PLightMesh = new Mesh("Sphere.obj");
-	m_PLightMesh->importFile();
-
-	m_SLightMesh = new Mesh("Sphere.obj");
-	m_SLightMesh->importFile();
-
-	m_DLightMesh = new Mesh("cylinder.obj");
-	m_DLightMesh->importFile();
-
 	m_DebugMat = new UnlitBasicMaterial();
-	m_PLightMesh->setMaterial(m_DebugMat);
-	m_SLightMesh->setMaterial(m_DebugMat);
-	m_DLightMesh->setMaterial(m_DebugMat);
+
+	m_PLightMesh = new Model("Sphere.obj", m_DebugMat);
+	m_PLightMesh->setScale(glm::vec3(0.5f));
+	m_PLightMesh->getMesh()->generateBuffers();
+	m_SLightMesh = new Model("Sphere.obj", m_DebugMat);
+	m_SLightMesh->setScale(glm::vec3(0.5f));
+	m_SLightMesh->getMesh()->generateBuffers();
+	m_DLightMesh = new Model("cylinder.obj", m_DebugMat);
+	m_DLightMesh->setScale(glm::vec3(0.5f));
+	m_DLightMesh->getMesh()->generateBuffers();
 }
 
 void LightManager::addLight(Light* l) {
@@ -29,8 +27,7 @@ void LightManager::addLight(Light* l) {
 		pointLightsNumber++;
 		l->setShadowText(new CubeMapTexture(0, GL_DEPTH_COMPONENT, m_ShadowResolution, m_ShadowResolution, 0,
 			GL_DEPTH_COMPONENT, GL_FLOAT, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_EDGE));
-		/*l->setShadowText(new Texture(0, GL_DEPTH_COMPONENT16, m_ShadowResolution, m_ShadowResolution, 0,
-			GL_DEPTH_COMPONENT, GL_FLOAT, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER));*/
+		
 		break;
 	case 1:
 		directionalLightsNumber++;
@@ -56,23 +53,20 @@ void LightManager::drawLights(glm::mat4 proj, glm::mat4 view) {
 	for (Light* l : m_Lights)
 	{
 
-		glm::mat4 model = glm::translate(glm::mat4(1.0f), l->getPosition());
-		model = glm::scale(model, glm::vec3(0.5));
-
 		m_DebugMat->setColor(l->getColor());
 
 		switch (l->getType())
 		{
 		case 0:
-			m_PLightMesh->setModel(model);
-			m_PLightMesh->draw(proj, view);
+			m_PLightMesh->setPosition(l->getPosition());
+			m_PLightMesh->draw(proj,view);
 			break;
 		case 1:
-			m_DLightMesh->setModel(model);
+			m_DLightMesh->setPosition(l->getPosition());
 			m_DLightMesh->draw(proj, view);
 			break;
 		case 2:
-			m_SLightMesh->setModel(model);
+			m_SLightMesh->setPosition(l->getPosition());
 			m_SLightMesh->draw(proj, view);
 			break;
 		}

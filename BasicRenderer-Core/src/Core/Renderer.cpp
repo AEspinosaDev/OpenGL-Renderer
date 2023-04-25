@@ -129,8 +129,6 @@ void Renderer::init() {
 	}
 
 
-
-
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
 }
@@ -152,10 +150,12 @@ void Renderer::lateInit()
 
 void Renderer::cacheData() {
 
+	//Generate textures
 
-	//Set all shaders to materials and import and bind meshes
+
+	//Set all shaders to materials and generate and bind meshes vertex buffers
 	for (auto& m : m_CurrentScene->getModels()) {
-		m.second->getMesh()->importFile();
+		m.second->getMesh()->generateBuffers();
 
 		auto shaderID = m.second->getMaterialReference()->getShaderNameID();
 		m.second->getMaterialReference()->setShader(m_Shaders[shaderID]);
@@ -164,7 +164,6 @@ void Renderer::cacheData() {
 		auto shaderID = m_CurrentScene->getSkybox()->getMaterial()->getShaderNameID();
 		m_CurrentScene->getSkybox()->getMaterial()->setShader(m_Shaders[shaderID]);
 	}
-
 
 	//Upload lights to light manager
 	if (m_CurrentScene) {
@@ -176,7 +175,6 @@ void Renderer::cacheData() {
 			m_LightManager->addLight(l.second);
 		}
 	}
-
 
 	//Create and setup basic FBs
 	if (m_AntialiasingSamples > 0)
@@ -285,7 +283,7 @@ void Renderer::renderSceneObjects()
 
 
 	for (auto& m : m_CurrentScene->getModels()) {
-		m.second->getMesh()->getMaterial()->getTransparency() ? blendModels.push_back(m.second) : opaqueModels.push_back(m.second);
+		m.second->getMaterialReference()->getTransparency() ? blendModels.push_back(m.second) : opaqueModels.push_back(m.second);
 	}
 
 	//FIRST = OPAQUE OBJECTS
@@ -341,15 +339,12 @@ void Renderer::renderObjectNormals()
 		if (!m.second->isActive()) continue;
 		auto mesh = m.second->getMesh();
 		if (mesh != nullptr) {
-			mesh->setModel(m.second->getTransform());
-			normalShader->setMat4("u_modelView", m_CurrentScene->getActiveCamera()->getView() * m.second->getMesh()->getModel());
+			normalShader->setMat4("u_modelView", m_CurrentScene->getActiveCamera()->getView() * m.second->getTransform());
 			normalShader->setMat4("u_projection", m_CurrentScene->getActiveCamera()->getProj());
 			mesh->draw();
 		}
 		else
 			std::cout << "Model doesnt have any mesh loaded" << std::endl;
-
-
 
 	}
 
@@ -482,11 +477,9 @@ void Renderer::computeShadows()
 					if (!m.second->isActive()) return;
 					if (!m.second->getMesh()->getCastShadows()) return;
 
-					m.second->getMesh()->setModel(m.second->getTransform());
-
 					m_Shaders["PointShadowDepthShader"]->bind();
 
-					m_Shaders["PointShadowDepthShader"]->setMat4("u_model", m.second->getMesh()->getModel());
+					m_Shaders["PointShadowDepthShader"]->setMat4("u_model", m.second->getTransform());
 
 					m.second->getMesh()->draw();
 
@@ -516,11 +509,9 @@ void Renderer::computeShadows()
 					if (!m.second->isActive()) return;
 					if (!m.second->getMesh()->getCastShadows()) return;
 
-					m.second->getMesh()->setModel(m.second->getTransform());
-
 					m_Shaders["PointShadowDepthShader"]->bind();
 
-					m_Shaders["PointShadowDepthShader"]->setMat4("u_Light_ModelViewProj", m_LightManager->getLight(i)->getLightTransformMatrix() * m.second->getMesh()->getModel());
+					m_Shaders["PointShadowDepthShader"]->setMat4("u_Light_ModelViewProj", m_LightManager->getLight(i)->getLightTransformMatrix() * m.second->getTransform());
 
 					m.second->getMesh()->draw();
 

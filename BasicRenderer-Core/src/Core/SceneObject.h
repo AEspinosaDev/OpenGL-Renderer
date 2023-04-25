@@ -45,6 +45,11 @@ public:
 	SceneObject(ObjectType t) : m_Name(""), m_Location(glm::vec3()), m_Rotation(glm::vec3()), m_Scale(glm::vec3(1.0f)), m_Transform(glm::mat4(1.0f)), enabled(true),
 		child(nullptr), parent(nullptr), m_Type(t), m_Clones(0) {}
 
+	~SceneObject() {
+		delete child;
+		delete parent;
+	}
+
 	virtual void draw(glm::mat4 proj, glm::mat4 view) = 0;
 
 	virtual void setPosition(const glm::vec3 p);
