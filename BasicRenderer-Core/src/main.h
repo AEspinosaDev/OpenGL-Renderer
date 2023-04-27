@@ -9,7 +9,7 @@ const  unsigned int HEIGHT = 900;
 
 int main()
 {
-	Renderer* r = new Renderer('test', WIDTH, HEIGHT, AntialiasingType::MSAAx16);
+	Renderer* r = new Renderer("Test", WIDTH, HEIGHT, AntialiasingType::MSAAx16);
 
 	Scene* sc = new Scene("mainScene");
 
@@ -30,7 +30,7 @@ int main()
 	BasicPhongMaterial* box_m = new BasicPhongMaterial();
 	box_m->addColorTex(boxColorTex);
 	box_m->addNormalTex(boxNormalTex);
-	box_m->setOpacity(0.7);
+	//box_m->setOpacity(0.2);
 	box_m->setTransparency(true);
 
 	Model* box = new Model("pablo", "box.obj", box_m);

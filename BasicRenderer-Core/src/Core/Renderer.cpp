@@ -92,7 +92,8 @@ void Renderer::init() {
 
 
   // glfw window creation
-	m_Window = glfwCreateWindow(m_SWidth, m_SHeight, &m_Name, NULL, NULL);
+	m_Window = glfwCreateWindow(m_SWidth, m_SHeight, m_Name.c_str(), NULL, NULL);
+
 	if (m_Window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -131,6 +132,7 @@ void Renderer::init() {
 
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
+	//glfwSetWindowTitle(m_Window, &m_Name);
 }
 
 void Renderer::lateInit()
@@ -156,11 +158,12 @@ void Renderer::cacheData() {
 	//Set all shaders to materials and generate and bind meshes vertex buffers
 	for (auto& m : m_CurrentScene->getModels()) {
 		m.second->getMesh()->generateBuffers();
-
+		m.second->getMaterialReference()->generateTextures();
 		auto shaderID = m.second->getMaterialReference()->getShaderNameID();
 		m.second->getMaterialReference()->setShader(m_Shaders[shaderID]);
 	}
 	if (m_CurrentScene->getSkybox()) {
+		m_CurrentScene->getSkybox()->getMaterial()->generateTextures();
 		auto shaderID = m_CurrentScene->getSkybox()->getMaterial()->getShaderNameID();
 		m_CurrentScene->getSkybox()->getMaterial()->setShader(m_Shaders[shaderID]);
 	}
@@ -189,6 +192,8 @@ void Renderer::tick()
 		float currentFrame = glfwGetTime();
 		m_UtilParameters.deltaTime = currentFrame - m_UtilParameters.lastFrame;
 		m_UtilParameters.lastFrame = currentFrame;
+		profile();
+
 		renderScene();
 		glfwSwapBuffers(m_Window);
 		glfwPollEvents();
@@ -208,6 +213,19 @@ void Renderer::Key_Callback(GLFWwindow* window, int key, int scancode, int actio
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x + .5f, l->getPosition().y, l->getPosition().z));
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x, l->getPosition().y + .5f, l->getPosition().z));
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x, l->getPosition().y - .5f, l->getPosition().z));
+
+	if (glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS) {
+		if (!m_UtilParameters.isFullscreen) {
+			m_UtilParameters.isFullscreen = true;
+			const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+			glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, mode->refreshRate);
+		}
+		else {
+			m_UtilParameters.isFullscreen = false;
+			glfwSetWindowMonitor(window, NULL, 0, 0, m_SWidth, m_SHeight, GLFW_DONT_CARE);
+		}
+		//m_UtilParameters.isFullscreen ? glfwFullscre
+	}
 
 }
 
@@ -523,9 +541,20 @@ void Renderer::computeShadows()
 
 	}
 
-
 }
 
+void Renderer::profile() {
+
+	m_UtilParameters.secondCounter += m_UtilParameters.deltaTime;
+
+	if (m_UtilParameters.secondCounter >= 1) {
+		m_UtilParameters.secondCounter = 0;
+		m_UtilParameters.fps = 1 / m_UtilParameters.deltaTime;
+		std::string updatedTitle = m_Name + " - FPS " + std::to_string(m_UtilParameters.fps) + " / ms " + std::to_string(m_UtilParameters.deltaTime * 1000);
+		glfwSetWindowTitle(m_Window, updatedTitle.c_str());
+	}
+
+	}
 
 
 

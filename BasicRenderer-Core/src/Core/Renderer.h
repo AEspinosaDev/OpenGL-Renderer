@@ -34,6 +34,10 @@ struct PossProcessEffects {
 };
 
 struct UtilityParameters {
+	bool isFullscreen;
+
+	float secondCounter;
+	unsigned int fps;
 	float mouselastX;
 	float mouselastY;
 	bool firstMouse;
@@ -45,7 +49,7 @@ struct UtilityParameters {
 class Renderer
 {
 private:
-	char m_Name;
+	std::string m_Name;
 
 	GLFWwindow* m_Window;
 
@@ -69,7 +73,7 @@ private:
 
 
 public:
-	Renderer(char name, unsigned int width, unsigned int height, AntialiasingType antialiasing) :
+	Renderer(std::string name, unsigned int width, unsigned int height, AntialiasingType antialiasing) :
 
 		m_Name(name),
 		m_Window(nullptr),
@@ -86,6 +90,9 @@ public:
 		m_PPEffects.gammaCorrection = true;
 		m_PPEffects.bloom = false;
 
+		m_UtilParameters.isFullscreen = false;
+		m_UtilParameters.secondCounter = 0;
+		m_UtilParameters.fps = 0;
 		m_UtilParameters.clearColor = glm::vec4(0.2f, 0.3f, 0.3f, 1.0f);
 		m_UtilParameters.firstMouse = true;
 		m_UtilParameters.deltaTime = 0.0;
@@ -229,8 +236,6 @@ private:
 	/// </summary>
 	void createVignette();
 
-
-
-
+	void profile();
 };
 

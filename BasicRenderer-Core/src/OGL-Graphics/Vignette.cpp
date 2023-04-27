@@ -19,6 +19,7 @@ Vignette::Vignette(unsigned int w, unsigned int h) : vao(new VAO()), shader(new 
 
 	const unsigned int ids[] = { 0,1,2,1,2,3 };
 
+	texture->generateTexture();
 
 	vao->bind();
 

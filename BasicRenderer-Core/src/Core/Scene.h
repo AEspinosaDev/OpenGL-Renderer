@@ -8,25 +8,25 @@
 
 class Scene {
 private:
-	std::string m_Name;
+	std::string										m_Name;
 
-	std::unordered_map<std::string, SceneObject*> m_Objects;
-	std::unordered_map<std::string, Model*> m_Models;
-	std::unordered_map<std::string, Light*> m_Lights;
-	std::unordered_map<std::string, Camera*> m_Cameras;
+	std::unordered_map<std::string, SceneObject*>	m_Objects;
+	std::unordered_map<std::string, Model*>			m_Models;
+	std::unordered_map<std::string, Light*>			m_Lights;
+	std::unordered_map<std::string, Camera*>		m_Cameras;
 
-	SkyboxMesh* m_Skybox;
-	Camera* m_ActiveCamera;
-	bool m_Fog;
-	float m_AmbientStrength;
-	glm::vec3 m_AmbientColor;
+	SkyboxMesh*										m_Skybox;
+	Camera*											m_ActiveCamera;
+	bool											m_Fog;
+	float											m_AmbientStrength;
+	glm::vec3										m_AmbientColor;
 
-	unsigned int modelNameIndexCount;
-	unsigned int pointlightNameIndexCount;
-	unsigned int spotlightNameIndexCount;
-	unsigned int directionallightNameIndexCount;
-	unsigned int cameraNameIndexCount;
-	
+	unsigned int									modelNameIndexCount;
+	unsigned int									pointlightNameIndexCount;
+	unsigned int									spotlightNameIndexCount;
+	unsigned int									directionallightNameIndexCount;
+	unsigned int									cameraNameIndexCount;
+
 
 
 public:

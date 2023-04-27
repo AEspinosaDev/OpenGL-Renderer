@@ -34,5 +34,7 @@ public:
 	void bind(glm::mat4 proj, glm::mat4 view, glm::mat4 model);
 
 	void unbind();
+
+	void generateTextures();
 };
 

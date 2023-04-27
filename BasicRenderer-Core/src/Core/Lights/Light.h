@@ -70,7 +70,7 @@ public:
 
 	virtual inline Texture* getShadowText() { return m_ShadowText; }
 
-	virtual inline void setShadowText(Texture* t) { m_ShadowText = t; }
+	virtual void setShadowText(Texture* t); 
 
 	inline const unsigned int getType() { return type; }
 

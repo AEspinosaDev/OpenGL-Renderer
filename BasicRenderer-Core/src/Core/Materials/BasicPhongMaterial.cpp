@@ -117,3 +117,25 @@ void BasicPhongMaterial::unbind()
 	m_shader->unbind();
 }
 
+void BasicPhongMaterial::generateTextures()
+{
+	if (colorTex != nullptr) {
+		colorTex->generateTexture();
+	}
+	if (normalTex != nullptr) {
+		normalTex->generateTexture();
+	}
+	if (specularTex != nullptr) {
+		specularTex->generateTexture();
+	}
+	if (roughnessTex != nullptr) {
+		roughnessTex->generateTexture();
+	}
+	if (emiTex != nullptr) {
+		emiTex->generateTexture();
+	}
+	if (opacityTex != nullptr) {
+		opacityTex->generateTexture();
+	}
+}
+

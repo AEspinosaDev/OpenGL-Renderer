@@ -19,3 +19,10 @@ void SkyboxMaterial::unbind()
 {
 	m_shader->unbind();
 }
+
+void SkyboxMaterial::generateTextures()
+{
+	if (cubeMapText) {
+		cubeMapText->generateTexture();
+	}
+}

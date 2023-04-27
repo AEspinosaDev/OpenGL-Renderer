@@ -31,4 +31,11 @@ void UnlitBasicMaterial::unbind()
 	m_shader->unbind();
 }
 
+void UnlitBasicMaterial::generateTextures()
+{
+	if (colorTex != nullptr) {
+		colorTex->generateTexture();
+	}
+}
+
 

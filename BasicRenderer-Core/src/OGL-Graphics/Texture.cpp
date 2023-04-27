@@ -1,49 +1,101 @@
 #include "Texture.h"
 
 
-Texture::Texture(const std::string& path) :m_RendererID(0), m_FilePath(texturePath + path), m_LocalBuffer(nullptr), m_Width(0), m_Height(0), m_Samples(1),
-level(0), internalFormat(GL_RGBA8), border(0), format(GL_RGBA), type(GL_UNSIGNED_BYTE),m_TextureType(TextureType::TEXTURE_2D) {
+Texture::Texture(const std::string& path) :m_RendererID(0), m_FilePath(texturePath + path), m_LocalBuffer(nullptr), m_Width(0), m_Height(0), m_Samples(1), m_TextureType(TextureType::TEXTURE_2D) {
 
-	generateTexture(true, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT);
+	m_TextConfig.anisotropicFilter = true;
+	m_TextConfig.level = 0;
+	m_TextConfig.internalFormat = GL_RGBA8;
+	m_TextConfig.border = 0;
+	m_TextConfig.format = GL_RGBA;
+	m_TextConfig.type = GL_UNSIGNED_BYTE;
+	m_TextConfig.magFilter = GL_LINEAR;
+	m_TextConfig.minFilter = GL_LINEAR_MIPMAP_LINEAR;
+	m_TextConfig.wrapS = GL_REPEAT;
+	m_TextConfig.wrapT = GL_REPEAT;
+	m_TextConfig.wrapR = -1;
+
 
 }
 
-Texture::Texture(unsigned int w, unsigned int h) : m_RendererID(0), m_FilePath("null"), m_LocalBuffer(nullptr), m_Width(w), m_Height(h), m_Samples(1),
-level(0), internalFormat(GL_RGBA8), border(0), format(GL_RGBA), type(GL_UNSIGNED_BYTE), m_TextureType(TextureType::TEXTURE_2D) {
+Texture::Texture(unsigned int w, unsigned int h) : m_RendererID(0), m_FilePath("null"), m_LocalBuffer(nullptr), m_Width(w), m_Height(h), m_Samples(1), m_TextureType(TextureType::TEXTURE_2D) {
 
-	generateTexture(false, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT);
+	m_TextConfig.anisotropicFilter = false;
+	m_TextConfig.level = 0;
+	m_TextConfig.internalFormat = GL_RGBA8;
+	m_TextConfig.border = 0;
+	m_TextConfig.format = GL_RGBA;
+	m_TextConfig.type = GL_UNSIGNED_BYTE;
+	m_TextConfig.magFilter = GL_NEAREST;
+	m_TextConfig.minFilter = GL_NEAREST;
+	m_TextConfig.wrapS = GL_REPEAT;
+	m_TextConfig.wrapT = GL_REPEAT;
+	m_TextConfig.wrapR = -1;
+
 	
 
 }
 
 Texture::Texture(unsigned int w, unsigned int h, unsigned int samples) : m_RendererID(0), m_FilePath("null"), m_LocalBuffer(nullptr), m_Width(w), m_Height(h), m_Samples(samples),
-level(0), internalFormat(GL_RGBA8), border(0), format(GL_RGBA), type(GL_UNSIGNED_BYTE), m_TextureType(TextureType::TEXTURE_2D) {
+ m_TextureType(TextureType::TEXTURE_2D) {
+
+	m_TextConfig.anisotropicFilter = false;
+	m_TextConfig.level = 0;
+	m_TextConfig.internalFormat = GL_RGBA8;
+	m_TextConfig.border = 0;
+	m_TextConfig.format = GL_RGBA;
+	m_TextConfig.type = GL_UNSIGNED_BYTE;
+	m_TextConfig.magFilter = GL_NEAREST;
+	m_TextConfig.minFilter = GL_NEAREST;
+	m_TextConfig.wrapS = GL_REPEAT;
+	m_TextConfig.wrapT = GL_REPEAT;
+	m_TextConfig.wrapR = -1;
 
 	GLcall(glGenTextures(1, &m_RendererID));
 	GLcall(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_RendererID));
-	GLcall(glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, internalFormat, m_Width, m_Height,
+	GLcall(glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, m_TextConfig.internalFormat, m_Width, m_Height,
 		GL_TRUE));
 	GLcall(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0));
 
 }
 
 Texture::Texture(const std::string& path, GLint level, GLint internalFormat, unsigned int w, unsigned int h, GLint border, GLenum format, GLenum type,
-	bool anisotropicFilter, int magFilter, int minFilter, int wrapT, int wrapS) :m_RendererID(0), m_FilePath(texturePath + path), m_LocalBuffer(nullptr), m_Width(0), m_Height(0), m_Samples(1),
-	level(level), internalFormat(internalFormat), border(border), format(format), type(type) , m_TextureType(TextureType::TEXTURE_2D) {
+	bool anisotropicFilter, int magFilter, int minFilter, int wrapT, int wrapS) :m_RendererID(0), m_FilePath(texturePath + path), m_LocalBuffer(nullptr), m_Width(0), m_Height(0), m_Samples(1), m_TextureType(TextureType::TEXTURE_2D) {
 
-	generateTexture(anisotropicFilter, magFilter, minFilter, wrapT, wrapS);
+	m_TextConfig.anisotropicFilter = anisotropicFilter;
+	m_TextConfig.level = level;
+	m_TextConfig.internalFormat = internalFormat;
+	m_TextConfig.border = border;
+	m_TextConfig.format = format;
+	m_TextConfig.type = type;
+	m_TextConfig.magFilter = magFilter;
+	m_TextConfig.minFilter = minFilter;
+	m_TextConfig.wrapS = wrapS;
+	m_TextConfig.wrapT = wrapT;
+	m_TextConfig.wrapR = wrapT;
 
 }
 
 
 Texture::Texture(GLint level, GLint internalFormat, unsigned int w, unsigned int h, GLint border, GLenum format, GLenum type, bool anisotropicFilter,
 	int magFilter, int minFilter, int wrapT, int wrapS) :m_RendererID(0), m_FilePath("null"), m_LocalBuffer(nullptr), m_Width(w), m_Height(h), m_Samples(1),
-	level(level), internalFormat(internalFormat), border(border), format(format), type(type), m_TextureType(TextureType::TEXTURE_2D) {
+	m_TextureType(TextureType::TEXTURE_2D) {
 
-	generateTexture(anisotropicFilter, magFilter, minFilter, wrapT, wrapS);
+	m_TextConfig.anisotropicFilter = anisotropicFilter;
+	m_TextConfig.level = level;
+	m_TextConfig.internalFormat = internalFormat;
+	m_TextConfig.border = border;
+	m_TextConfig.format = format;
+	m_TextConfig.type = type;
+	m_TextConfig.magFilter = magFilter;
+	m_TextConfig.minFilter = minFilter;
+	m_TextConfig.wrapS = wrapS;
+	m_TextConfig.wrapT = wrapT;
+	m_TextConfig.wrapR = wrapT;
 
 }
-void Texture::generateTexture(bool anisotropicFilter, int magFilter, int minFilter, int wrapT, int wrapS) {
+
+void Texture::generateTexture() {
 
 	if (m_FilePath != "null") {
 		m_LocalBuffer = loadTexture(m_FilePath.c_str(), m_Width, m_Height);
@@ -62,95 +114,56 @@ void Texture::generateTexture(bool anisotropicFilter, int magFilter, int minFilt
 	GLcall(glGenTextures(1, &m_RendererID));
 	GLcall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
 	if (!m_LocalBuffer) {
-		GLcall(glTexImage2D(GL_TEXTURE_2D, level, internalFormat, m_Width, m_Height, border, format,
-			type,NULL));
+		GLcall(glTexImage2D(
+			GL_TEXTURE_2D,
+			m_TextConfig.level,
+			m_TextConfig.internalFormat,
+			m_Width,
+			m_Height,
+			m_TextConfig.border,
+			m_TextConfig.format,
+			m_TextConfig.type,
+			NULL
+		));
 	}
 	else {
-		GLcall(glTexImage2D(GL_TEXTURE_2D, level, internalFormat, m_Width, m_Height, border, format,
-			type, m_LocalBuffer));
+		GLcall(glTexImage2D(
+			GL_TEXTURE_2D,
+			m_TextConfig.level,
+			m_TextConfig.internalFormat,
+			m_Width,
+			m_Height,
+			m_TextConfig.border,
+			m_TextConfig.format,
+			m_TextConfig.type,
+			m_LocalBuffer
+		));
 	}
 
 	GLcall(glGenerateMipmap(GL_TEXTURE_2D));
 
-	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-		minFilter));
-	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
-	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT));
-	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS));
+	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,	m_TextConfig.minFilter));
+	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,	m_TextConfig.magFilter));
+	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,		m_TextConfig.wrapT));
+	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,		m_TextConfig.wrapS));
 
-	if (anisotropicFilter) {
+	if (m_TextConfig.anisotropicFilter) {
+
 		GLfloat fLargest;
 		GLcall(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest));
 		GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest));
+
 	}
 	GLcall(glBindTexture(GL_TEXTURE_2D, 0));
 
 	if (m_LocalBuffer)
 		delete[] m_LocalBuffer;
-		//stbi_image_free(m_LocalBuffer);
+	//stbi_image_free(m_LocalBuffer);
 
 	std::cout << "Texture loaded" << std::endl;
 
 }
 
-void Texture::generateTexture(const std::string& path, GLint level, GLint internalFormat, unsigned int w, unsigned int h, GLint border, GLenum format, GLenum type, bool anisotropicFilter, int magFilter, int minFilter, int wrapT, int wrapS)
-{
-	m_FilePath = path;
-	m_Width = w;
-	m_Height = h;
-	this->level = level;
-	this->internalFormat = internalFormat;
-	this->border = border;
-	this->format = format;
-	this->type = type;
-
-	if (m_FilePath != "") {
-		m_LocalBuffer = loadTexture(m_FilePath.c_str(), m_Width, m_Height);
-		/*int w, h, channels;
-		m_LocalBuffer = stbi_load(m_FilePath.c_str(), &w, &h, &channels, 0);
-		m_Width = w;
-		m_Height = h;*/
-		if (!m_LocalBuffer)
-		{
-			std::cout << "Error cargando el fichero: "
-				<< m_FilePath << std::endl;
-			exit(-1);
-		}
-	}
-
-	GLcall(glGenTextures(1, &m_RendererID));
-	GLcall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
-	if (!m_LocalBuffer) {
-		GLcall(glTexImage2D(GL_TEXTURE_2D, level, internalFormat, m_Width, m_Height, border, format,
-			type, NULL));
-	}
-	else {
-		GLcall(glTexImage2D(GL_TEXTURE_2D, level, internalFormat, m_Width, m_Height, border, format,
-			type, m_LocalBuffer));
-	}
-
-	GLcall(glGenerateMipmap(GL_TEXTURE_2D));
-
-	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-		minFilter));
-	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
-	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT));
-	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS));
-
-	if (anisotropicFilter) {
-		GLfloat fLargest;
-		GLcall(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest));
-		GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest));
-	}
-	GLcall(glBindTexture(GL_TEXTURE_2D, 0));
-
-	if (m_LocalBuffer)
-		delete[] m_LocalBuffer;
-		//stbi_image_free(m_LocalBuffer);
-
-	std::cout << "Texture loaded" << std::endl;
-
-}
 
 Texture::~Texture() {
 	GLcall(glDeleteTextures(1, &m_RendererID));
@@ -167,19 +180,18 @@ void Texture::unbind() const {
 }
 
 
-
 void Texture::resize(unsigned int w, unsigned int h)
 {
 	m_Width = w;
 	m_Height = h;
 	if (m_Samples == 1) {
 		GLcall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
-		GLcall(glTexImage2D(GL_TEXTURE_2D, level, internalFormat, m_Width, m_Height, border, format,
-			type, NULL));
+		GLcall(glTexImage2D(GL_TEXTURE_2D, m_TextConfig.level, m_TextConfig.internalFormat, m_Width, m_Height, m_TextConfig.border, m_TextConfig.format,
+			m_TextConfig.type, NULL));
 	}
 	else {
 		GLcall(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_RendererID));
-		GLcall(glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Samples, internalFormat, m_Width, m_Height,
+		GLcall(glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Samples, m_TextConfig.internalFormat, m_Width, m_Height,
 			GL_TRUE));
 	}
 
@@ -187,6 +199,7 @@ void Texture::resize(unsigned int w, unsigned int h)
 
 unsigned char* Texture::loadTexture(const char* fileName, unsigned int& w, unsigned int& h)
 {
+
 	FreeImage_Initialise(TRUE);
 
 	FREE_IMAGE_FORMAT format = FreeImage_GetFileType(fileName, 0);

@@ -11,20 +11,34 @@ enum TextureType {
 	TEXTURE_CUBE
 };
 
+struct TextureConfig {
+
+	GLint	level;
+	GLint	internalFormat;
+	GLint	border;
+	GLenum	format;
+	GLenum	type;
+
+	bool	anisotropicFilter;
+	int		magFilter;
+	int		minFilter;
+	int		wrapT;
+	int		wrapS;
+	int		wrapR;
+
+};
+
 class Texture {
 protected:
-	unsigned int m_RendererID;
-	std::string m_FilePath;
-	unsigned char* m_LocalBuffer;
-	unsigned int m_Width, m_Height;
-	unsigned int m_Samples;
-	TextureType m_TextureType;
-	GLint level;
-	GLint internalFormat;
-	GLint border;
-	GLenum format;
-	GLenum type;
 
+	unsigned int	m_RendererID;
+	std::string		m_FilePath;
+	unsigned char*	m_LocalBuffer;
+	unsigned int	m_Width, m_Height;
+	unsigned int	m_Samples;
+	TextureType		m_TextureType;
+
+	TextureConfig	m_TextConfig;
 
 public:
 
@@ -72,7 +86,7 @@ public:
 
 
 	/// <summary>
-	/// Creates a complete custom texture given all necessary parameters and image file
+	/// Creates a complete custom texture given all necessary parameters with no imae data
 	/// </summary>
 	/// <param name="level">Mipmap level</param>
 	/// <param name="internalFormat">GL Internal format (eg: GL_RGBA8)</param>
@@ -89,27 +103,15 @@ public:
 	Texture(GLint level, GLint internalFormat, unsigned int w, unsigned int h, GLint border, GLenum format, GLenum type,
 		bool anisotropicFilter, int magFilter, int minFilter, int wrapT, int wrapS);
 
-	/// <summary>
-	/// Creates a complete custom texture given all necessary parameters and image file
-	/// </summary>
-	/// <param name="level">Mipmap level</param>
-	/// <param name="internalFormat">GL Internal format (eg: GL_RGBA8)</param>
-	/// <param name="w">Width</param>
-	/// <param name="h">Height</param>
-	/// <param name="border">Border</param>
-	/// <param name="format">GL Format (eg: GL_RGBA)</param>
-	/// <param name="type">Type of data</param>
-	/// <param name="anisotropicFilter">Enable anisotropic filter</param>
-	/// <param name="magFilter">GL_TEXTURE_MAG_FILTER</param>
-	/// <param name="minFilter">GL_TEXTURE_MIN_FILTER</param>
-	/// <param name="wrapT">GL_TEXTURE_WRAP_T</param>
-	/// <param name="wrapS">GL_TEXTURE_WRAP_S</param>
-	void generateTexture(const std::string& path, GLint level, GLint internalFormat, unsigned int w, unsigned int h, GLint border, GLenum format, GLenum type,
-		bool anisotropicFilter, int magFilter, int minFilter, int wrapT, int wrapS);
-
-
 
 	~Texture();
+
+	inline unsigned int getID() const { return m_RendererID; }
+	inline int getWidth() const { return m_Width; }
+	inline int getHeight() const { return m_Height; }
+	inline int getSamples() const { return m_Samples; }
+	inline TextureType getType() const { return m_TextureType; }
+	inline TextureConfig getConfiguration() const { return m_TextConfig; }
 
 	/// <summary>
 	/// Activates the texture
@@ -122,25 +124,11 @@ public:
 	/// </summary>
 	virtual void unbind() const;
 
-	inline unsigned int getID() const { return m_RendererID; }
-	inline int getWidth() const { return m_Width; }
-	inline int getHeight() const { return m_Height; }
-	inline int getSamples() const { return m_Samples; }
-	inline TextureType getType() const { return m_TextureType; }
-
 	virtual void resize(unsigned int w, unsigned int h);
 
+	virtual void generateTexture();
 
 protected:
-
 	unsigned char* loadTexture(const char* fileName, unsigned int& w, unsigned int& h);
-
-	/// <summary>
-	/// Instanciates ungenerated texture
-	/// </summary>
-	Texture(TextureType t_type) : m_RendererID(-1), m_FilePath(""), m_LocalBuffer(nullptr), m_Width(0), m_Height(0), m_Samples(1),
-		level(0), internalFormat(GL_RGB), border(0), format(GL_RGB), type(GL_UNSIGNED_BYTE), m_TextureType(t_type) {}
-private:
-	void generateTexture(bool anisotropicFilter, int magFilter, int minFilter, int wrapT, int wrapS);
 
 };

@@ -52,4 +52,6 @@ public:
 
 	void unbind();
 
+	void generateTextures();
+
 };

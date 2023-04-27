@@ -68,5 +68,6 @@ public:
 
 	virtual void setupParameters();
 
+	virtual void generateTextures() = 0;
 };
 
