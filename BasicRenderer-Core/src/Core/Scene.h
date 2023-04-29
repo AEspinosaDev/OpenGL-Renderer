@@ -44,7 +44,8 @@ public:
 	{
 		Camera* m = new Camera();
 		m_ActiveCamera = m;
-		m_Cameras["test"] = m;
+
+		m_Cameras["mainCamera"] = m;
 	}
 	inline std::string getName() { return m_Name; }
 
@@ -57,7 +58,7 @@ public:
 	inline Model* getModelByName(std::string name) { return m_Models[name]; }
 	inline Light* getLightByName(std::string name) { return m_Lights[name]; }
 	inline Camera* getActiveCamera() { return m_ActiveCamera; }
-
+	inline void setActiveCamera(std::string cameraName) { m_ActiveCamera = m_Cameras[cameraName]; }
 	inline SkyboxMesh* getSkybox() { return m_Skybox; }
 	inline void setSkybox(SkyboxMesh* skybox) { m_Skybox = skybox; }
 

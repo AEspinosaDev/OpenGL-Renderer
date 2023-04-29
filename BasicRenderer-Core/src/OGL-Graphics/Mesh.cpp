@@ -44,6 +44,7 @@ void Mesh::generateBuffers() {
 
 	IBO trisIndex(m_BufferData.faceArray, m_Triangles);
 
+	m_Vao.unbind();
 }
 
 void Mesh::draw()

@@ -25,6 +25,10 @@ void VAO::addBuffer(const VBO& vbo, const VBLayout& layout) {
 	}
 }
 
+void VAO::setVertexAttribDivisor(const unsigned int divisor) {
+	GLcall(glVertexAttribDivisor(m_layoutCount-1, divisor));
+}
+
 void VAO::bind() const {
 
 	GLcall(glBindVertexArray(m_RendererID));

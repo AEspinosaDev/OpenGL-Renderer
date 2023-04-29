@@ -25,6 +25,7 @@ struct MeshBufferData {
 
 class Mesh
 {
+protected:
 	VAO m_Vao;
 	unsigned int m_Triangles;
 
@@ -45,9 +46,9 @@ public:
 
 	inline bool getCastShadows() {  return castShadows; }
 
-	void generateBuffers();
+	virtual void generateBuffers();
 	
-	void draw();
+	virtual void draw();
 
 	void importFile();
 

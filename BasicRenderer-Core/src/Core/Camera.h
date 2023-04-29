@@ -2,49 +2,51 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <GLFW/glfw3.h>
+#include "SceneObject.h"
 
-class Camera {
+class Camera: public SceneObject {
 private:
-	glm::vec3 cameraPos;
-	glm::vec3 cameraFront;
-	glm::vec3 cameraUp;
+	/*glm::vec3 m_CameraFront;
+	glm::vec3 m_CameraUp;*/
 	glm::mat4 view;
 	glm::mat4 proj;
+
+	float m_Fov;
 	float yaw;
 	float pitch;
 	float mouseSensitivity;
 	float zoom;
 	float speed;
 
-	void setView() {
-		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+	inline void setView() {
+		view = glm::lookAt(getPosition(), getPosition() - m_Transform.getForward(), m_Transform.getUp());
 	}
-	void updateCameraVectors(float pitch, float yaw) {
+	inline void updateCameraVectors(float pitch, float yaw) {
 		glm::vec3 direction;
 		direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 		direction.y = sin(glm::radians(pitch));
 		direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-		cameraFront = glm::normalize(direction);
+		m_Transform.setForward(-glm::normalize(direction));
 		setView();
 	}
 public:
-	Camera(glm::vec3 p = glm::vec3(0.0f, 1.0f, 8.0f), glm::vec3 f = glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f)) : cameraPos(p), cameraFront(f), cameraUp(up), mouseSensitivity(0.1), yaw(-90.0f), pitch(0.0f), speed(10.0f) {
+	Camera(glm::vec3 p = glm::vec3(0.0f, 1.0f, 8.0f), glm::vec3 f = glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f)) : SceneObject(p,ObjectType::CAMERA), mouseSensitivity(0.1), yaw(-90.0f), pitch(0.0f), speed(10.0f),m_Fov(45.0f) {
 		setView();
 	}
 
-	inline void setPos(glm::vec3 p) { cameraPos = p; }
+	inline void setFOV(float fov) { m_Fov = fov; }
 
-	inline void setFront(glm::vec3 f) { cameraFront = f; }
+	inline float getFOV() { return m_Fov; }
 
-	inline void setUp(glm::vec3 up) { cameraUp = up; }
+	/*inline void setFront(glm::vec3 f) { m_CameraFront = f; }
 
-	inline void setProj(float f, int width, int height) { proj = glm::perspective(glm::radians(f), (float)width / (float)height, 0.1f, 100.0f); }
+	inline void setUp(glm::vec3 up) { m_CameraUp = up; }*/
 
-	inline glm::vec3 getPos() { return cameraPos; }
+	inline void setProj(int width, int height) { proj = glm::perspective(glm::radians(m_Fov), (float)width / (float)height, 0.1f, 100.0f); }
 
-	inline glm::vec3 getFront() { return cameraFront; }
+	/*inline glm::vec3 getFront() { return m_CameraFront; }
 
-	inline glm::vec3 getUp() { return cameraUp; }
+	inline glm::vec3 getUp() { return m_CameraUp; }*/
 
 	inline glm::mat4 getView() { return view; }
 
@@ -57,6 +59,8 @@ public:
 	// processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
 	void processMouseScroll(float yoffset);
 
+	void draw(glm::mat4 proj, glm::mat4 view){ //Draw gizmos 
+	}
 
 };
 

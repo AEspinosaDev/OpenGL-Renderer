@@ -9,26 +9,26 @@ void Camera::camMovement(GLFWwindow* window, const float deltaTime) {
 	//float cameraSpeed = 0.4F;
 	const float angle = 0.05f;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		cameraPos += cameraFront * cameraSpeed;
+		setPosition(getPosition() - m_Transform.getForward() * cameraSpeed);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		cameraPos -= cameraSpeed * cameraFront;
+		setPosition(getPosition() + cameraSpeed * m_Transform.getForward());
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		setPosition(getPosition() + glm::normalize(glm::cross(m_Transform.getForward(), m_Transform.getUp())) * cameraSpeed);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		setPosition(getPosition() - glm::normalize(glm::cross(m_Transform.getForward(), m_Transform.getUp())) * cameraSpeed);
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		cameraPos -= glm::normalize(cameraUp) * cameraSpeed;
+		setPosition(getPosition() - glm::normalize(m_Transform.getUp()) * cameraSpeed);
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		cameraPos += glm::normalize(cameraUp) * cameraSpeed;
+		setPosition(getPosition() + glm::normalize(m_Transform.getUp()) * cameraSpeed);
 
 	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {//Se resetea la camara a la posicion de origen
-		cameraPos = glm::vec3(0.0f, 1.0f, 8.0f);
-		cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-		cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+		getPosition() = glm::vec3(0.0f, 1.0f, 8.0f);
+		m_Transform.setPosition(glm::vec3(0.0f, 0.0f, 1.0f));
+		m_Transform.setUp(glm::vec3(0.0f, 1.0f, 0.0f));
 
 	}
 	//Actualizamos el valor de la matriz vista de la camara
-	view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+	view = glm::lookAt(getPosition(), getPosition() - m_Transform.getForward(), m_Transform.getUp());
 }
 void Camera::camRotation(float xoffset, float yoffset, GLboolean constrainPitch)
 {

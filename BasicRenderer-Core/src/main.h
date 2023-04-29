@@ -34,10 +34,14 @@ int main()
 	box_m->setTransparency(true);
 
 	Model* box = new Model("pablo", "box.obj", box_m);
-	box->setPosition(glm::vec3(2.0, 0.5, 0.0));
+	box->setPosition(glm::vec3(2.0, 1.0, 0.0));
+	box->setScale(glm::vec3(2.0, 2, 2));
+	//box->setRotation(glm::vec3(90, 60, 0));
+
 	sc->add(box);
 	Model* box2 = box->clone();
 	box2->setPosition(glm::vec3(2.0, 0.5, 2.0));
+
 	sc->add(box2);
 	Model* box3 = box->clone();
 	box3->setPosition(glm::vec3(2.0, 0.5, -2.0));
@@ -52,8 +56,8 @@ int main()
 	floor_m->setTileU(20);
 	floor_m->setTileV(20);
 	//floor_m->setReceiveShadows(false);
-
-	Model* plane = new Model("plane.obj", floor_m);
+	Mesh* planeMesh = new Mesh("plane.obj");
+	Model* plane = new Model(planeMesh, floor_m);
 	sc->add(plane);
 
 
@@ -68,7 +72,7 @@ int main()
 	//demon->setActive(false);
 	sc->add(demon);
 
-	sc->getActiveCamera()->setProj(45.0, WIDTH, HEIGHT);
+	sc->getActiveCamera()->setProj(WIDTH, HEIGHT);
 
 	PointLight* l = new PointLight(glm::vec3(5.0, 3.0, 4.0), glm::vec3(1.0, 0.8, 0.8), 1.5, 1);
 	sc->add(l);
@@ -82,9 +86,9 @@ int main()
 		"night-sky/nz.png");
 
 
-	CubeMapTexture* skyText = new CubeMapTexture(skyFaces);
-	SkyboxMesh* skybox = new SkyboxMesh(new SkyboxMaterial(skyText));
-	sc->setSkybox(skybox);
+	/*CubeMapTexture* skyText = new CubeMapTexture(skyFaces);
+	SkyboxMesh* skybox = new SkyboxMesh(new SkyboxMaterial(skyText));*/
+	//sc->setSkybox(skybox);
 
 	r->addScene(sc);
 	r->setCurrentScene("mainScene");

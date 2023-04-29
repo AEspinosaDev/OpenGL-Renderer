@@ -14,6 +14,8 @@ public:
 
 	void addBuffer(const VBO& vbo, const VBLayout& layout);
 
+	void setVertexAttribDivisor(const unsigned int divisor);
+
 	void bind() const;
 	void unbind() const;
 };

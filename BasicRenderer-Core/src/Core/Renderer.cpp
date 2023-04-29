@@ -152,7 +152,13 @@ void Renderer::lateInit()
 
 void Renderer::cacheData() {
 
-	//Generate textures
+	/*if (!m_CurrentScene->getActiveCamera()) {
+		if (m_CurrentScene->getCameras().size() == 0) {
+			Camera* c = new Camera();
+			m_CurrentScene->add(c);
+		}
+		m_CurrentScene->setActiveCamera("camera0");
+	}*/
 
 
 	//Set all shaders to materials and generate and bind meshes vertex buffers
@@ -276,7 +282,7 @@ void Renderer::renderSceneObjects()
 {
 	glViewport(0, 0, m_SWidth, m_SHeight);
 
-	m_CurrentScene->getActiveCamera()->setProj(45.0f, m_SWidth, m_SHeight);
+	m_CurrentScene->getActiveCamera()->setProj(m_SWidth, m_SHeight);
 
 	glClearColor(m_UtilParameters.clearColor.r,
 		m_UtilParameters.clearColor.g,
@@ -315,7 +321,7 @@ void Renderer::renderSceneObjects()
 	std::map<float, Model*> sorted;
 	for (unsigned int i = 0; i < blendModels.size(); i++)
 	{
-		float distance = glm::distance(m_CurrentScene->getActiveCamera()->getPos(), blendModels[i]->getPosition());
+		float distance = glm::distance(m_CurrentScene->getActiveCamera()->getPosition(), blendModels[i]->getPosition());
 		sorted[distance] = blendModels[i];
 	}
 	//SECOND = TRANSPARENT OBJECTS SORTED FROM NEAR TO FAR
@@ -357,7 +363,7 @@ void Renderer::renderObjectNormals()
 		if (!m.second->isActive()) continue;
 		auto mesh = m.second->getMesh();
 		if (mesh != nullptr) {
-			normalShader->setMat4("u_modelView", m_CurrentScene->getActiveCamera()->getView() * m.second->getTransform());
+			normalShader->setMat4("u_modelView", m_CurrentScene->getActiveCamera()->getView() * m.second->getTransform().getWorldMatrix());
 			normalShader->setMat4("u_projection", m_CurrentScene->getActiveCamera()->getProj());
 			mesh->draw();
 		}
@@ -371,7 +377,7 @@ void Renderer::renderObjectNormals()
 
 void Renderer::renderSkybox() {
 
-	m_CurrentScene->getSkybox()->draw(m_CurrentScene->getActiveCamera()->getProj(), glm::lookAt(glm::vec3(0.0f), m_CurrentScene->getActiveCamera()->getFront(), m_CurrentScene->getActiveCamera()->getUp())); //Remove view translation
+	m_CurrentScene->getSkybox()->draw(m_CurrentScene->getActiveCamera()->getProj(), glm::lookAt(glm::vec3(0.0f), -m_CurrentScene->getActiveCamera()->getTransform().getForward(), m_CurrentScene->getActiveCamera()->getTransform().getUp())); //Remove view translation
 }
 
 void Renderer::possProcessPass() {
@@ -497,7 +503,7 @@ void Renderer::computeShadows()
 
 					m_Shaders["PointShadowDepthShader"]->bind();
 
-					m_Shaders["PointShadowDepthShader"]->setMat4("u_model", m.second->getTransform());
+					m_Shaders["PointShadowDepthShader"]->setMat4("u_model", m.second->getTransform().getWorldMatrix());
 
 					m.second->getMesh()->draw();
 
@@ -529,7 +535,7 @@ void Renderer::computeShadows()
 
 					m_Shaders["PointShadowDepthShader"]->bind();
 
-					m_Shaders["PointShadowDepthShader"]->setMat4("u_Light_ModelViewProj", m_LightManager->getLight(i)->getLightTransformMatrix() * m.second->getTransform());
+					m_Shaders["PointShadowDepthShader"]->setMat4("u_Light_ModelViewProj", m_LightManager->getLight(i)->getLightTransformMatrix() * m.second->getTransform().getWorldMatrix());
 
 					m.second->getMesh()->draw();
 
@@ -554,7 +560,7 @@ void Renderer::profile() {
 		glfwSetWindowTitle(m_Window, updatedTitle.c_str());
 	}
 
-	}
+}
 
 
 

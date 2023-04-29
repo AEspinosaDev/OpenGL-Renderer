@@ -24,7 +24,7 @@ void Model::draw(glm::mat4 proj, glm::mat4 view) {
 	if (m_Mesh != nullptr && m_Mat != nullptr) {
 		m_Mat->setupParameters();
 
-		m_Mat->bind(proj, view, m_Transform);
+		m_Mat->bind(proj, view, m_Transform.getWorldMatrix());
 
 		m_Mesh->draw();
 
