@@ -3,6 +3,9 @@
 WORK IN PROGRESS
 [UNTIL FURTHER ADVANCEMENTS I WILL BE WORKING ON Renderer-CORE]
 
+[ In src/main there is a scene sample to see how to use the engine ]
+
+
 - Shadow mapping for several types of lights (pointlight and directional light supported for now)
 - Antialiasing (Buffer Multisampling)
 - Postprocess support (RTT)
@@ -17,7 +20,9 @@ WORK IN PROGRESS
 - Depth peeling (?)
 - Raytraced shadows (?)
 
-OPEN GL 4.4![Screenshot (681)](https://user-images.githubusercontent.com/79087129/235375253-89756f53-1b3a-47de-a9c9-31adb8423a06.jpg)
+OPEN GL 4.4
+
+![Screenshot (681)](https://user-images.githubusercontent.com/79087129/235375253-89756f53-1b3a-47de-a9c9-31adb8423a06.jpg)
 
 
 
