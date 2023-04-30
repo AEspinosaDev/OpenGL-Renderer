@@ -1,10 +1,18 @@
 #include "InstancedMesh.h"
 
-void InstancedMesh::setWorldMatrices(std::vector<glm::mat4> matrices) {
+InstancedMesh::InstancedMesh(std::string path, unsigned int instance_count) : Mesh(path), m_InstanceCount(instance_count), m_WorldMatrices(new glm::mat4[instance_count])
+{
+	isInstancedMesh = true;
 	for (size_t i = 0; i < m_InstanceCount; i++)
 	{
-		m_WorldMatrices[i] = matrices[i];
+		m_WorldMatrices[i] = glm::mat4(1.0f);
 	}
+
+}
+
+void InstancedMesh::setWorldMatrices(glm::mat4* matrices) {
+	delete [] m_WorldMatrices;
+	m_WorldMatrices = matrices;
 }
 
 void InstancedMesh::draw() {

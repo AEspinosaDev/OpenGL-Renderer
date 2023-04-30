@@ -1,2 +1,7 @@
-﻿  InstancedMesh.cpp
+﻿  main.h
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Camera.h(33,8): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Scene.h(44,1): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.h(18,91): warning C4244: 'argument': conversion from 'float' to 'const unsigned int', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.h(27,117): warning C4244: 'argument': conversion from 'float' to 'const unsigned int', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.h(36,103): warning C4244: 'argument': conversion from 'float' to 'const unsigned int', possible loss of data
   BasicRenderer-Core.vcxproj -> C:\Dev\BasicRenderer\binaries\Win32\Debug\BasicRenderer-Core.exe

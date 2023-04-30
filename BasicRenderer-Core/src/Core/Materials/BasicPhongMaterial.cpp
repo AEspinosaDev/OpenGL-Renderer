@@ -34,9 +34,11 @@ void BasicPhongMaterial::bind(glm::mat4 proj, glm::mat4 view, glm::mat4 model)
 
 	glm::mat4 modelView = view * model;
 	//Matrices
+	m_shader->setMat4("u_View", view);
+	m_shader->setMat4("u_Proj", proj);
+	m_shader->setMat4("u_Model", model);
 	m_shader->setMat4("u_modelView", modelView);
 	m_shader->setMat4("u_modelViewProj", proj * modelView);
-	m_shader->setMat4("u_Model", model);
 	//Tiling
 	m_shader->setFloat("u_TileV", itileV);
 	m_shader->setFloat("u_TileU", itileU);
@@ -119,6 +121,7 @@ void BasicPhongMaterial::unbind()
 
 void BasicPhongMaterial::generateTextures()
 {
+
 	if (colorTex != nullptr) {
 		colorTex->generateTexture();
 	}
@@ -137,5 +140,6 @@ void BasicPhongMaterial::generateTextures()
 	if (opacityTex != nullptr) {
 		opacityTex->generateTexture();
 	}
+
 }
 

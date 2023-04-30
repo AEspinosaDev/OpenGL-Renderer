@@ -33,6 +33,8 @@ void CubeMapTexture::unbind() const
 
 void CubeMapTexture::generateTexture()
 {
+	if (!isDirty) return;
+
 	glGenTextures(1, &m_RendererID);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID);
 
@@ -94,6 +96,8 @@ void CubeMapTexture::generateTexture()
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, m_TextConfig.wrapS);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, m_TextConfig.wrapT);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, m_TextConfig.wrapR);
+
+	isDirty = false;
 }
 
 

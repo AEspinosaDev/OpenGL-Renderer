@@ -7,7 +7,7 @@ layout(location = 1) in vec3 a_Normal;
 layout(location = 2) in vec2 a_TexCoord;
 layout(location = 3) in vec3 a_Tangent;
 layout(location = 4) in vec3 a_Color;
-layout(location = 5) in mat4 i_instancedModelMatrix;
+layout(location = 5) in mat4 a_InstancedModelMatrix;
 
 out vec3 pos;
 out vec3 modelPos;
@@ -15,36 +15,52 @@ out vec2 texCoord;
 out mat3 TBN;
 out vec3 normal;
 
+uniform bool u_isInstanced;
 
-
+uniform mat4 u_View;
 uniform mat4 u_Model;
+uniform mat4 u_Proj;
 uniform mat4 u_modelView;
 uniform mat4 u_modelViewProj;
-
 
 uniform float u_TileU;
 uniform float u_TileV;
 
-void main()
-{
-	pos = (u_modelView * vec4(a_Pos, 1.0)).xyz;
-	modelPos = (u_Model * vec4(a_Pos, 1.0)).xyz;
+vec4 computeMatrixTransformations(mat4 model, mat4 modelView, mat4 modelViewProj) {
 
+	pos = (modelView * vec4(a_Pos, 1.0)).xyz;
+	modelPos = (model * vec4(a_Pos, 1.0)).xyz;
 
-	vec3 T = normalize(vec3(u_modelView * vec4(a_Tangent, 0.0)));
-	vec3 N = normalize(vec3(u_modelView * vec4(a_Normal, 0.0)));
+	vec3 T = normalize(vec3(modelView * vec4(a_Tangent, 0.0)));
+	vec3 N = normalize(vec3(modelView * vec4(a_Normal, 0.0)));
 	vec3 B = cross(N, T);
 
 	TBN = mat3(T, B, N);
+	normal = mat3(transpose(inverse(modelView))) * a_Normal;
 
-	normal = mat3(transpose(inverse(u_modelView))) * a_Normal;
+	return modelViewProj * vec4(a_Pos, 1.0f);
 
+}
 
+void main()
+{
 	texCoord = a_TexCoord;
 	texCoord.x *= u_TileU;
 	texCoord.y *= u_TileV;
 
-	gl_Position = u_modelViewProj * vec4(a_Pos, 1.0f);
+	vec4 outPosition;
+
+	if (!u_isInstanced) {
+		outPosition = computeMatrixTransformations(u_Model, u_modelView, u_modelViewProj);
+	}
+	else {
+		mat4 modelView = u_View * a_InstancedModelMatrix;
+		mat4 modelViewProj = u_Proj * modelView;
+		outPosition = computeMatrixTransformations(a_InstancedModelMatrix, modelView, modelViewProj);
+	}
+	
+
+	gl_Position = outPosition;
 
 }
 
@@ -174,8 +190,10 @@ float computeShadow(sampler2D shadowMap, mat4 lightViewProj, vec3 lightDir) {
 	bias = 0.005;
 	float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
-	if (projCoords.z > 1.0)
+	if (projCoords.z > 1.0 || projCoords.x > 1.0 || projCoords.y > 1.0 || projCoords.x < 0.0 || projCoords.y < 0.0)
 		shadow = 0.0;
+
+	
 
 	return shadow;
 	//return lightDir.x;

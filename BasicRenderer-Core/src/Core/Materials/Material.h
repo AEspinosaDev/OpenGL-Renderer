@@ -33,12 +33,13 @@ protected:
 	Shader* m_shader;
 	MaterialParameters m_Parameters;
 
+	bool isDirty;
 	
 public:
 
-	Material(std::string shaderName) : m_shader(nullptr) , m_ShaderName_ID(shaderName) {}
+	Material(std::string shaderName) : m_shader(nullptr) , m_ShaderName_ID(shaderName) , isDirty(true) {}
 
-	Material(std::string shaderName, MaterialParameters params) : m_shader(nullptr),m_Parameters(params) , m_ShaderName_ID(shaderName) {}
+	Material(std::string shaderName, MaterialParameters params) : m_shader(nullptr),m_Parameters(params) , m_ShaderName_ID(shaderName), isDirty(true) {}
 
 	virtual inline const std::string getShaderNameID() { return m_ShaderName_ID; }
 	

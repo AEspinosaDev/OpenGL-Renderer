@@ -3,9 +3,12 @@
 #include <Core/Renderer.h>
 #include <Core/Lights/PointLight.h>
 #include <Core/Materials/BasicPhongMaterial.h>
+#include <InstancedMesh.h>
+#include <Core/Lights/DirectionalLight.h>
 
 const unsigned int WIDTH = 1200;
 const  unsigned int HEIGHT = 900;
+const unsigned int INSTANCES = 100;
 
 int main()
 {
@@ -15,15 +18,6 @@ int main()
 
 	//SETUP SCENE
 	//------------------------------------
-	/*BasicPhongMaterial* sphere_m = new BasicPhongMaterial(m_Shaders);
-	sphere_m->setShininess(500);
-	sphere_m->setSpecularity(3);
-	Model* sphere = new Model();
-	sphere->loadMesh("box.obj");
-	sphere->loadMaterial(sphere_m);
-	sphere->setPosition(glm::vec3(-2.0, 2.0, 0.0));
-	m_Models["sphere"] = sphere;*/
-
 
 	Texture* boxColorTex = new Texture("SeamlessWood-Diffuse.jpg");
 	Texture* boxNormalTex = new Texture("SeamlessWood-NormalMap.tif");
@@ -34,10 +28,9 @@ int main()
 	box_m->setTransparency(true);
 
 	Model* box = new Model("pablo", "box.obj", box_m);
-	box->setPosition(glm::vec3(2.0, 1.0, 0.0));
+	box->setPosition(glm::vec3(4.0, 1.0, 0.0));
 	box->setScale(glm::vec3(2.0, 2, 2));
 	//box->setRotation(glm::vec3(90, 60, 0));
-
 	sc->add(box);
 	Model* box2 = box->clone();
 	box2->setPosition(glm::vec3(2.0, 0.5, 2.0));
@@ -46,7 +39,53 @@ int main()
 	Model* box3 = box->clone();
 	box3->setPosition(glm::vec3(2.0, 0.5, -2.0));
 	sc->add(box3);
+
+
+	BasicPhongMaterial* column_m = new BasicPhongMaterial();
+	column_m->setShininess(10);
+	column_m->setSpecularity(1);
+
+	Model* temple = new	Model("temple.obj", column_m);
+	sc->add(temple);
+	temple->setPosition(glm::vec3(0.0, 0.0, -30.0));
+
+	InstancedMesh* iColumn = new InstancedMesh("column.obj", INSTANCES);
+	glm::mat4* matrices = new glm::mat4[INSTANCES];
+	for (size_t i = 0; i < INSTANCES; i++)
+	{
+		float rotation = 0.0f;
+		glm::vec3 pos = glm::vec3(-25.0f, 0.0, 15.0);
+		pos.x += i*2;
 	
+
+		if(i>=25){
+			pos = glm::vec3(25.0f, 0.0, -25.0);
+			pos.z += (i - 25)*2;
+			rotation = 1.57f;
+		}
+		if (i >= 50) {
+			pos = glm::vec3(-25.0f, 0.0, 25.0);
+			pos.x += (i - 50)*2;
+			rotation = 0.0f;
+		}
+		if (i >= 75) {
+			pos = glm::vec3(-25.0f, 0.0, 25.0);
+			pos.z -= (i - 75)*2;
+			rotation = 1.57f;
+		}
+
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, pos);
+		model = glm::rotate(model, rotation, glm::vec3(0.0, 1.0, 0.0));
+		model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
+		matrices[i] = model;
+
+		
+	}
+	iColumn->setWorldMatrices(matrices);
+	Model* column = new Model(iColumn, column_m);
+	sc->add(column);
+
 
 	Texture* floorAlbedoTex = new Texture("floor.jpg");
 	Texture* floorNormalTex = new Texture("floor-normal.jpg");
@@ -58,6 +97,7 @@ int main()
 	//floor_m->setReceiveShadows(false);
 	Mesh* planeMesh = new Mesh("plane.obj");
 	Model* plane = new Model(planeMesh, floor_m);
+	//plane->setScale(glm::vec3(3.0f, 0.0f, 3.0f));
 	sc->add(plane);
 
 
@@ -78,6 +118,10 @@ int main()
 	sc->add(l);
 	sc->add(new PointLight(glm::vec3(-4.0, 1.0, 2.0), glm::vec3(1.0, 0.5, 0.5), 1, 1));
 
+	DirectionalLight* dl = new DirectionalLight(glm::vec3(5.0, 5.0, 5.0),glm::vec3(1.0, 0.8, 0.8), 0.25f);
+	dl->setPosition(glm::vec3(50.0, 50.0, 50.0));
+	sc->add(dl);
+
 	CubeMapFaces skyFaces("night-sky/px.png",
 		"night-sky/nx.png",
 		"night-sky/py.png",
@@ -86,9 +130,9 @@ int main()
 		"night-sky/nz.png");
 
 
-	/*CubeMapTexture* skyText = new CubeMapTexture(skyFaces);
-	SkyboxMesh* skybox = new SkyboxMesh(new SkyboxMaterial(skyText));*/
-	//sc->setSkybox(skybox);
+	CubeMapTexture* skyText = new CubeMapTexture(skyFaces);
+	SkyboxMesh* skybox = new SkyboxMesh(new SkyboxMaterial(skyText));
+	sc->setSkybox(skybox);
 
 	r->addScene(sc);
 	r->setCurrentScene("mainScene");

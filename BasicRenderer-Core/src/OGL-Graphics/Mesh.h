@@ -33,18 +33,25 @@ protected:
 
 	MeshBufferData m_BufferData;
 
+	bool isInstancedMesh;
 	bool castShadows;
 
-public:
-	Mesh() :m_Triangles(-1),castShadows(true), m_FileRoute("") {}
+	bool isDirty;
 
-	Mesh(const std::string r) : m_Triangles(-1),  castShadows(true), m_FileRoute(r) { importFile(); }
+public:
+	Mesh() :m_Triangles(-1),castShadows(true), isInstancedMesh(false), isDirty(true), m_FileRoute("") {}
+
+	Mesh(const std::string r) : m_Triangles(-1),  castShadows(true), isInstancedMesh(false), isDirty(true), m_FileRoute(r) { importFile(); }
 
 	~Mesh() {}
 
 	inline void setCastShadows(bool c) { castShadows = c; }
 
 	inline bool getCastShadows() {  return castShadows; }
+
+	inline bool isInstanced() { return isInstancedMesh; }
+
+	inline void setDirty() { isDirty = true; }
 
 	virtual void generateBuffers();
 	

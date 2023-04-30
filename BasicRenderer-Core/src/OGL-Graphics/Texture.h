@@ -40,6 +40,8 @@ protected:
 
 	TextureConfig	m_TextConfig;
 
+	bool isDirty;
+
 public:
 
 

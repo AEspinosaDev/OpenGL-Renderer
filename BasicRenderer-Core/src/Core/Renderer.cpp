@@ -312,6 +312,15 @@ void Renderer::renderSceneObjects()
 
 	//FIRST = OPAQUE OBJECTS
 	for (auto& m : opaqueModels) {
+
+		Shader* mShader = m->getMaterialReference()->getShader();
+		mShader->bind();
+		if (!m->getMesh()->isInstanced())
+			mShader->setBool("u_isInstanced", false);
+		else
+			mShader->setBool("u_isInstanced", true);
+		mShader->unbind();
+
 		m->draw(m_CurrentScene->getActiveCamera()->getProj(), m_CurrentScene->getActiveCamera()->getView());
 	}
 
@@ -327,6 +336,14 @@ void Renderer::renderSceneObjects()
 	//SECOND = TRANSPARENT OBJECTS SORTED FROM NEAR TO FAR
 	for (std::map<float, Model*>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
 	{
+		Shader* mShader = it->second->getMaterialReference()->getShader();
+		mShader->bind();
+		if (!it->second->getMesh()->isInstanced())
+			mShader->setBool("u_isInstanced", false);
+		else
+			mShader->setBool("u_isInstanced", true);
+		mShader->unbind();
+
 		it->second->draw(m_CurrentScene->getActiveCamera()->getProj(), m_CurrentScene->getActiveCamera()->getView());
 	}
 
@@ -505,6 +522,11 @@ void Renderer::computeShadows()
 
 					m_Shaders["PointShadowDepthShader"]->setMat4("u_model", m.second->getTransform().getWorldMatrix());
 
+					if (!m.second->getMesh()->isInstanced())
+						m_Shaders["PointShadowDepthShader"]->setBool("u_isInstanced", false);
+					else
+						m_Shaders["PointShadowDepthShader"]->setBool("u_isInstanced", true);
+
 					m.second->getMesh()->draw();
 
 					m_Shaders["PointShadowDepthShader"]->unbind();
@@ -533,13 +555,21 @@ void Renderer::computeShadows()
 					if (!m.second->isActive()) return;
 					if (!m.second->getMesh()->getCastShadows()) return;
 
-					m_Shaders["PointShadowDepthShader"]->bind();
+					m_Shaders["BasicDepthShader"]->bind();
 
-					m_Shaders["PointShadowDepthShader"]->setMat4("u_Light_ModelViewProj", m_LightManager->getLight(i)->getLightTransformMatrix() * m.second->getTransform().getWorldMatrix());
+
+					if (!m.second->getMesh()->isInstanced()) {
+						m_Shaders["BasicDepthShader"]->setBool("u_isInstanced", false);
+						m_Shaders["BasicDepthShader"]->setMat4("u_Light_ModelViewProj", m_LightManager->getLight(i)->getLightTransformMatrix() * m.second->getTransform().getWorldMatrix());
+					}
+					else {
+						m_Shaders["BasicDepthShader"]->setBool("u_isInstanced", true);
+						m_Shaders["BasicDepthShader"]->setMat4("u_viewProj", m_LightManager->getLight(i)->getLightTransformMatrix());
+					}
 
 					m.second->getMesh()->draw();
 
-					m_Shaders["PointShadowDepthShader"]->unbind();
+					m_Shaders["BasicDepthShader"]->unbind();
 
 				}
 			}

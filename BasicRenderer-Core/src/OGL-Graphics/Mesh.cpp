@@ -4,6 +4,8 @@
 
 void Mesh::generateBuffers() {
 
+	if (!isDirty) return;
+
 	m_Triangles = m_BufferData.numFaces * 3;
 	m_Vao.bind();
 
@@ -45,6 +47,8 @@ void Mesh::generateBuffers() {
 	IBO trisIndex(m_BufferData.faceArray, m_Triangles);
 
 	m_Vao.unbind();
+
+	isDirty = false;
 }
 
 void Mesh::draw()

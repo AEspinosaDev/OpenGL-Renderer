@@ -15,7 +15,7 @@ public:
 	/// <param name="p">World direction</param>
 	/// <param name="c">Color</param>
 	/// <param name="t">Attenuation radious</param>
-	DirectionalLight(glm::vec3 d, glm::vec3  c, float a) :Light(glm::vec3(0.0, 5.0 ,0.0), c, 1), m_Direction(d),m_ShadowTarget(glm::vec3(0.0f)) {}
+	DirectionalLight(glm::vec3 d, glm::vec3  c, float i) :Light(glm::vec3(0.0, 5.0 ,0.0), c, i), m_Direction(d),m_ShadowTarget(glm::vec3(0.0f)) {}
 
 	/// <summary>
 	/// Instanciates a directional light
@@ -24,7 +24,7 @@ public:
 	/// <param name="p">World direction</param>
 	/// <param name="c">Color</param>
 	/// <param name="t">Attenuation radious</param>
-	DirectionalLight(const std::string na, glm::vec3 d, glm::vec3  c, float a) :Light(na, glm::vec3(0.0, 5.0, 0.0), c, 1), m_Direction(d), m_ShadowTarget(glm::vec3(0.0f)) {}
+	DirectionalLight(const std::string na, glm::vec3 d, glm::vec3  c, float i) :Light(na, glm::vec3(0.0, 5.0, 0.0), c, i), m_Direction(d), m_ShadowTarget(glm::vec3(0.0f)) {}
 
 	/// <summary>
 	/// Instanciates a directional light
@@ -33,7 +33,7 @@ public:
 	/// <param name="c">Color</param>
 	/// <param name="i">Intensity</param>
 	/// <param name="t">Attenuation radious</param>
-	DirectionalLight(glm::vec3 d, glm::vec3  c, float i, float a) :Light(glm::vec3(0.0, 5.0, 0.0), c, i, 1), m_Direction(d), m_ShadowTarget(glm::vec3(0.0f)) {}
+	DirectionalLight(glm::vec3 d, glm::vec3  c, float i, float a) :Light(glm::vec3(0.0, 5.0, 0.0), c, i, i), m_Direction(d), m_ShadowTarget(glm::vec3(0.0f)) {}
 
 	/// <summary>
 	/// Instanciates a directional light
