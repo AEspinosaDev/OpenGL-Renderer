@@ -54,9 +54,9 @@ void main()
 		outPosition = computeMatrixTransformations(u_Model, u_modelView, u_modelViewProj);
 	}
 	else {
-		mat4 modelView = u_View * a_InstancedModelMatrix;
+		mat4 modelView = u_View * (u_Model*a_InstancedModelMatrix);
 		mat4 modelViewProj = u_Proj * modelView;
-		outPosition = computeMatrixTransformations(a_InstancedModelMatrix, modelView, modelViewProj);
+		outPosition = computeMatrixTransformations(u_Model * a_InstancedModelMatrix, modelView, modelViewProj);
 	}
 	
 
@@ -141,7 +141,7 @@ struct Material {
 //Uniforms
 uniform mat4 u_Model;
 uniform Material material;
-uniform PointLight pointLights[2];
+uniform PointLight pointLights[3];
 uniform DirectionalLight directionalLights[MAX_LIGHTS];
 uniform SpotLight spotLights[MAX_LIGHTS];
 uniform int pointsLightsNumber;

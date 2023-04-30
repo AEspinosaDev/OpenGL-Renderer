@@ -22,5 +22,5 @@ public:
 
 	void draw();
 
-
+	void draw(int meshIdx);
 };

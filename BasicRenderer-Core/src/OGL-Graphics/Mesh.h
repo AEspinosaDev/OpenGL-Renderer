@@ -11,6 +11,7 @@
 
 struct MeshBufferData {
 
+	unsigned int triangles;
 	unsigned int numFaces{0};
 	unsigned int numVertices{0};
 	unsigned int* faceArray{nullptr};
@@ -26,12 +27,12 @@ struct MeshBufferData {
 class Mesh
 {
 protected:
-	VAO m_Vao;
-	unsigned int m_Triangles;
 
 	std::string  m_FileRoute;
+	unsigned int m_MeshNumber;
 
-	MeshBufferData m_BufferData;
+	VAO* m_Vaos;
+	MeshBufferData* m_BufferData;
 
 	bool isInstancedMesh;
 	bool castShadows;
@@ -39,11 +40,14 @@ protected:
 	bool isDirty;
 
 public:
-	Mesh() :m_Triangles(-1),castShadows(true), isInstancedMesh(false), isDirty(true), m_FileRoute("") {}
+	Mesh() :m_MeshNumber(0), m_Vaos(nullptr), m_BufferData(nullptr), castShadows(true), isInstancedMesh(false), isDirty(true), m_FileRoute("") {}
 
-	Mesh(const std::string r) : m_Triangles(-1),  castShadows(true), isInstancedMesh(false), isDirty(true), m_FileRoute(r) { importFile(); }
+	Mesh(const std::string r) :m_MeshNumber(0) ,m_Vaos(nullptr), m_BufferData(nullptr) , castShadows(true), isInstancedMesh(false), isDirty(true), m_FileRoute(r) { importFile(); }
 
-	~Mesh() {}
+	~Mesh() {
+		delete[] m_Vaos;
+		delete[] m_BufferData;
+	}
 
 	inline void setCastShadows(bool c) { castShadows = c; }
 
@@ -51,11 +55,15 @@ public:
 
 	inline bool isInstanced() { return isInstancedMesh; }
 
+	inline unsigned int getNumberOfMeshes() { return m_MeshNumber; }
+
 	inline void setDirty() { isDirty = true; }
 
 	virtual void generateBuffers();
 	
 	virtual void draw();
+
+	virtual void draw(int meshIdx);
 
 	void importFile();
 

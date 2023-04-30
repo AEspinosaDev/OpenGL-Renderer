@@ -152,21 +152,19 @@ void Renderer::lateInit()
 
 void Renderer::cacheData() {
 
-	/*if (!m_CurrentScene->getActiveCamera()) {
-		if (m_CurrentScene->getCameras().size() == 0) {
-			Camera* c = new Camera();
-			m_CurrentScene->add(c);
-		}
-		m_CurrentScene->setActiveCamera("camera0");
-	}*/
-
-
+	
 	//Set all shaders to materials and generate and bind meshes vertex buffers
 	for (auto& m : m_CurrentScene->getModels()) {
 		m.second->getMesh()->generateBuffers();
-		m.second->getMaterialReference()->generateTextures();
-		auto shaderID = m.second->getMaterialReference()->getShaderNameID();
-		m.second->getMaterialReference()->setShader(m_Shaders[shaderID]);
+
+		for (size_t i = 0; i < m.second->getMesh()->getNumberOfMeshes(); i++)
+		{
+			m.second->getMaterialReference(i)->generateTextures();
+			auto shaderID = m.second->getMaterialReference(i)->getShaderNameID();
+			if (!m.second->getMaterialReference(i)->getShader())
+				m.second->getMaterialReference(i)->setShader(m_Shaders[shaderID]);
+
+		}
 	}
 	if (m_CurrentScene->getSkybox()) {
 		m_CurrentScene->getSkybox()->getMaterial()->generateTextures();
@@ -299,11 +297,6 @@ void Renderer::renderSceneObjects()
 
 	std::vector<Model*> opaqueModels;
 	std::vector<Model*> blendModels;
-
-	/*m_Shaders["BasicPhongShader"]->bind();
-	m_Shaders["BasicPhongShader"]->setInt("u_skybox", 5);
-	m_Skybox->getMaterial()->getTexture()->bind(5);
-	m_Shaders["BasicPhongShader"]->unbind();*/
 
 
 	for (auto& m : m_CurrentScene->getModels()) {
@@ -561,6 +554,7 @@ void Renderer::computeShadows()
 					if (!m.second->getMesh()->isInstanced()) {
 						m_Shaders["BasicDepthShader"]->setBool("u_isInstanced", false);
 						m_Shaders["BasicDepthShader"]->setMat4("u_Light_ModelViewProj", m_LightManager->getLight(i)->getLightTransformMatrix() * m.second->getTransform().getWorldMatrix());
+						m_Shaders["BasicDepthShader"]->setMat4("u_model", m.second->getTransform().getWorldMatrix());
 					}
 					else {
 						m_Shaders["BasicDepthShader"]->setBool("u_isInstanced", true);

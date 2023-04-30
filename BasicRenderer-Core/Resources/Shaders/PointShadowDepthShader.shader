@@ -8,7 +8,7 @@ uniform bool u_isInstanced;
 
 void main()
 {
-    !u_isInstanced ? gl_Position = u_model * vec4(a_Pos, 1.0): gl_Position = a_InstancedModelMatrix * vec4(a_Pos, 1.0);
+    !u_isInstanced ? gl_Position = u_model * vec4(a_Pos, 1.0): gl_Position = (u_model * a_InstancedModelMatrix) * vec4(a_Pos, 1.0);
 }
 
 #shader geometry

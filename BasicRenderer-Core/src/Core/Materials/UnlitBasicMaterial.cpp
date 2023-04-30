@@ -5,7 +5,7 @@ void UnlitBasicMaterial::addColorTex(Texture* t)
 {
 
 	colorTex = t;
-	
+
 
 }
 
@@ -13,7 +13,10 @@ void UnlitBasicMaterial::bind(glm::mat4 proj, glm::mat4 view, glm::mat4 model)
 {
 	m_shader->bind();
 	glm::mat4 modelView = view * model;
+
 	m_shader->setMat4("u_modelViewProj", proj * modelView);
+	m_shader->setMat4("u_model", model);
+	m_shader->setMat4("u_viewProj", proj * view);
 	m_shader->setFloat("u_TileV", itileV);
 	m_shader->setFloat("u_TileU", itileU);
 	m_shader->setFloat("u_opacity", opacity);
