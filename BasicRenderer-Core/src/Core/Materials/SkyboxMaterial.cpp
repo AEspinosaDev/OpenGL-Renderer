@@ -1,12 +1,9 @@
 #include "SkyboxMaterial.h"
 
-void SkyboxMaterial::bind(glm::mat4 proj, glm::mat4 view, glm::mat4 model)
+void SkyboxMaterial::cacheUniforms()
 {
 	m_shader->bind();
 
-	//glm::mat4 modelView = view * model;
-
-	m_shader->setMat4("u_viewProj", proj * view);
 
 	if (cubeMapText) {
 		cubeMapText->bind(0);
@@ -15,7 +12,7 @@ void SkyboxMaterial::bind(glm::mat4 proj, glm::mat4 view, glm::mat4 model)
 
 }
 
-void SkyboxMaterial::unbind()
+void SkyboxMaterial::decacheUniforms()
 {
 	m_shader->unbind();
 }

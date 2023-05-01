@@ -20,6 +20,7 @@ void LightManager::init()
 void LightManager::addLight(Light* l) {
 
 	if (lightsNumber == MAX_LIGHTS) return;
+	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	switch (l->getType())
 	{
@@ -27,17 +28,23 @@ void LightManager::addLight(Light* l) {
 		pointLightsNumber++;
 		l->setShadowText(new CubeMapTexture(0, GL_DEPTH_COMPONENT, m_ShadowResolution, m_ShadowResolution, 0,
 			GL_DEPTH_COMPONENT, GL_FLOAT, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_EDGE));
-		
+
 		break;
 	case 1:
 		directionalLightsNumber++;
 		l->setShadowText(new Texture(0, GL_DEPTH_COMPONENT16, m_ShadowResolution, m_ShadowResolution, 0,
 			GL_DEPTH_COMPONENT, GL_FLOAT, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER));
+		GLcall(glBindTexture(GL_TEXTURE_2D, l->getShadowText()->getID()));
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+		GLcall(glBindTexture(GL_TEXTURE_2D, 0));
 		break;
 	case 2:
 		spotLightsNumber++;
 		l->setShadowText(new Texture(0, GL_DEPTH_COMPONENT16, m_ShadowResolution, m_ShadowResolution, 0,
 			GL_DEPTH_COMPONENT, GL_FLOAT, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER));
+		GLcall(glBindTexture(GL_TEXTURE_2D, l->getShadowText()->getID()));
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+		GLcall(glBindTexture(GL_TEXTURE_2D, 0));
 		break;
 	}
 	lightsNumber++;
@@ -47,31 +54,6 @@ void LightManager::addLight(Light* l) {
 void LightManager::removeLight()
 {
 	//m_Lights
-}
-
-void LightManager::drawLights(glm::mat4 proj, glm::mat4 view) {
-	for (Light* l : m_Lights)
-	{
-
-		m_DebugMat->setColor(l->getColor());
-
-		switch (l->getType())
-		{
-		case 0:
-			m_PLightMesh->setPosition(l->getPosition());
-			m_PLightMesh->draw(proj,view);
-			break;
-		case 1:
-			m_DLightMesh->setPosition(l->getPosition());
-			m_DLightMesh->draw(proj, view);
-			break;
-		case 2:
-			m_SLightMesh->setPosition(l->getPosition());
-			m_SLightMesh->draw(proj, view);
-			break;
-		}
-
-	}
 }
 
 void LightManager::uploadLightDataToShader(Shader* s, glm::mat4 view)

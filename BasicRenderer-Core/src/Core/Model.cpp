@@ -18,24 +18,24 @@ void Model::setMaterial(Material* m, unsigned int id) {
 
 }
 
-void Model::draw(glm::mat4 proj, glm::mat4 view) {
-	if (!isActive()) return;
-
-	if (m_Mesh != nullptr) {
-		for (size_t i = 0; i < m_Mesh->getNumberOfMeshes(); i++)
-		{
-			m_Materials[i]->setupParameters();
-
-			m_Materials[i]->bind(proj, view, m_Transform.getWorldMatrix());
-
-			m_Mesh->draw(i);
-
-			m_Materials[i]->unbind();
-		}
-	}
-	else
-		std::cout << "Model doesnt have any mesh loaded" << std::endl;
-}
+//void Model::draw() {
+//	if (!isActive()) return;
+//
+//	if (m_Mesh != nullptr) {
+//		for (size_t i = 0; i < m_Mesh->getNumberOfMeshes(); i++)
+//		{
+//			m_Materials[i]->setupParameters();
+//
+//			m_Materials[i]->bind();
+//
+//			m_Mesh->draw(i);
+//
+//			m_Materials[i]->unbind();
+//		}
+//	}
+//	else
+//		std::cout << "Model doesnt have any mesh loaded" << std::endl;
+//}
 
 
 Model* Model::clone()

@@ -1,7 +1,58 @@
-﻿  main.h
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Camera.h(33,8): warning C4305: 'initializing': truncation from 'double' to 'float'
+﻿  LightManager.cpp
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.h(18,91): warning C4244: 'argument': conversion from 'float' to 'const unsigned int', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.h(27,117): warning C4244: 'argument': conversion from 'float' to 'const unsigned int', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.h(36,103): warning C4244: 'argument': conversion from 'float' to 'const unsigned int', possible loss of data
+  DirectionalLight.cpp
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.cpp(1,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.h(18,91): warning C4244: 'argument': conversion from 'float' to 'const unsigned int', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.h(27,117): warning C4244: 'argument': conversion from 'float' to 'const unsigned int', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.h(36,103): warning C4244: 'argument': conversion from 'float' to 'const unsigned int', possible loss of data
+  Light.cpp
+  PointLight.cpp
+  BasicPhongMaterial.cpp
+  SkyboxMaterial.cpp
+  UnlitBasicMaterial.cpp
+  Renderer.cpp
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Camera.h(34,8): warning C4305: 'initializing': truncation from 'double' to 'float'
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Scene.h(44,1): warning C4305: 'initializing': truncation from 'double' to 'float'
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.h(18,91): warning C4244: 'argument': conversion from 'float' to 'const unsigned int', possible loss of data
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.h(27,117): warning C4244: 'argument': conversion from 'float' to 'const unsigned int', possible loss of data
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.h(36,103): warning C4244: 'argument': conversion from 'float' to 'const unsigned int', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(196,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(240,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(241,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(245,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(246,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(248,33): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(249,33): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(385,24): warning C4018: '<': signed/unsigned mismatch
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(503,23): warning C4018: '<': signed/unsigned mismatch
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(647,28): warning C4244: '=': conversion from 'float' to 'unsigned int', possible loss of data
+  Scene.cpp
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Camera.h(34,8): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Scene.h(44,1): warning C4305: 'initializing': truncation from 'double' to 'float'
+  CubeMapTexture.cpp
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\CubeMapTexture.cpp(52,30): warning C4018: '<': signed/unsigned mismatch
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\CubeMapTexture.cpp(80,30): warning C4018: '<': signed/unsigned mismatch
+  Framebuffer.cpp
+  SkyboxMesh.cpp
+  Texture.cpp
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\Texture.cpp(134,2): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\Texture.cpp(135,2): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\Texture.cpp(136,2): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\OGL-Graphics\Texture.cpp(137,2): warning C4244: 'argument': conversion from 'int' to 'GLfloat', possible loss of data
+  Vignette.cpp
+  main.h
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Camera.h(34,8): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Scene.h(44,1): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.h(18,91): warning C4244: 'argument': conversion from 'float' to 'const unsigned int', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.h(27,117): warning C4244: 'argument': conversion from 'float' to 'const unsigned int', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.h(36,103): warning C4244: 'argument': conversion from 'float' to 'const unsigned int', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(149,87): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(151,88): warning C4305: 'argument': truncation from 'double' to 'float'
+  Generating Code...
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\LightManager.h(66): warning C4715: 'LightManager::getLightModel': not all control paths return a value
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+glew32s.lib(glew.obj) : warning LNK4099: PDB 'vc120.pdb' was not found with 'glew32s.lib(glew.obj)' or at 'C:\Dev\BasicRenderer\binaries\Win32\Debug\vc120.pdb'; linking object as if no debug info
   BasicRenderer-Core.vcxproj -> C:\Dev\BasicRenderer\binaries\Win32\Debug\BasicRenderer-Core.exe

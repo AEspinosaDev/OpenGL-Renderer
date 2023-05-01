@@ -31,7 +31,7 @@ vec4 computeMatrixTransformations(mat4 model, mat4 modelView, mat4 modelViewProj
 	pos = (modelView * vec4(a_Pos, 1.0)).xyz;
 	modelPos = (model * vec4(a_Pos, 1.0)).xyz;
 
-	vec3 T = normalize(vec3(modelView * vec4(a_Tangent, 0.0)));
+	vec3 T = -normalize(vec3(modelView * vec4(a_Tangent, 0.0)));
 	vec3 N = normalize(vec3(modelView * vec4(a_Normal, 0.0)));
 	vec3 B = cross(N, T);
 
@@ -87,6 +87,7 @@ struct PointLight {
 	float constant;
 	float linear;
 	float quadratic;
+	float att;
 
 	bool castShadows;
 	samplerCube shadowMap;
@@ -110,6 +111,7 @@ struct SpotLight {
 	float constant;
 	float linear;
 	float quadratic;
+	float att;
 
 	bool castShadows;
 	sampler2D shadowMap;
@@ -186,11 +188,11 @@ float computeShadow(sampler2D shadowMap, mat4 lightViewProj, vec3 lightDir) {
 	// get depth of current fragment from light's perspective
 	float currentDepth = projCoords.z;
 	// check whether current frag pos is in shadow
-	float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
-	bias = 0.005;
+	float bias = max(0.0005 * (1.0 - dot(normal, lightDir)), 0.00005);
+	//bias = 0.005;
 	float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
-	if (projCoords.z > 1.0 || projCoords.x > 1.0 || projCoords.y > 1.0 || projCoords.x < 0.0 || projCoords.y < 0.0)
+	if (projCoords.z > 1.0)
 		shadow = 0.0;
 
 	
@@ -212,10 +214,13 @@ float computePointShadow(samplerCube shadowMap ,vec3 lightPos)
 	// now get current linear depth as the length between the fragment and light position
 	float currentDepth = length(fragToLight);
 	// now test for shadows
-	float bias = 0.0; //for now
+	//float bias = 0.0; //for now
+	float bias = max(0.005 * (1.0 - dot(normal, fragToLight)), 0.0005);
 	float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 	// discard shadowing fragments further away
 	if (currentDepth > u_shadowsFarPlane) shadow = 0.0;
+
+
 	return shadow;
 }
 

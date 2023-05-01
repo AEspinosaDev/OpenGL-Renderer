@@ -53,6 +53,8 @@ public:
 
 	virtual inline bool getTransparency() { return m_Parameters.transparency; }
 
+	//virtual Texture* getMask() { return nullptr; };
+
 	virtual inline void setTransparency(bool t) { m_Parameters.transparency = t; }
 
 	virtual inline BlendingType getBlending() { return m_Parameters.blendingType; }
@@ -63,9 +65,9 @@ public:
 
 	virtual inline void setFaceVisibility(FaceVisibility v) { m_Parameters.faceVisibility = v; }
 	
-	virtual void bind(glm::mat4 proj, glm::mat4 view, glm::mat4 model) = 0;
+	virtual void cacheUniforms() = 0;
 
-	virtual void unbind() = 0;
+	virtual void decacheUniforms() = 0;
 
 	virtual void setupParameters();
 

@@ -174,16 +174,15 @@ private:
 	void renderSceneObjects();
 
 	/// <summary>
-	/// Render single model given its name
+	/// Render model
 	/// </summary>
-	void renderObject(std::string name);
+	void renderModel(Model* m);
 
-	//void renderModel(Model* model ,glm::mat4 proj, glm::mat4 view);
 
 	/// <summary>
    /// Uploads all lights data to shaders and if enabled render their gizmo meshes
    /// </summary>
-	void renderLights(bool enableGizmos);
+	void renderAndCacheLights(bool enableGizmos);
 
 	/// <summary>
 	/// Compute shadows on all lit shaders

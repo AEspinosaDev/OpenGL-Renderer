@@ -28,21 +28,13 @@ void BasicPhongMaterial::addOpacityTex(Texture* t)
 }
 
 
-void BasicPhongMaterial::bind(glm::mat4 proj, glm::mat4 view, glm::mat4 model)
+void BasicPhongMaterial::cacheUniforms()
 {
-	m_shader->bind();
+	//m_shader->bind();
 
-	glm::mat4 modelView = view * model;
-	//Matrices
-	m_shader->setMat4("u_View", view);
-	m_shader->setMat4("u_Proj", proj);
-	m_shader->setMat4("u_Model", model);
-	m_shader->setMat4("u_modelView", modelView);
-	m_shader->setMat4("u_modelViewProj", proj * modelView);
 	//Tiling
 	m_shader->setFloat("u_TileV", itileV);
 	m_shader->setFloat("u_TileU", itileU);
-
 
 	//Mat properties
 	if (colorTex != nullptr) {
@@ -96,7 +88,7 @@ void BasicPhongMaterial::bind(glm::mat4 proj, glm::mat4 view, glm::mat4 model)
 
 }
 
-void BasicPhongMaterial::unbind()
+void BasicPhongMaterial::decacheUniforms()
 {
 	if (colorTex != nullptr) {
 		colorTex->unbind();
@@ -116,7 +108,7 @@ void BasicPhongMaterial::unbind()
 	if (opacityTex != nullptr) {
 		opacityTex->unbind();
 	}
-	m_shader->unbind();
+	//m_shader->unbind();
 }
 
 void BasicPhongMaterial::generateTextures()

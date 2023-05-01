@@ -21,6 +21,7 @@ private:
 
 	bool isDirty;
 public:
+
 	Transform(
 		glm::mat4 worldMatrix = glm::mat4(1.0f),
 		glm::vec3 rotation = glm::vec3(0.0f),
@@ -96,7 +97,9 @@ public:
 		}
 		return worldMatrix;
 	}
+	bool getIsDirty() { return isDirty; }
 
+	void setIsDirty(bool op) { isDirty = op; }
 
 };
 
@@ -142,7 +145,6 @@ public:
 		delete parent;
 	}
 
-	virtual void draw(glm::mat4 proj, glm::mat4 view) = 0;
 
 	virtual void setPosition(const glm::vec3 p) { m_Transform.setPosition(p); }
 
@@ -156,7 +158,7 @@ public:
 
 	virtual inline glm::vec3 getScale() { return m_Transform.getScale(); }
 
-	virtual inline Transform getTransform() { return m_Transform; }
+	virtual inline Transform* getTransform() { return &m_Transform; }
 
 	virtual inline void setActive(const bool  s) { enabled = s; }
 
@@ -169,6 +171,7 @@ public:
 	virtual inline ObjectType getObjectType() { return m_Type; }
 
 	virtual void setTransform(Transform t) { m_Transform = t; }
+
 
 };
 

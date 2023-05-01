@@ -47,10 +47,11 @@ public:
 	void addSpecularTex(Texture* t);
 	void addRoughnessTex(Texture* t);
 	void addOpacityTex(Texture* t);
+	//virtual Texture* getMask() { return opacityTex; }
 
-	void bind(glm::mat4 proj, glm::mat4 view, glm::mat4 model);
+	void cacheUniforms();
 
-	void unbind();
+	void decacheUniforms();
 
 	void generateTextures();
 

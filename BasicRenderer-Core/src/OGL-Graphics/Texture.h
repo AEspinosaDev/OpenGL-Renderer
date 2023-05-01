@@ -131,6 +131,6 @@ public:
 	virtual void generateTexture();
 
 protected:
+	void cacheTextureImage();
 	unsigned char* loadTexture(const char* fileName, unsigned int& w, unsigned int& h);
-
 };

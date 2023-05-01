@@ -15,7 +15,7 @@ Texture::Texture(const std::string& path) :m_RendererID(0), m_FilePath(texturePa
 	m_TextConfig.wrapT = GL_REPEAT;
 	m_TextConfig.wrapR = -1;
 
-
+	cacheTextureImage();
 }
 
 Texture::Texture(unsigned int w, unsigned int h) : m_RendererID(0), m_FilePath("null"), m_LocalBuffer(nullptr), m_Width(w), m_Height(h), m_Samples(1), m_TextureType(TextureType::TEXTURE_2D), isDirty(true) {
@@ -73,7 +73,8 @@ Texture::Texture(const std::string& path, GLint level, GLint internalFormat, uns
 	m_TextConfig.wrapS = wrapS;
 	m_TextConfig.wrapT = wrapT;
 	m_TextConfig.wrapR = wrapT;
-
+	
+	cacheTextureImage();
 }
 
 
@@ -93,24 +94,11 @@ Texture::Texture(GLint level, GLint internalFormat, unsigned int w, unsigned int
 	m_TextConfig.wrapT = wrapT;
 	m_TextConfig.wrapR = wrapT;
 
+	
 }
 
 void Texture::generateTexture() {
 	if (!isDirty) return;
-
-	if (m_FilePath != "null") {
-		m_LocalBuffer = loadTexture(m_FilePath.c_str(), m_Width, m_Height);
-		/*int w, h, channels;
-		m_LocalBuffer = stbi_load(m_FilePath.c_str(),&w, &h, &channels,0);
-		m_Width = w;
-		m_Height = h;*/
-		if (!m_LocalBuffer)
-		{
-			std::cout << "Error cargando el fichero: "
-				<< m_FilePath << std::endl;
-			exit(-1);
-		}
-	}
 
 	GLcall(glGenTextures(1, &m_RendererID));
 	GLcall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
@@ -199,6 +187,18 @@ void Texture::resize(unsigned int w, unsigned int h)
 			GL_TRUE));
 	}
 
+}
+
+void Texture::cacheTextureImage()
+{
+		m_LocalBuffer = loadTexture(m_FilePath.c_str(), m_Width, m_Height);
+
+		if (!m_LocalBuffer)
+		{
+			std::cout << "Error cargando el fichero: "
+				<< m_FilePath << std::endl;
+			exit(-1);
+		}
 }
 
 unsigned char* Texture::loadTexture(const char* fileName, unsigned int& w, unsigned int& h)

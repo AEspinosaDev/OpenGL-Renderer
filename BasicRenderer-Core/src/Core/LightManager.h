@@ -49,7 +49,21 @@ public:
 	inline int getLightsCount() { return lightsNumber; }
 	inline float getShadowsFarPlane() { return m_ShadowFarPlane; }
 	inline void setShadowsFarPlane(float f) { m_ShadowFarPlane=f; }
-	inline Material* getDebugMaterial() { return m_DebugMat; }
+	inline UnlitBasicMaterial* getDebugMaterial() { return m_DebugMat; }
+	inline Model* getLightModel(unsigned int type) {
+		switch (type)
+		{
+		case 0:
+			return m_PLightMesh;
+			break;
+		case 1:
+			return m_DLightMesh;
+			break;
+		case 2:
+			return m_SLightMesh;
+			break;
+		}
+	}
 
 	//void init(std::unordered_map<std::string, Shader*> shaders);
 	void init();
@@ -60,8 +74,6 @@ public:
 	void addLight(Light* l);
 
 	void removeLight();
-
-	void drawLights(glm::mat4 proj, glm::mat4 view);
 
 	/// <summary>
 	/// Uploads all active lights data to the given shader

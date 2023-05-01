@@ -19,11 +19,7 @@ public:
 		return m_Mat;
 	}
 
-	void draw(glm::mat4 proj, glm::mat4 view); 
-
-
-
-	
+	void draw(); 
 
 
 };

@@ -31,9 +31,9 @@ public:
 
 	void addColorTex(Texture* t);
 
-	void bind(glm::mat4 proj, glm::mat4 view, glm::mat4 model);
+	void cacheUniforms();
 
-	void unbind();
+	void decacheUniforms();
 
 	void generateTextures();
 };

@@ -76,7 +76,6 @@ public:
 
 	virtual glm::mat4 getLightTransformMatrix() = 0;
 
-	void draw(glm::mat4 proj, glm::mat4 view);
 
 };
 

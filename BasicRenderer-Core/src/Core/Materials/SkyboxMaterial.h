@@ -16,9 +16,9 @@ public:
 	inline CubeMapTexture* getTexture() { return cubeMapText; }
 	inline void setTexture(CubeMapTexture* cubemap) { /*delete[] cubeMapText;*/ cubeMapText = cubemap; }
 
-	void bind(glm::mat4 proj, glm::mat4 view, glm::mat4 model);
+	void cacheUniforms();
 
-	void unbind();
+	void decacheUniforms();
 
 	void generateTextures();
 

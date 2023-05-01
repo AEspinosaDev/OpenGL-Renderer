@@ -57,6 +57,8 @@ public:
 
 	inline unsigned int getNumberOfMeshes() { return m_MeshNumber; }
 
+	inline MeshBufferData getMeshBuffertData(unsigned int idx = 0) { return m_BufferData[idx]; }
+
 	inline void setDirty() { isDirty = true; }
 
 	virtual void generateBuffers();

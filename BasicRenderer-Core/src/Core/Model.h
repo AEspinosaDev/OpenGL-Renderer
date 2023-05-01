@@ -61,8 +61,6 @@ public:
 	inline Material* getMaterialReference(unsigned int id = 0) { return m_Materials[id]; }
 	inline Mesh* getMesh() { return m_Mesh; }
 
-	void draw(glm::mat4 proj, glm::mat4 view);
-
 	Model* clone();
 
 };

@@ -7,6 +7,7 @@ layout(location = 5) in mat4 a_InstancedModelMatrix;
 uniform mat4 u_Light_ModelViewProj;
 uniform mat4 u_viewProj;
 uniform mat4 u_model;
+//uniform sample2D alphaMask;
 
 uniform bool u_isInstanced;
 

@@ -106,6 +106,37 @@ int main()
 
 		
 	}
+	for (size_t i = 0; i < INSTANCES; i++)
+	{
+		float rotation = 0.0f;
+		glm::vec3 pos = glm::vec3(-25.0f, 0.0, -23.0);
+		pos.x += i*2;
+	
+
+		if(i>=25){
+			pos = glm::vec3(25.0f, 0.0, -25.0);
+			pos.z += (i - 25)*2;
+			rotation = 1.57f;
+		}
+		if (i >= 50) {
+			pos = glm::vec3(-25.0f, 0.0, 25.0);
+			pos.x += (i - 50)*2;
+			rotation = 0.0f;
+		}
+		if (i >= 75) {
+			pos = glm::vec3(-25.0f, 0.0, 25.0);
+			pos.z -= (i - 75)*2;
+			rotation = 1.57f;
+		}
+
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, pos);
+		model = glm::rotate(model, rotation, glm::vec3(0.0, 1.0, 0.0));
+		model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
+		matrices[i] = model;
+
+		
+	}
 	iColumn->setWorldMatrices(matrices);
 	Model* column = new Model(iColumn, column_m);
 	column->setPosition(glm::vec3(.0f, .0f, -15.0f));
@@ -115,9 +146,9 @@ int main()
 	Model* corner = new Model("corner.obj", column_m);
 	corner->setPosition(glm::vec3(18.0f, .0f, 3.5f));
 	Model* corner1 = corner->clone();
-	sc->add(new PointLight(glm::vec3(18.0f, 3.0, 3.5f), glm::vec3(1.0, 0.7, 0.5), 1.0, 1));
+	sc->add(new PointLight(glm::vec3(18.0f, 3.0, 3.5f), glm::vec3(1.0, 0.7, 0.5), 0.6, 1));
 	corner1->setPosition(glm::vec3(-18.0f, .0f, 3.5f));
-	sc->add(new PointLight(glm::vec3(-18.0f, 3.0, 3.5f), glm::vec3(1.0, 0.7, 0.5), 1.0, 1));
+	sc->add(new PointLight(glm::vec3(-18.0f, 3.0, 3.5f), glm::vec3(1.0, 0.7, 0.5), 0.4, 1));
 	sc->add(corner);
 	sc->add(corner1);
 
@@ -138,9 +169,25 @@ int main()
 	//floor_m->setReceiveShadows(false);
 	Mesh* planeMesh = new Mesh("plane.obj");
 	Model* plane = new Model(planeMesh, floor_m);
-
 	plane->setScale(glm::vec3(3.0f, 1.0f, 3.0f));
 	sc->add(plane);
+
+	BasicPhongMaterial* alpha_m = new BasicPhongMaterial();
+	alpha_m->setShininess(10);
+	alpha_m->setSpecularity(1);
+	alpha_m->setBaseColor(glm::vec3(0.0, 0.5, 0.0));
+	alpha_m->addOpacityTex(new Texture("alphaTest.jpg"));
+	alpha_m->setTransparency(true);
+	alpha_m->setFaceVisibility(BOTH);
+	Model* alphaShadowTest = plane->clone();
+	alphaShadowTest->setMaterial(alpha_m);
+	alphaShadowTest->setPosition(glm::vec3(-5.0f,1.0f,0.0f));
+	alphaShadowTest->setScale(glm::vec3(0.02, 1.0, 0.02));
+	alphaShadowTest->setRotation(glm::vec3(1.57, 0.0, -1.57));
+	//alphaShadowTest->getMesh()->setCastShadows(false);
+	sc->add(alphaShadowTest);
+
+
 
 
 	Texture* tenguColorTex = new Texture("tengu-color.png");
@@ -154,16 +201,15 @@ int main()
 	//demon->setActive(false);
 	sc->add(demon);
 
-	sc->getActiveCamera()->setProj(WIDTH, HEIGHT);
 
 	
 	
 
-	DirectionalLight* dl = new DirectionalLight(glm::vec3(5.0, 5.0, 5.0),glm::vec3(1.0, 0.8, 0.8), 0.25f);
+	/*DirectionalLight* dl = new DirectionalLight(glm::vec3(5.0, 5.0, 5.0),glm::vec3(1.0, 0.8, 0.8), 0.25f);
 	dl->setPosition(glm::vec3(50.0, 50.0, 50.0));
-	sc->add(dl);
+	sc->add(dl);*/
 
-	CubeMapFaces skyFaces("night-sky/px.png",
+	/*CubeMapFaces skyFaces("night-sky/px.png",
 		"night-sky/nx.png",
 		"night-sky/py.png",
 		"night-sky/ny.png",
@@ -173,7 +219,10 @@ int main()
 
 	CubeMapTexture* skyText = new CubeMapTexture(skyFaces);
 	SkyboxMesh* skybox = new SkyboxMesh(new SkyboxMaterial(skyText));
-	sc->setSkybox(skybox);
+	sc->setSkybox(skybox);*/
+	sc->getActiveCamera()->setFOV(60.0f);
+	sc->getActiveCamera()->setProj(WIDTH, HEIGHT);
+	sc->getActiveCamera()->setFar(500);
 
 	r->addScene(sc);
 	r->setCurrentScene("mainScene");

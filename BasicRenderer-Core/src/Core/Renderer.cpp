@@ -152,7 +152,7 @@ void Renderer::lateInit()
 
 void Renderer::cacheData() {
 
-	
+
 	//Set all shaders to materials and generate and bind meshes vertex buffers
 	for (auto& m : m_CurrentScene->getModels()) {
 		m.second->getMesh()->generateBuffers();
@@ -293,7 +293,7 @@ void Renderer::renderSceneObjects()
 	glEnable(GL_DEPTH_TEST);
 
 	if (m_LightManager->getLightsCount() != 0)
-		renderLights(true);
+		renderAndCacheLights(true);
 
 	std::vector<Model*> opaqueModels;
 	std::vector<Model*> blendModels;
@@ -306,15 +306,8 @@ void Renderer::renderSceneObjects()
 	//FIRST = OPAQUE OBJECTS
 	for (auto& m : opaqueModels) {
 
-		Shader* mShader = m->getMaterialReference()->getShader();
-		mShader->bind();
-		if (!m->getMesh()->isInstanced())
-			mShader->setBool("u_isInstanced", false);
-		else
-			mShader->setBool("u_isInstanced", true);
-		mShader->unbind();
+		renderModel(m);
 
-		m->draw(m_CurrentScene->getActiveCamera()->getProj(), m_CurrentScene->getActiveCamera()->getView());
 	}
 
 	if (blendModels.size() == 0) return;
@@ -329,15 +322,8 @@ void Renderer::renderSceneObjects()
 	//SECOND = TRANSPARENT OBJECTS SORTED FROM NEAR TO FAR
 	for (std::map<float, Model*>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
 	{
-		Shader* mShader = it->second->getMaterialReference()->getShader();
-		mShader->bind();
-		if (!it->second->getMesh()->isInstanced())
-			mShader->setBool("u_isInstanced", false);
-		else
-			mShader->setBool("u_isInstanced", true);
-		mShader->unbind();
 
-		it->second->draw(m_CurrentScene->getActiveCamera()->getProj(), m_CurrentScene->getActiveCamera()->getView());
+		renderModel(it->second);
 	}
 
 	if (m_CurrentScene->getSkybox())
@@ -345,23 +331,66 @@ void Renderer::renderSceneObjects()
 
 }
 
-void Renderer::renderObject(std::string name) {
+void Renderer::renderModel(Model* m) {
 
-	/*Model* m = m_Models[name];
-	m->draw(m_CurrentScene->getActiveCamera()->getProj(), m_CurrentScene->getActiveCamera()->getView());*/
+	if (!m->isActive()) return;
+
+	if (m->getMesh()) {
+
+		for (size_t i = 0; i < m->getMesh()->getNumberOfMeshes(); i++)
+		{
+			Shader* mShader = m->getMaterialReference(i)->getShader();
+
+			//Check if is instanced mesh
+			mShader->bind();
+			if (!m->getMesh()->isInstanced())
+				mShader->setBool("u_isInstanced", false);
+			else
+				mShader->setBool("u_isInstanced", true);
+
+			//Load main transformation matrices
+			//Check the need for this ones for material
+			glm::mat4 modelView = m_CurrentScene->getActiveCamera()->getView() * m->getTransform()->getWorldMatrix();
+			mShader->setMat4("u_View", m_CurrentScene->getActiveCamera()->getView());
+			mShader->setMat4("u_Proj", m_CurrentScene->getActiveCamera()->getProj());
+			mShader->setMat4("u_Model", m->getTransform()->getWorldMatrix());
+			mShader->setMat4("u_modelView", modelView);
+			mShader->setMat4("u_modelViewProj", m_CurrentScene->getActiveCamera()->getProj() * modelView);
+
+
+			m->getMaterialReference(i)->setupParameters();
+
+			m->getMaterialReference(i)->cacheUniforms();
+
+			m->getMesh()->draw(i);
+
+			m->getMaterialReference(i)->decacheUniforms();
+
+			mShader->unbind();
+		}
+	}
+	else
+		std::cout << "Model " << m->getName() << " doesnt have any mesh loaded" << std::endl;
 
 }
 
 
-void Renderer::renderLights(bool enableGizmos)
+void Renderer::renderAndCacheLights(bool enableGizmos)
 {
 	for (auto& shader : m_Shaders) {
 		if (shader.second->getType() == ShaderType::LIT)
 			m_LightManager->uploadLightDataToShader(shader.second, m_CurrentScene->getActiveCamera()->getView());
 	}
-	if (enableGizmos)
-		m_LightManager->drawLights(m_CurrentScene->getActiveCamera()->getProj(), m_CurrentScene->getActiveCamera()->getView());
+	if (enableGizmos) {
+		for (size_t i = 0; i < m_LightManager->getLightsCount(); i++)
+		{
+			Light* l = m_LightManager->getLight(i);
+			m_LightManager->getDebugMaterial()->setColor(l->getColor());
+			m_LightManager->getLightModel(l->getType())->setPosition(l->getPosition());
+			renderModel(m_LightManager->getLightModel(l->getType()));
 
+		}
+	}
 }
 
 void Renderer::renderObjectNormals()
@@ -373,7 +402,7 @@ void Renderer::renderObjectNormals()
 		if (!m.second->isActive()) continue;
 		auto mesh = m.second->getMesh();
 		if (mesh != nullptr) {
-			normalShader->setMat4("u_modelView", m_CurrentScene->getActiveCamera()->getView() * m.second->getTransform().getWorldMatrix());
+			normalShader->setMat4("u_modelView", m_CurrentScene->getActiveCamera()->getView() * m.second->getTransform()->getWorldMatrix());
 			normalShader->setMat4("u_projection", m_CurrentScene->getActiveCamera()->getProj());
 			mesh->draw();
 		}
@@ -387,7 +416,20 @@ void Renderer::renderObjectNormals()
 
 void Renderer::renderSkybox() {
 
-	m_CurrentScene->getSkybox()->draw(m_CurrentScene->getActiveCamera()->getProj(), glm::lookAt(glm::vec3(0.0f), -m_CurrentScene->getActiveCamera()->getTransform().getForward(), m_CurrentScene->getActiveCamera()->getTransform().getUp())); //Remove view translation
+	m_CurrentScene->getSkybox()->getMaterial()->getShader()->bind();
+
+	m_CurrentScene->getSkybox()->getMaterial()->getShader()->setMat4("u_viewProj", m_CurrentScene->getActiveCamera()->getProj() * glm::lookAt(glm::vec3(0.0f), -m_CurrentScene->getActiveCamera()->getTransform()->getForward(), m_CurrentScene->getActiveCamera()->getTransform()->getUp()));//Remove view translation
+
+	m_CurrentScene->getSkybox()->getMaterial()->setupParameters();
+
+	m_CurrentScene->getSkybox()->getMaterial()->cacheUniforms();
+
+	m_CurrentScene->getSkybox()->draw(); 
+
+	m_CurrentScene->getSkybox()->getMaterial()->decacheUniforms();
+
+	m_CurrentScene->getSkybox()->getMaterial()->getShader()->unbind();
+
 }
 
 void Renderer::possProcessPass() {
@@ -463,7 +505,7 @@ void Renderer::computeShadows()
 		if (!m_Framebuffers["depthFBO"])
 			m_Framebuffers["depthFBO"] = new Framebuffer(m_LightManager->getLight(i)->getShadowText(), GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, GL_FALSE, GL_FALSE);
 
-		if (m_LightManager->getLight(i)->getCastShadows()) {
+		if (m_LightManager->getLight(i)->getCastShadows() && m_LightManager->getLight(i)->getTransform()->getIsDirty()) {
 
 
 			if (m_LightManager->getLight(i)->getType() == 0) {
@@ -491,9 +533,6 @@ void Renderer::computeShadows()
 				m_Shaders["PointShadowDepthShader"]->setFloat("far_plane", m_LightManager->getShadowsFarPlane());
 				m_Shaders["PointShadowDepthShader"]->unbind();
 
-
-
-
 				m_Framebuffers["depthFBO"]->setTextureAttachment(m_LightManager->getLight(i)->getShadowText(), GL_DEPTH_ATTACHMENT);
 
 				bindFramebuffer("depthFBO");
@@ -502,25 +541,44 @@ void Renderer::computeShadows()
 				glReadBuffer(GL_NONE);
 				glEnable(GL_DEPTH_TEST);
 				glEnable(GL_CULL_FACE);
-				glCullFace(GL_FRONT);
+
+
 
 				glClear(GL_DEPTH_BUFFER_BIT);
 
 				for (auto& m : m_CurrentScene->getModels()) {
 
-					if (!m.second->isActive()) return;
-					if (!m.second->getMesh()->getCastShadows()) return;
+					if (!m.second->isActive()) continue;
+					if (!m.second->getMesh()->getCastShadows()) continue;
 
 					m_Shaders["PointShadowDepthShader"]->bind();
 
-					m_Shaders["PointShadowDepthShader"]->setMat4("u_model", m.second->getTransform().getWorldMatrix());
+					m_Shaders["PointShadowDepthShader"]->setMat4("u_model", m.second->getTransform()->getWorldMatrix());
 
 					if (!m.second->getMesh()->isInstanced())
 						m_Shaders["PointShadowDepthShader"]->setBool("u_isInstanced", false);
 					else
 						m_Shaders["PointShadowDepthShader"]->setBool("u_isInstanced", true);
 
-					m.second->getMesh()->draw();
+					for (size_t k = 0; k < m.second->getMesh()->getNumberOfMeshes(); k++)
+					{
+						if (m.second->getMesh()->getMeshBuffertData(k).numFaces != 2)
+							glCullFace(GL_FRONT);
+						else
+							glCullFace(GL_BACK);
+
+						//if (m.second->getMaterialReference(k)->getTransparency()) {
+						//	if (m.second->getMaterialReference(k)->getMask())
+						//		m.second->getMaterialReference(k)->getMask()->bind(1);
+						//	m_Shaders["PointShadowDepthShader"]->setInt("alphaMask", 1);
+						//}
+						//else {
+						//	m.second->getMaterialReference(k)->getMask()->unbind();
+						//	//m_Shaders["PointShadowDepthShader"]->setInt("alphaMask", -1);
+						//}
+
+						m.second->getMesh()->draw(k);
+					}
 
 					m_Shaders["PointShadowDepthShader"]->unbind();
 
@@ -539,34 +597,41 @@ void Renderer::computeShadows()
 				glReadBuffer(GL_NONE);
 				glEnable(GL_DEPTH_TEST);
 				glEnable(GL_CULL_FACE);
-				glCullFace(GL_FRONT);
 
 				glClear(GL_DEPTH_BUFFER_BIT);
 
 				for (auto& m : m_CurrentScene->getModels()) {
 
-					if (!m.second->isActive()) return;
-					if (!m.second->getMesh()->getCastShadows()) return;
+					if (!m.second->isActive()) continue;
+					if (!m.second->getMesh()->getCastShadows()) continue;
 
 					m_Shaders["BasicDepthShader"]->bind();
 
 
 					if (!m.second->getMesh()->isInstanced()) {
 						m_Shaders["BasicDepthShader"]->setBool("u_isInstanced", false);
-						m_Shaders["BasicDepthShader"]->setMat4("u_Light_ModelViewProj", m_LightManager->getLight(i)->getLightTransformMatrix() * m.second->getTransform().getWorldMatrix());
-						m_Shaders["BasicDepthShader"]->setMat4("u_model", m.second->getTransform().getWorldMatrix());
+						m_Shaders["BasicDepthShader"]->setMat4("u_Light_ModelViewProj", m_LightManager->getLight(i)->getLightTransformMatrix() * m.second->getTransform()->getWorldMatrix());
+						m_Shaders["BasicDepthShader"]->setMat4("u_model", m.second->getTransform()->getWorldMatrix());
 					}
 					else {
 						m_Shaders["BasicDepthShader"]->setBool("u_isInstanced", true);
 						m_Shaders["BasicDepthShader"]->setMat4("u_viewProj", m_LightManager->getLight(i)->getLightTransformMatrix());
 					}
 
-					m.second->getMesh()->draw();
+					for (size_t k = 0; k < m.second->getMesh()->getNumberOfMeshes(); k++)
+					{
+						if (m.second->getMesh()->getMeshBuffertData(k).numFaces != 2)
+							glCullFace(GL_FRONT);
+						else
+							glCullFace(GL_BACK);
+						m.second->getMesh()->draw(k);
+					}
 
 					m_Shaders["BasicDepthShader"]->unbind();
 
 				}
 			}
+			m_LightManager->getLight(i)->getTransform()->setIsDirty(false);
 		}
 
 	}

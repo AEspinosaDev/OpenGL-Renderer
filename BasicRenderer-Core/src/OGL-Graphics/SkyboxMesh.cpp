@@ -64,13 +64,10 @@ SkyboxMesh::SkyboxMesh(SkyboxMaterial* m): m_Mat(m)
 
 }
 
-void SkyboxMesh::draw(glm::mat4 proj, glm::mat4 view)
+void SkyboxMesh::draw()
 {
-    m_Mat->setupParameters();
-
+    
     GLcall(glDepthFunc(GL_LEQUAL));
-
-    m_Mat->bind(proj, view, glm::mat4(1.0f));
 
     m_Vao.bind();
 
@@ -80,6 +77,5 @@ void SkyboxMesh::draw(glm::mat4 proj, glm::mat4 view)
 
     GLcall(glDepthFunc(GL_LESS));
 
-    m_Mat->unbind();
 
 }
