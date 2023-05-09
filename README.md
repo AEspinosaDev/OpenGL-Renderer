@@ -11,9 +11,9 @@ WORK IN PROGRESS
 - Postprocess support (RTT)
 - Phong illumination with normal maps
 - Instanced rendering
-- PBR [Disney 15] (WIP)
+- PBR [Epic's Unreal Engine 4 Metallic-Roughness Workflow] (WIP)
 - BlinnPhong illumination with parallax maps (WIP)
-- Skybox with enviroment lightning and reflecitons
+- Skybox with enviroment lightning and reflections
 - SSAO (WIP)
 - Bloom (WIP)
 - UI (?)
