@@ -38,6 +38,7 @@
     <ClCompile Include="src\Core\SceneObject.cpp" />
     <ClCompile Include="src\Core\Scene.cpp" />
     <ClCompile Include="src\OGL-Graphics\InstancedMesh.cpp" />
+    <ClCompile Include="src\Core\Materials\PhysicalMaterial.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\OGL-Graphics\VBO.h" />
@@ -68,6 +69,7 @@
     <ClInclude Include="src\Utils\stb_image.h" />
     <ClInclude Include="src\Core\Scene.h" />
     <ClInclude Include="src\OGL-Graphics\InstancedMesh.h" />
+    <ClInclude Include="src\Core\Materials\PhysicalMaterial.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\BasicPhongShader.shader" />
@@ -77,6 +79,7 @@
     <None Include="Resources\Shaders\SkyboxShader.shader" />
     <None Include="Resources\Shaders\NormalVisualizationShader.shader" />
     <None Include="Resources\Shaders\PointShadowDepthShader.shader" />
+    <None Include="Resources\Shaders\PhysicallyBasedShader.shader" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\Textures\BODY_LP_2_Material _25_Height.png" />

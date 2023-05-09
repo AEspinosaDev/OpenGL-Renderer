@@ -5,8 +5,8 @@ void SkyboxMaterial::cacheUniforms()
 	m_shader->bind();
 
 
-	if (cubeMapText) {
-		cubeMapText->bind(0);
+	if (m_CubeMapText) {
+		m_CubeMapText->bind(0);
 		m_shader->setInt("u_cubeMapText", 0);
 	}
 
@@ -19,7 +19,7 @@ void SkyboxMaterial::decacheUniforms()
 
 void SkyboxMaterial::generateTextures()
 {
-	if (cubeMapText) {
-		cubeMapText->generateTexture();
+	if (m_CubeMapText) {
+		m_CubeMapText->generateTexture();
 	}
 }

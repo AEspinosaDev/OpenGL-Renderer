@@ -1,42 +1,54 @@
 #include "UnlitBasicMaterial.h"
 
 
-void UnlitBasicMaterial::addColorTex(Texture* t)
-{
 
-	colorTex = t;
-
-
-}
 
 void UnlitBasicMaterial::cacheUniforms()
 {
 	//m_shader->bind();
-	
-	m_shader->setFloat("u_TileV", itileV);
-	m_shader->setFloat("u_TileU", itileU);
-	m_shader->setFloat("u_opacity", opacity);
 
-	if (colorTex != nullptr) {
+	m_shader->setFloat("u_TileV", m_TileV);
+	m_shader->setFloat("u_TileU", m_TileU);
+	m_shader->setFloat("u_opacity", m_Opacity);
+
+	if (m_ColorText != nullptr) {
 		m_shader->setInt("u_colorTex", 0);
-		colorTex->bind(0);
+		m_ColorText->bind(0);
+		m_shader->setBool("u_hasColorTex", true);
 	}
-	else
-		m_shader->setVec3("u_color", color);
+	else {
+		m_shader->setBool("u_hasColorTex", false);
+		m_shader->setVec3("u_color", m_Color);
+	}
+	if (m_OpacityText != nullptr) {
+		m_shader->setInt("u_opacityTex", 1);
+		m_OpacityText->bind(1);
+		m_shader->setBool("u_hasOpacityTex", true);
+	}
+	else {
+		m_shader->setBool("u_hasOpacityTex", false);
+		m_shader->setFloat("u_opacity", m_Opacity);
+	}
 }
 
 void UnlitBasicMaterial::decacheUniforms()
 {
-	if (colorTex != nullptr) {
-		colorTex->unbind();
+	if (m_ColorText != nullptr) {
+		m_ColorText->unbind();
+	}
+	if (m_OpacityText != nullptr) {
+		m_OpacityText->unbind();
 	}
 	//m_shader->unbind();
 }
 
 void UnlitBasicMaterial::generateTextures()
 {
-	if (colorTex != nullptr) {
-		colorTex->generateTexture();
+	if (m_ColorText != nullptr) {
+		m_ColorText->generateTexture();
+	}
+	if (m_OpacityText != nullptr) {
+		m_OpacityText->generateTexture();
 	}
 }
 

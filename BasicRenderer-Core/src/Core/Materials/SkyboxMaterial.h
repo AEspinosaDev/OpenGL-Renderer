@@ -4,17 +4,17 @@
 
 class SkyboxMaterial : public Material
 {
-	CubeMapTexture* cubeMapText;
+	CubeMapTexture* m_CubeMapText;
 
 public:
-	SkyboxMaterial() : Material("SkyboxShader"), cubeMapText(nullptr)
+	SkyboxMaterial() : Material("SkyboxShader"), m_CubeMapText(nullptr)
 	{}
 
-	SkyboxMaterial(CubeMapTexture* cubemap) : Material("SkyboxShader"), cubeMapText(cubemap)
+	SkyboxMaterial(CubeMapTexture* cubemap) : Material("SkyboxShader"), m_CubeMapText(cubemap)
 	{}
 
-	inline CubeMapTexture* getTexture() { return cubeMapText; }
-	inline void setTexture(CubeMapTexture* cubemap) { /*delete[] cubeMapText;*/ cubeMapText = cubemap; }
+	inline CubeMapTexture* getTexture() { return m_CubeMapText; }
+	inline void setTexture(CubeMapTexture* cubemap) { /*delete[] cubeMapText;*/ m_CubeMapText = cubemap; }
 
 	void cacheUniforms();
 

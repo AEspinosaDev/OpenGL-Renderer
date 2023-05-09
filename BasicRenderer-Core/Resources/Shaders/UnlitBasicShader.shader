@@ -30,14 +30,23 @@ void main() {
 
 in vec2 texCoord;
 
-uniform vec3 u_color;
 uniform sampler2D u_colorTex;
+uniform sampler2D u_opacityTex;
 uniform float u_opacity;
+uniform vec3 u_color;
+uniform bool u_hasOpacityTex;
+uniform bool u_hasColorTex;
 
 out vec4 fragColor;
 
 void main() {
 
-	fragColor = vec4(u_color, u_opacity);
+	vec3 color = vec3(1.0f);
+	float opacity = 1.0f;
+
+	u_hasColorTex ? color = texture(u_colorTex, texCoord).rgb : color = u_color;
+	u_hasOpacityTex ? opacity = texture(u_opacityTex, texCoord).r : opacity = u_opacity;
+
+	fragColor = vec4(color, opacity);
 }
 

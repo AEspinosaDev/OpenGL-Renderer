@@ -145,6 +145,7 @@ void Renderer::lateInit()
 	m_Shaders["BasicPhongShader"] = new Shader("BasicPhongShader.shader", ShaderType::LIT);
 	m_Shaders["SkyboxShader"] = new Shader("SkyboxShader.shader", ShaderType::UNLIT);
 	m_Shaders["NormalDebugShader"] = new Shader("NormalVisualizationShader.shader", ShaderType::UNLIT);
+	//m_Shaders["PhysicallyBasedShader"] = new Shader("PhysicallyBasedShader.shader", ShaderType::LIT);
 
 	m_LightManager->init();
 	m_LightManager->getDebugMaterial()->setShader(m_Shaders[m_LightManager->getDebugMaterial()->getShaderNameID()]);
@@ -424,7 +425,7 @@ void Renderer::renderSkybox() {
 
 	m_CurrentScene->getSkybox()->getMaterial()->cacheUniforms();
 
-	m_CurrentScene->getSkybox()->draw(); 
+	m_CurrentScene->getSkybox()->draw();
 
 	m_CurrentScene->getSkybox()->getMaterial()->decacheUniforms();
 
@@ -568,12 +569,12 @@ void Renderer::computeShadows()
 							glCullFace(GL_BACK);
 
 						//if (m.second->getMaterialReference(k)->getTransparency()) {
-						//	if (m.second->getMaterialReference(k)->getMask())
-						//		m.second->getMaterialReference(k)->getMask()->bind(1);
+						//	if (m.second->getMaterialReference(k)->getOpacityMask())
+						//		m.second->getMaterialReference(k)->getOpacityMask()->bind(1);
 						//	m_Shaders["PointShadowDepthShader"]->setInt("alphaMask", 1);
 						//}
 						//else {
-						//	m.second->getMaterialReference(k)->getMask()->unbind();
+						//	//m.second->getMaterialReference(k)->getMask()->unbind();
 						//	//m_Shaders["PointShadowDepthShader"]->setInt("alphaMask", -1);
 						//}
 

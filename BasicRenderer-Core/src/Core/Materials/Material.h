@@ -1,5 +1,6 @@
 #pragma once
 #include <Shader.h>
+#include <Texture.h>
 
 enum BlendingType {
 	NORMAL,
@@ -29,11 +30,11 @@ struct MaterialParameters {
 /// </summary>
 class Material {
 protected:
-	const std::string m_ShaderName_ID;
-	Shader* m_shader;
-	MaterialParameters m_Parameters;
+	const std::string	m_ShaderName_ID;
+	Shader*				m_shader;
+	MaterialParameters	m_Parameters;
 
-	bool isDirty;
+	bool				isDirty;
 	
 public:
 
@@ -53,7 +54,7 @@ public:
 
 	virtual inline bool getTransparency() { return m_Parameters.transparency; }
 
-	//virtual Texture* getMask() { return nullptr; };
+	virtual Texture* getOpacityMask() { return nullptr; };
 
 	virtual inline void setTransparency(bool t) { m_Parameters.transparency = t; }
 

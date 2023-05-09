@@ -65,7 +65,8 @@ uniform sampler2D alphaMask;
 
 void main()
 {
-	float op = texture(alphaMask, fs_in.texCoord).r;
+	/*float op = texture(alphaMask, fs_in.texCoord).r;
+	return;*/
 	float lightDistance = 0;
 	//if (op == 1)
 		// get distance between fragment and light source
