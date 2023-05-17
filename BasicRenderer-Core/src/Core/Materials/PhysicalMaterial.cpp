@@ -60,6 +60,15 @@ void PhysicalMaterial::cacheUniforms()
 		m_shader->setBool("material.hasOpacityTex", false);
 		m_shader->setFloat("material.opacity", m_Opacity);
 	}
+	if (m_AOTex) {
+		m_shader->setInt("material.AOTex", 6);
+		m_AOTex->bind(6);
+		m_shader->setBool("material.hasAOTex", true);
+	}
+	else {
+		m_shader->setBool("material.hasAOTex", false);
+		m_shader->setFloat("material.AOTex", m_AO);
+	}
 
 	m_shader->setBool("material.receiveShadows", receiveShadows);
 }
@@ -72,6 +81,8 @@ void PhysicalMaterial::decacheUniforms()
 	if (m_MetalnessTex)		m_MetalnessTex->unbind();
 	if (m_EmissiveTex)		m_EmissiveTex->unbind();
 	if (m_OpacityTex)		m_OpacityTex->unbind();
+	if (m_AOTex)			m_AOTex->unbind();
+
 }
 
 void PhysicalMaterial::generateTextures()
@@ -82,5 +93,6 @@ void PhysicalMaterial::generateTextures()
 	if (m_MetalnessTex)		m_MetalnessTex->generateTexture();
 	if (m_EmissiveTex)		m_EmissiveTex->generateTexture();
 	if (m_OpacityTex)		m_OpacityTex->generateTexture();
+	if (m_AOTex)			m_AOTex->generateTexture();
 
 }

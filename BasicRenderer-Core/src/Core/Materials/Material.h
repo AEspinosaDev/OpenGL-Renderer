@@ -2,6 +2,7 @@
 #include <Shader.h>
 #include <Texture.h>
 
+
 enum BlendingType {
 	NORMAL,
 	ADDITIVE,

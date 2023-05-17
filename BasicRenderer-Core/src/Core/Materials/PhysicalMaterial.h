@@ -12,6 +12,7 @@ class PhysicalMaterial : public Material
 	Texture*	m_MetalnessTex;
 	Texture*	m_EmissiveTex;
 	Texture*	m_OpacityTex;
+	Texture*	m_AOTex;
 
 	//Overrides
 
@@ -20,16 +21,17 @@ class PhysicalMaterial : public Material
 	float		m_Metalness;
 	float		m_Emissive;
 	float		m_Opacity;
+	float		m_AO;
 
 	float		m_TileU;
 	float		m_TileV;
 
 	bool	receiveShadows;
 
-	PhysicalMaterial() : Material("PhysicallyBasedShader"), m_TileU(1.0), m_TileV(1.0), m_Opacity(1.0), m_Albedo(glm::vec3(1.0f)), m_Roughness(1), m_Metalness(10), m_Emissive(0.0f),
-		m_AlbedoTex(nullptr), m_NormalTex(nullptr), m_RoughnessTex(nullptr), m_MetalnessTex(nullptr), m_EmissiveTex(nullptr), m_OpacityTex(nullptr), receiveShadows(true) {}
+	PhysicalMaterial() : Material("PhysicallyBasedShader"), m_TileU(1.0), m_TileV(1.0), m_Opacity(1.0), m_Albedo(glm::vec3(1.0f)), m_Roughness(1), m_Metalness(10), m_Emissive(0.0f), m_AO(1.0f),
+		m_AlbedoTex(nullptr), m_NormalTex(nullptr), m_RoughnessTex(nullptr), m_MetalnessTex(nullptr), m_EmissiveTex(nullptr), m_OpacityTex(nullptr), m_AOTex(nullptr), receiveShadows(true) {}
 
-	PhysicalMaterial(MaterialParameters params) : Material("PhysicallyBasedShader", params), m_TileU(1.0), m_TileV(1.0), m_Opacity(1.0), m_Albedo(glm::vec3(1.0f)), m_Roughness(1), m_Metalness(10), m_Emissive(0.0f), m_AlbedoTex(nullptr), m_NormalTex(nullptr), m_RoughnessTex(nullptr), m_MetalnessTex(nullptr), m_EmissiveTex(nullptr), m_OpacityTex(nullptr), receiveShadows(true) {}
+	PhysicalMaterial(MaterialParameters params) : Material("PhysicallyBasedShader", params), m_TileU(1.0), m_TileV(1.0), m_Opacity(1.0), m_Albedo(glm::vec3(1.0f)), m_Roughness(1), m_Metalness(10), m_AO(1.0f), m_Emissive(0.0f), m_AlbedoTex(nullptr), m_NormalTex(nullptr), m_RoughnessTex(nullptr), m_MetalnessTex(nullptr), m_EmissiveTex(nullptr), m_OpacityTex(nullptr), m_AOTex(nullptr), receiveShadows(true) {}
 
 #pragma region getters & setters
 
@@ -54,6 +56,9 @@ class PhysicalMaterial : public Material
 	inline void setOpacity(float o) { m_Opacity = o; }
 	inline float getOpacity() { return m_Opacity; }
 
+	inline void setAO(float o) { m_AO = o; }
+	inline float getAO() { return m_AO; }
+
 	inline void setReceiveShadows(bool c) { receiveShadows = c; }
 	inline bool getReceiveShadows() { return receiveShadows; }
 
@@ -71,6 +76,9 @@ class PhysicalMaterial : public Material
 
 	inline void setEmissiveText(Texture* t) { m_EmissiveTex = t; }
 	inline Texture* getEmissiveText() { return m_EmissiveTex; }
+
+	inline void setAOText(Texture* t) { m_AOTex = t; }
+	inline Texture* getAOText() { return m_AOTex; }
 
 	inline void setOpacityMask(Texture* t) { m_OpacityTex = t; }
 	Texture* getOpacityMask() { return m_OpacityTex; }

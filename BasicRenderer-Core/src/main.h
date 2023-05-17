@@ -16,6 +16,7 @@ int main()
 
 	Scene* sc = new Scene("mainScene");
 
+
 	//SETUP SCENE
 	//------------------------------------
 	PointLight* l = new PointLight(glm::vec3(5.0, 3.0, -4.0), glm::vec3(1.0, 0.8, 0.8), 1.5, 1);

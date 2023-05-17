@@ -59,15 +59,12 @@ void main()
 		outPosition = computeMatrixTransformations(u_Model * a_InstancedModelMatrix, modelView, modelViewProj);
 	}
 
-
 	gl_Position = outPosition;
 
 }
 
 #shader fragment
 #version 460 core
-
-//const int MAX_LIGHTS = 32;
 
 out vec4	FragColor;
 
@@ -90,7 +87,7 @@ struct PointLight {
 	float att;
 
 	bool castShadows;
-	samplerCube shadowMap;
+	//samplerCube shadowMap;
 	mat4 lightViewProj;
 };
 
@@ -125,34 +122,43 @@ struct Material {
 	bool		hasMetalnessTex;
 	bool		hasNormalTex;
 	bool		hasOpacityTex;
+	bool		hasAOTex;
 
 	sampler2D	albedoTex;
 	sampler2D	normalTex;
 	sampler2D	roughnessTex;
 	sampler2D	metalnessTex;
 	sampler2D	opacityTex;
+	sampler2D	AOTex;
+
 
 	vec3		albedo;
 	float		roughness;
 	float		metalness;
 	float		opacity;
+	float		ao;
 
 	bool		receiveShadows;
 
 };
 
+//Constants
+const float PI = 3.14159265359;
+const int MAX_LIGHTS = 32;
+
+
 //Uniforms
 //uniform mat4 u_Model;
 uniform Material material;
-//uniform PointLight pointLights[3];
+uniform PointLight pointLights[3];
 //uniform DirectionalLight directionalLights[MAX_LIGHTS];
 //uniform SpotLight spotLights[MAX_LIGHTS];
-//uniform int pointsLightsNumber;
+uniform int pointsLightsNumber;
 //uniform int directionalLightsNumber;
 //uniform int spotLightsNumber;
 //uniform float u_shadowsFarPlane;
-//uniform float u_ambientStrength;
-//uniform vec3 u_ambientColor;
+uniform float u_ambientStrength;
+uniform vec3 u_ambientColor;
 uniform samplerCube u_skybox;
 
 //Surface properties
@@ -161,16 +167,70 @@ vec3	albedo;
 float	roughness;
 float	opacity;
 float	metalness;
-
+float	ao;
 
 vec3 color = vec3(1, 1, 1);
 
+float computeAttenuation(vec3 lightPos, float lin, float quad) {
+	float d = length(lightPos - pos);
+	float constant = 1.0f;
 
+	return 1.0 / (constant + lin * d + quad * (d * d));
+
+}
+
+
+
+vec3 shadePointLight(vec3 lightPos, vec3 color, float intensity, samplerCube shadowMap, vec3 worldPos, bool castShadows) {
+
+	vec3 F0 = vec3(0.04);
+	F0 = mix(F0, albedo, metalness);
+
+	//Radiance
+	vec3 V = normalize(-pos);
+	vec3 L = normalize(lightPos - pos);
+	vec3 H = normalize(V + L);
+
+	float distance = length(lightPos - pos);
+	float attenuation = 1.0 / (distance * distance);
+	vec3 radiance = color * attenuation;
+
+	// Cook-Torrance BRDF
+	float NDF = DistributionGGX(N, H, roughness);
+	float G = GeometrySmith(N, V, L, roughness);
+	vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+	vec3 kD = vec3(1.0) - F;
+	kD *= 1.0 - metalness;
+
+	vec3 numerator = NDF * G * F;
+	float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+	vec3 specular = numerator / denominator;
+
+	// Add to outgoing radiance result
+	float lambertian = max(dot(N, L), 0.0);
+	return (kD * albedo / PI + specular) * radiance * lambertian;
+
+}
 
 vec3 shade() {
 
 	vec3 result = vec3(0.0);
 
+	for (int i = 0; i < pointsLightsNumber; i++) {
+
+		result += shadePointLight(pointLights[i].pos, pointLights[i].color, pointLights[i].intensity, pointLights[i].shadowMap, pointLights[i].worldPos,
+			pointLights[i].castShadows);
+	}
+
+	//Ambient component
+	vec3 ambient = (u_ambientColor*u_ambientStrength) * albedo * ao;
+	result += ambient;
+
+	//Tone Up
+	result = result / (result + vec3(1.0));
+	////Gamma Correction
+	//result = pow(result, vec3(1.0 / 2.2));
 
 	return result;
 
@@ -179,16 +239,15 @@ vec3 shade() {
 void main()
 {
 
-	material.hasNormalTex ? N = normalize(TBN * (texture(material.normalTex, texCoord).rgb * 2.0 - 1.0)) : N = normal;
+	//material.hasNormalTex ? N = normalize(TBN * (texture(material.normalTex, texCoord).rgb * 2.0 - 1.0)) : N = normal;
+	N = normal;
 	material.hasAlbedoTex ? albedo = texture(material.albedoTex, texCoord).rgb : albedo = material.albedo;
 	material.hasRoughnessTex ? roughness = texture(material.roughnessTex, texCoord).r : roughness = material.roughness;
 	material.hasMetalnessTex ? metalness = texture(material.metalnessTex, texCoord).r : metalness = material.metalness;
 	material.hasOpacityTex ? opacity = texture(material.opacityTex, texCoord).r : opacity = material.opacity;
+	material.hasAOTex ? ao = texture(material.AOTex, texCoord).r : ao = material.ao;
 
-	vec3 r = normalize(reflect(normalize(pos), N));
-	vec3 result = mix(shade(), vec3(texture(u_skybox, r).rgb), 0.0);
-
-	FragColor = vec4(result, opacity);
+	FragColor = vec4(shade(), opacity);
 
 }
 

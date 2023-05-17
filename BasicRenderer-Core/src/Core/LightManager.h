@@ -3,6 +3,33 @@
 #include <Core/Lights/Light.h>
 #include <Core/Materials/UnlitBasicMaterial.h>
 #include "Model.h"
+
+//namespace LightManager {
+//
+//	std::vector<Light*> m_Lights;
+//	Model* m_PLightMesh;
+//	Model* m_DLightMesh;
+//	Model* m_SLightMesh;
+//	UnlitBasicMaterial* m_DebugMat;
+//
+//	float m_AmbientStrength;
+//	glm::vec3 m_AmbientColor;
+//
+//	unsigned int m_ShadowResolution;
+//	float m_ShadowFarPlane;
+//
+//	const int MAX_LIGHTS = 32;
+//	int pointLightsNumber;
+//	int directionalLightsNumber;
+//	int spotLightsNumber;
+//	int lightsNumber;
+//
+//
+//
+//
+//}
+
+
 /// <summary>
 /// Class that manages all lights instances and data.
 /// </summary>
