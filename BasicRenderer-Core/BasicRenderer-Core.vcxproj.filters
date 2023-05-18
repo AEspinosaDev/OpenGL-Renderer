@@ -108,5 +108,24 @@
     <Image Include="Resources\Textures\Material _25_Opacity.png" />
     <Image Include="Resources\Textures\floor-normal.jpg" />
     <Image Include="Resources\Textures\floor-gloss.jpg" />
+    <Image Include="Resources\Textures\columns_albedo.png" />
+    <Image Include="Resources\Textures\columns_MOA.png" />
+    <Image Include="Resources\Textures\columns_normal.png" />
+    <Image Include="Resources\Textures\floor_albedo.png" />
+    <Image Include="Resources\Textures\floor_MOA.png" />
+    <Image Include="Resources\Textures\floor_normal.png" />
+    <Image Include="Resources\Textures\floorUniformAlbedo.png" />
+    <Image Include="Resources\Textures\floorUniformMOA.png" />
+    <Image Include="Resources\Textures\floorUniformNormal.png" />
+    <Image Include="Resources\Textures\roofs_albedo.png" />
+    <Image Include="Resources\Textures\roofs_MOA.png" />
+    <Image Include="Resources\Textures\roofs_normal.png" />
+    <Image Include="Resources\Textures\tenguAlbedo.png" />
+    <Image Include="Resources\Textures\tenguORM.png" />
+    <Image Include="Resources\Textures\tenguOP.png" />
+    <Image Include="Resources\Textures\tenguNormal.png" />
+    <Image Include="Resources\Textures\walls_albedo.png" />
+    <Image Include="Resources\Textures\walls_MOA.png" />
+    <Image Include="Resources\Textures\walls_normal.png" />
   </ItemGroup>
 </Project>

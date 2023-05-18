@@ -67,7 +67,7 @@ void PhysicalMaterial::cacheUniforms()
 	}
 	else {
 		m_shader->setBool("material.hasAOTex", false);
-		m_shader->setFloat("material.AOTex", m_AO);
+		m_shader->setFloat("material.ao", m_AO);
 	}
 
 	m_shader->setBool("material.receiveShadows", receiveShadows);

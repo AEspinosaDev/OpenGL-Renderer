@@ -150,7 +150,7 @@ const int MAX_LIGHTS = 32;
 //Uniforms
 //uniform mat4 u_Model;
 uniform Material material;
-uniform PointLight pointLights[3];
+uniform PointLight pointLights[1];
 //uniform DirectionalLight directionalLights[MAX_LIGHTS];
 //uniform SpotLight spotLights[MAX_LIGHTS];
 uniform int pointsLightsNumber;
@@ -179,9 +179,51 @@ float computeAttenuation(vec3 lightPos, float lin, float quad) {
 
 }
 
+//Fresnel
+vec3 fresnelSchlick(float cosTheta, vec3 F0)
+{
+	return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+
+//Normal Distribution 
+//Trowbridge - Reitz GGX
+float distributionGGX(vec3 N, vec3 H, float roughness)
+{
+	float a = roughness * roughness;
+	float a2 = a * a;
+	float NdotH = max(dot(N, H), 0.0);
+	float NdotH2 = NdotH * NdotH;
+
+	float num = a2;
+	float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+	denom = PI * denom * denom;
+
+	return num / denom;
+}
+//Geometry
+//Schlick - GGX
+float geometrySchlickGGX(float NdotV, float roughness)
+{
+	float r = (roughness + 1.0);
+	float k = (r * r) / 8.0;
+
+	float num = NdotV;
+	float denom = NdotV * (1.0 - k) + k;
+
+	return num / denom;
+}
+float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+{
+	float NdotV = max(dot(N, V), 0.0);
+	float NdotL = max(dot(N, L), 0.0);
+	float ggx2 = geometrySchlickGGX(NdotV, roughness);
+	float ggx1 = geometrySchlickGGX(NdotL, roughness);
+
+	return ggx1 * ggx2;
+}
 
 
-vec3 shadePointLight(vec3 lightPos, vec3 color, float intensity, samplerCube shadowMap, vec3 worldPos, bool castShadows) {
+vec3 shadePointLight(vec3 lightPos, vec3 color, float intensity, vec3 worldPos, bool castShadows) {
 
 	vec3 F0 = vec3(0.04);
 	F0 = mix(F0, albedo, metalness);
@@ -192,12 +234,13 @@ vec3 shadePointLight(vec3 lightPos, vec3 color, float intensity, samplerCube sha
 	vec3 H = normalize(V + L);
 
 	float distance = length(lightPos - pos);
-	float attenuation = 1.0 / (distance * distance);
+	//float attenuation = 1.0 / (distance * distance);
+	float attenuation = computeAttenuation(lightPos, 0.022f, 0.019f);
 	vec3 radiance = color * attenuation;
 
 	// Cook-Torrance BRDF
-	float NDF = DistributionGGX(N, H, roughness);
-	float G = GeometrySmith(N, V, L, roughness);
+	float NDF = distributionGGX(N, H, roughness);
+	float G = geometrySmith(N, V, L, roughness);
 	vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
 	vec3 kD = vec3(1.0) - F;
@@ -219,17 +262,18 @@ vec3 shade() {
 
 	for (int i = 0; i < pointsLightsNumber; i++) {
 
-		result += shadePointLight(pointLights[i].pos, pointLights[i].color, pointLights[i].intensity, pointLights[i].shadowMap, pointLights[i].worldPos,
+		result += shadePointLight(pointLights[i].pos, pointLights[i].color, pointLights[i].intensity, pointLights[i].worldPos,
 			pointLights[i].castShadows);
+
 	}
 
 	//Ambient component
-	vec3 ambient = (u_ambientColor*u_ambientStrength) * albedo * ao;
+	vec3 ambient = (u_ambientColor * u_ambientStrength) * albedo * ao;
 	result += ambient;
 
 	//Tone Up
 	result = result / (result + vec3(1.0));
-	////Gamma Correction
+	//Gamma Correction
 	//result = pow(result, vec3(1.0 / 2.2));
 
 	return result;
@@ -239,15 +283,20 @@ vec3 shade() {
 void main()
 {
 
-	//material.hasNormalTex ? N = normalize(TBN * (texture(material.normalTex, texCoord).rgb * 2.0 - 1.0)) : N = normal;
-	N = normal;
+	material.hasNormalTex ? N = normalize(TBN * (texture(material.normalTex, texCoord).rgb * 2.0 - 1.0)) : N = normal;
 	material.hasAlbedoTex ? albedo = texture(material.albedoTex, texCoord).rgb : albedo = material.albedo;
-	material.hasRoughnessTex ? roughness = texture(material.roughnessTex, texCoord).r : roughness = material.roughness;
-	material.hasMetalnessTex ? metalness = texture(material.metalnessTex, texCoord).r : metalness = material.metalness;
+	//material.hasAlbedoTex ? albedo = pow(texture(material.albedoTex, texCoord).rgb, vec3(2.2)) : albedo = material.albedo;
+	/*material.hasRoughnessTex ? roughness = texture(material.roughnessTex, texCoord).r : roughness = material.roughness;
+	material.hasMetalnessTex ? metalness = texture(material.metalnessTex, texCoord).r : metalness = material.metalness;*/
 	material.hasOpacityTex ? opacity = texture(material.opacityTex, texCoord).r : opacity = material.opacity;
-	material.hasAOTex ? ao = texture(material.AOTex, texCoord).r : ao = material.ao;
+	//material.hasAOTex ? ao = texture(material.AOTex, texCoord).r : ao = material.ao;
+
+	roughness = 1.0 - pow(texture(material.roughnessTex, texCoord).a, 2.2);
+	metalness = pow(texture(material.roughnessTex, texCoord).r, 2.2);
+	ao = pow(texture(material.roughnessTex, texCoord).g, 2.2);
 
 	FragColor = vec4(shade(), opacity);
+	//FragColor = vec4(1.0, 0.0, 0.0, opacity);
 
 }
 

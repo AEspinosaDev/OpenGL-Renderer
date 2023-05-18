@@ -143,7 +143,7 @@ struct Material {
 //Uniforms
 uniform mat4 u_Model;
 uniform Material material;
-uniform PointLight pointLights[3];
+uniform PointLight pointLights[1];
 uniform DirectionalLight directionalLights[MAX_LIGHTS];
 uniform SpotLight spotLights[MAX_LIGHTS];
 uniform int pointsLightsNumber;
@@ -311,6 +311,8 @@ void main()
 
 	vec3 r = normalize(reflect(normalize(pos), N));
 	vec3 result = mix(shade(), vec3(texture(u_skybox, r).rgb), 0.0);
+
+	//result = pow(result, vec3(1.0 / 2.2));
 
 	FragColor = vec4(result, opacity);
 

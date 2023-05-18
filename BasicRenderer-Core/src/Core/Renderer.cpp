@@ -145,7 +145,7 @@ void Renderer::lateInit()
 	m_Shaders["BasicPhongShader"] = new Shader("BasicPhongShader.shader", ShaderType::LIT);
 	m_Shaders["SkyboxShader"] = new Shader("SkyboxShader.shader", ShaderType::UNLIT);
 	m_Shaders["NormalDebugShader"] = new Shader("NormalVisualizationShader.shader", ShaderType::UNLIT);
-	//m_Shaders["PhysicallyBasedShader"] = new Shader("PhysicallyBasedShader.shader", ShaderType::LIT);
+	m_Shaders["PhysicallyBasedShader"] = new Shader("PhysicallyBasedShader.shader", ShaderType::LIT);
 
 	m_LightManager->init();
 	m_LightManager->getDebugMaterial()->setShader(m_Shaders[m_LightManager->getDebugMaterial()->getShaderNameID()]);

@@ -28,10 +28,12 @@ class PhysicalMaterial : public Material
 
 	bool	receiveShadows;
 
-	PhysicalMaterial() : Material("PhysicallyBasedShader"), m_TileU(1.0), m_TileV(1.0), m_Opacity(1.0), m_Albedo(glm::vec3(1.0f)), m_Roughness(1), m_Metalness(10), m_Emissive(0.0f), m_AO(1.0f),
+public:
+
+	PhysicalMaterial() : Material("PhysicallyBasedShader"), m_TileU(1.0), m_TileV(1.0), m_Opacity(1.0), m_Albedo(glm::vec3(1.0f)), m_Roughness(0.5f), m_Metalness(0.0f), m_Emissive(0.0f), m_AO(1.0f),
 		m_AlbedoTex(nullptr), m_NormalTex(nullptr), m_RoughnessTex(nullptr), m_MetalnessTex(nullptr), m_EmissiveTex(nullptr), m_OpacityTex(nullptr), m_AOTex(nullptr), receiveShadows(true) {}
 
-	PhysicalMaterial(MaterialParameters params) : Material("PhysicallyBasedShader", params), m_TileU(1.0), m_TileV(1.0), m_Opacity(1.0), m_Albedo(glm::vec3(1.0f)), m_Roughness(1), m_Metalness(10), m_AO(1.0f), m_Emissive(0.0f), m_AlbedoTex(nullptr), m_NormalTex(nullptr), m_RoughnessTex(nullptr), m_MetalnessTex(nullptr), m_EmissiveTex(nullptr), m_OpacityTex(nullptr), m_AOTex(nullptr), receiveShadows(true) {}
+	PhysicalMaterial(MaterialParameters params) : Material("PhysicallyBasedShader", params), m_TileU(1.0), m_TileV(1.0), m_Opacity(1.0), m_Albedo(glm::vec3(1.0f)), m_Roughness(0.5f), m_Metalness(0.0f), m_AO(1.0f), m_Emissive(0.0f), m_AlbedoTex(nullptr), m_NormalTex(nullptr), m_RoughnessTex(nullptr), m_MetalnessTex(nullptr), m_EmissiveTex(nullptr), m_OpacityTex(nullptr), m_AOTex(nullptr), receiveShadows(true) {}
 
 #pragma region getters & setters
 
