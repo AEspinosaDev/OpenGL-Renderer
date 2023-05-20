@@ -1,6 +1,18 @@
 #pragma once
 #include "Material.h"
 
+enum MaskPreset {
+	NODE = 0,
+	UNITY_HDRP = 1,
+	UNREAL_ENGINE_4 = 2,
+	UNITY_URP = 3,
+	UNREAL_ENGINE_5 = 4
+};
+
+//#define UNREAL_ENGINE 0;
+//#define UNITY_HDRP 1;
+//#define num int;
+
 /// <summary>
 /// Epic's Unreal Engine 4 PBR Metallic-Roughness Workflow
 /// </summary>
@@ -27,13 +39,14 @@ class PhysicalMaterial : public Material
 	float		m_TileV;
 
 	bool	receiveShadows;
+	int		presetType;
 
 public:
 
 	PhysicalMaterial() : Material("PhysicallyBasedShader"), m_TileU(1.0), m_TileV(1.0), m_Opacity(1.0), m_Albedo(glm::vec3(1.0f)), m_Roughness(0.5f), m_Metalness(0.0f), m_Emissive(0.0f), m_AO(1.0f),
-		m_AlbedoTex(nullptr), m_NormalTex(nullptr), m_RoughnessTex(nullptr), m_MetalnessTex(nullptr), m_EmissiveTex(nullptr), m_OpacityTex(nullptr), m_AOTex(nullptr), receiveShadows(true) {}
+		m_AlbedoTex(nullptr), m_NormalTex(nullptr), m_RoughnessTex(nullptr), m_MetalnessTex(nullptr), m_EmissiveTex(nullptr), m_OpacityTex(nullptr), m_AOTex(nullptr), receiveShadows(true), presetType(0) {}
 
-	PhysicalMaterial(MaterialParameters params) : Material("PhysicallyBasedShader", params), m_TileU(1.0), m_TileV(1.0), m_Opacity(1.0), m_Albedo(glm::vec3(1.0f)), m_Roughness(0.5f), m_Metalness(0.0f), m_AO(1.0f), m_Emissive(0.0f), m_AlbedoTex(nullptr), m_NormalTex(nullptr), m_RoughnessTex(nullptr), m_MetalnessTex(nullptr), m_EmissiveTex(nullptr), m_OpacityTex(nullptr), m_AOTex(nullptr), receiveShadows(true) {}
+	PhysicalMaterial(MaterialParameters params) : Material("PhysicallyBasedShader", params), m_TileU(1.0), m_TileV(1.0), m_Opacity(1.0), m_Albedo(glm::vec3(1.0f)), m_Roughness(0.5f), m_Metalness(0.0f), m_AO(1.0f), m_Emissive(0.0f), m_AlbedoTex(nullptr), m_NormalTex(nullptr), m_RoughnessTex(nullptr), m_MetalnessTex(nullptr), m_EmissiveTex(nullptr), m_OpacityTex(nullptr), m_AOTex(nullptr), receiveShadows(true), presetType(0) {}
 
 #pragma region getters & setters
 
@@ -84,6 +97,19 @@ public:
 
 	inline void setOpacityMask(Texture* t) { m_OpacityTex = t; }
 	Texture* getOpacityMask() { return m_OpacityTex; }
+
+	/// <summary>
+	/// Support for textures from other frameworks
+	/// </summary>
+	/// <param name="mask"></param>
+	/// <param name="preset"></param>
+	inline void setMaskMap(Texture* mask, int preset) {
+		presetType = preset;
+		//We recicle roughness text as a mask text
+		m_RoughnessTex = mask;
+	}
+	inline Texture* getMaskMap() { return m_RoughnessTex; }
+	inline MaskPreset getMaskPreset() { return (MaskPreset)presetType; }
 
 #pragma endregion
 

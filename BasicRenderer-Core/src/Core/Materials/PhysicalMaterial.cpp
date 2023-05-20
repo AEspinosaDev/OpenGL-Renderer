@@ -33,15 +33,16 @@ void PhysicalMaterial::cacheUniforms()
 		m_shader->setBool("material.hasRoughnessTex", false);
 		m_shader->setFloat("material.roughness", m_Roughness);
 	}
-	if (m_MetalnessTex) {
-		m_shader->setInt("material.metalnessTex", 3);
-		m_MetalnessTex->bind(3);
-		m_shader->setBool("material.hasMetalnessTex", true);
-	}
-	else {
-		m_shader->setBool("material.hasMetalnessTex", false);
-		m_shader->setFloat("material.metalness", m_Metalness);
-	}
+	if (presetType == 0)
+		if (m_MetalnessTex) {
+			m_shader->setInt("material.metalnessTex", 3);
+			m_MetalnessTex->bind(3);
+			m_shader->setBool("material.hasMetalnessTex", true);
+		}
+		else {
+			m_shader->setBool("material.hasMetalnessTex", false);
+			m_shader->setFloat("material.metalness", m_Metalness);
+		}
 	if (m_EmissiveTex) {
 		m_shader->setInt("material.emissiveTex", 4);
 		m_EmissiveTex->bind(4);
@@ -60,16 +61,18 @@ void PhysicalMaterial::cacheUniforms()
 		m_shader->setBool("material.hasOpacityTex", false);
 		m_shader->setFloat("material.opacity", m_Opacity);
 	}
-	if (m_AOTex) {
-		m_shader->setInt("material.AOTex", 6);
-		m_AOTex->bind(6);
-		m_shader->setBool("material.hasAOTex", true);
-	}
-	else {
-		m_shader->setBool("material.hasAOTex", false);
-		m_shader->setFloat("material.ao", m_AO);
-	}
+	if (presetType == 0)
+		if (m_AOTex) {
+			m_shader->setInt("material.AOTex", 6);
+			m_AOTex->bind(6);
+			m_shader->setBool("material.hasAOTex", true);
+		}
+		else {
+			m_shader->setBool("material.hasAOTex", false);
+			m_shader->setFloat("material.ao", m_AO);
+		}
 
+	m_shader->setInt("material.presetType", presetType);
 	m_shader->setBool("material.receiveShadows", receiveShadows);
 }
 

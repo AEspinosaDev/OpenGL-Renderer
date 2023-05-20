@@ -143,7 +143,7 @@ struct Material {
 //Uniforms
 uniform mat4 u_Model;
 uniform Material material;
-uniform PointLight pointLights[1];
+uniform PointLight pointLights[3];
 uniform DirectionalLight directionalLights[MAX_LIGHTS];
 uniform SpotLight spotLights[MAX_LIGHTS];
 uniform int pointsLightsNumber;

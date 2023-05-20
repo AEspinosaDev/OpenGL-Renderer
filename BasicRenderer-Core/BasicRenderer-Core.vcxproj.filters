@@ -82,30 +82,15 @@
     <None Include="Resources\Shaders\PhysicallyBasedShader.shader" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Resources\Textures\BODY_LP_2_Material _25_Height.png" />
-    <Image Include="Resources\Textures\BODY_LP_2_Material _25_Normal.png" />
-    <Image Include="Resources\Textures\color.png" />
-    <Image Include="Resources\Textures\color2.png" />
-    <Image Include="Resources\Textures\emissive.png" />
-    <Image Include="Resources\Textures\DiffuseMap.png" />
     <Image Include="Resources\Textures\floor.jpg" />
-    <Image Include="Resources\Textures\torii-occ.png" />
-    <Image Include="Resources\Textures\torii-normal.png" />
-    <Image Include="Resources\Textures\torii-gloss.png" />
-    <Image Include="Resources\Textures\torii.png" />
     <Image Include="Resources\Textures\tengu-normal.png" />
     <Image Include="Resources\Textures\tengu-gloss.png" />
     <Image Include="Resources\Textures\tengu-color.png" />
-    <Image Include="Resources\Textures\specMap.png" />
     <Image Include="Resources\Textures\SeamlessWood-RoughnessMap.tif" />
     <Image Include="Resources\Textures\SeamlessWood-NormalMap.tif" />
     <Image Include="Resources\Textures\SeamlessWood-HeightMap.tif" />
-    <Image Include="Resources\Textures\SeamlessWood-GlossMap.tif" />
     <Image Include="Resources\Textures\SeamlessWood-Diffuse.jpg" />
     <Image Include="Resources\Textures\RoughnessMap.png" />
-    <Image Include="Resources\Textures\NormalMap.png" />
-    <Image Include="Resources\Textures\normal.png" />
-    <Image Include="Resources\Textures\Material _25_Opacity.png" />
     <Image Include="Resources\Textures\floor-normal.jpg" />
     <Image Include="Resources\Textures\floor-gloss.jpg" />
     <Image Include="Resources\Textures\columns_albedo.png" />

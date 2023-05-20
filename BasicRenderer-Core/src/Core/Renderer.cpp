@@ -311,7 +311,6 @@ void Renderer::renderSceneObjects()
 
 	}
 
-	if (blendModels.size() == 0) return;
 
 	//Calculate distance
 	std::map<float, Model*> sorted;
@@ -327,8 +326,9 @@ void Renderer::renderSceneObjects()
 		renderModel(it->second);
 	}
 
-	if (m_CurrentScene->getSkybox())
+	if (m_CurrentScene->getSkybox()) {
 		renderSkybox();
+	}
 
 }
 

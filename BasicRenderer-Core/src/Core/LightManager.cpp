@@ -63,7 +63,7 @@ void LightManager::uploadLightDataToShader(Shader* s, glm::mat4 view)
 	int pointLightIndex = 0;
 	int dirLightIndex = 0;
 	int spotLightIndex = 0;
-	int textureSlotIndex = 6;
+	int textureSlotIndex = 7;
 
 	for (size_t i = 0; i < m_Lights.size(); i++)
 	{

@@ -1,8 +1,26 @@
-﻿  main.h
+﻿  Renderer.cpp
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Camera.h(34,8): warning C4305: 'initializing': truncation from 'double' to 'float'
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Scene.h(44,1): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.h(18,91): warning C4244: 'argument': conversion from 'float' to 'const unsigned int', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.h(27,117): warning C4244: 'argument': conversion from 'float' to 'const unsigned int', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Lights\DirectionalLight.h(36,103): warning C4244: 'argument': conversion from 'float' to 'const unsigned int', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(168,27): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(197,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(241,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(242,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(246,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(247,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(249,33): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(250,33): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(387,24): warning C4018: '<': signed/unsigned mismatch
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(505,23): warning C4018: '<': signed/unsigned mismatch
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(649,28): warning C4244: '=': conversion from 'float' to 'unsigned int', possible loss of data
+  main.h
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Camera.h(34,8): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Scene.h(44,1): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(84,30): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+          with
+          [
+              T=glm::uint
+          ]
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(145,87): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(146,88): warning C4305: 'argument': truncation from 'double' to 'float'
+  Generating Code...
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\LightManager.h(93): warning C4715: 'LightManager::getLightModel': not all control paths return a value
   BasicRenderer-Core.vcxproj -> C:\Dev\BasicRenderer\binaries\Win32\Debug\BasicRenderer-Core.exe
