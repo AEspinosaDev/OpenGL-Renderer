@@ -11,21 +11,25 @@ WORK IN PROGRESS
 - Postprocess support (RTT)
 - Phong illumination with normal maps
 - Instanced rendering
-- PBR [Epic's Unreal Engine 4 Metallic-Roughness Workflow] (WIP)
-- BlinnPhong illumination with parallax maps (WIP)
+- PBR [Epic's Unreal Engine 4 Metallic-Roughness Workflow]
+- Parallax mapping (WIP)
 - Skybox with enviroment lightning and reflections
-- SSAO (WIP)
-- Bloom (WIP)
-- UI (?)
+- IBO (WIP)
+- UI (WIP)
+- SSAO (?)
+- Bloom (?)
 - Depth peeling (?)
 - Raytraced shadows (?)
 
 OPEN GL 4.4
 
+PBR materials
+![Screenshot (700)](https://github.com/AEspinosaDev/OpenGL-Renderer/assets/79087129/26497f49-89af-433d-8298-5730b0c8bc5b)
+
+Phong materials
 ![Screenshot (681)](https://user-images.githubusercontent.com/79087129/235375253-89756f53-1b3a-47de-a9c9-31adb8423a06.jpg)
 
-
-
+Untextured phong materials
 ![Screenshot (676) - Copy](https://user-images.githubusercontent.com/79087129/235357252-04a7d0d6-2485-472e-a0b7-b331a6500180.jpg)
 
 
