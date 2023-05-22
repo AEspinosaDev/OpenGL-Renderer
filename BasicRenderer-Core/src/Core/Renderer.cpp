@@ -4,6 +4,15 @@
 #include <Core/Materials/BasicPhongMaterial.h>
 #include <map>
 
+void Renderer::setWindowTitle(std::string name) {
+	m_Name = name;
+	//glfwSetWindowTitle(m_Window, updatedTitle.c_str());
+}
+void Renderer::setSize(unsigned int w, unsigned int h) {
+	m_SWidth = w; m_SHeight = h;
+	glfwSetWindowSize(m_Window, w, h);
+}
+
 void Renderer::run() {
 	cacheData();
 	tick();
@@ -93,7 +102,7 @@ void Renderer::init() {
 
   // glfw window creation
 	m_Window = glfwCreateWindow(m_SWidth, m_SHeight, m_Name.c_str(), NULL, NULL);
-
+	
 	if (m_Window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -110,15 +119,25 @@ void Renderer::init() {
 	};
 	auto keyFunc = [](GLFWwindow* w, int key, int scancode, int action, int mods)
 	{
+		UIManager::implementKeyboardCB(w, key, scancode, action, mods);
 		static_cast<Renderer*>(glfwGetWindowUserPointer(w))->Key_Callback(w, key, scancode, action, mods);
 	};
 	auto mouseFunc = [](GLFWwindow* w, double xpos, double ypos)
 	{
+		UIManager::implementMouseCB(w, xpos, ypos);
 		static_cast<Renderer*>(glfwGetWindowUserPointer(w))->Mouse_Callback(w, xpos, ypos);
 	};
+	
 
 
 	glfwMakeContextCurrent(m_Window);
+
+	if (m_UtilParameters.vsync)
+		glfwSwapInterval(1); //V-Sync
+
+	UIManager::initUIContext(m_Window, "#version 460");
+
+	
 	glfwSetFramebufferSizeCallback(m_Window, frameBufferFunc);
 	glfwSetKeyCallback(m_Window, keyFunc);
 	glfwSetCursorPosCallback(m_Window, mouseFunc);
@@ -194,18 +213,23 @@ void Renderer::tick()
 {
 	while (!glfwWindowShouldClose(m_Window))
 	{
+
 		float currentFrame = glfwGetTime();
 		m_UtilParameters.deltaTime = currentFrame - m_UtilParameters.lastFrame;
 		m_UtilParameters.lastFrame = currentFrame;
 		profile();
 
 		renderScene();
+		UIManager::update();
+		UIManager::render();
+
 		glfwSwapBuffers(m_Window);
 		glfwPollEvents();
 	}
 }
 
 void Renderer::Key_Callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	if (UIManager::needsToHandleInput()) return;
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 
@@ -235,6 +259,7 @@ void Renderer::Key_Callback(GLFWwindow* window, int key, int scancode, int actio
 }
 
 void Renderer::Mouse_Callback(GLFWwindow* window, double xpos, double ypos) {
+	if (UIManager::needsToHandleInput()) return;
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
 		if (m_UtilParameters.firstMouse)
 		{

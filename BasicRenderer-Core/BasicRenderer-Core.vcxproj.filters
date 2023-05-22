@@ -39,6 +39,14 @@
     <ClCompile Include="src\Core\Scene.cpp" />
     <ClCompile Include="src\OGL-Graphics\InstancedMesh.cpp" />
     <ClCompile Include="src\Core\Materials\PhysicalMaterial.cpp" />
+    <ClCompile Include="src\Utils\imgui\imgui.cpp" />
+    <ClCompile Include="src\Utils\imgui\imgui_demo.cpp" />
+    <ClCompile Include="src\Utils\imgui\imgui_draw.cpp" />
+    <ClCompile Include="src\Utils\imgui\imgui_tables.cpp" />
+    <ClCompile Include="src\Utils\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\Utils\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="src\Utils\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="src\Core\UIManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\OGL-Graphics\VBO.h" />
@@ -70,6 +78,16 @@
     <ClInclude Include="src\Core\Scene.h" />
     <ClInclude Include="src\OGL-Graphics\InstancedMesh.h" />
     <ClInclude Include="src\Core\Materials\PhysicalMaterial.h" />
+    <ClInclude Include="src\Utils\imgui\imconfig.h" />
+    <ClInclude Include="src\Utils\imgui\imgui.h" />
+    <ClInclude Include="src\Utils\imgui\imgui_internal.h" />
+    <ClInclude Include="src\Utils\imgui\imstb_rectpack.h" />
+    <ClInclude Include="src\Utils\imgui\imstb_textedit.h" />
+    <ClInclude Include="src\Utils\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\Utils\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="src\Utils\imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="src\Utils\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="src\Core\UIManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\BasicPhongShader.shader" />

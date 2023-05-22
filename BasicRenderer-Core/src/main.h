@@ -7,13 +7,13 @@
 #include <Core/Lights/DirectionalLight.h>
 #include <Core/Materials/PhysicalMaterial.h>
 
-const unsigned int WIDTH = 1200;
-const  unsigned int HEIGHT = 900;
+
 const unsigned int INSTANCES = 100;
+Renderer* Renderer::m_InstancePtr = nullptr;
 
 int main()
 {
-	Renderer* r = new Renderer("Test", WIDTH, HEIGHT, AntialiasingType::MSAAx16);
+	Renderer* r = Renderer::getInstance();
 	Scene* sc = new Scene("mainScene");
 
 
@@ -159,14 +159,14 @@ int main()
 	//plane->setPosition(glm::vec3(0.0f, -0.5f, 0.0f));
 	sc->add(plane);
 
-	PhysicalMaterial* gold = new PhysicalMaterial();
-	/*gold->setAlbedoColor(glm::vec3(1.0f, .84f, .0f));
-	gold->setRoughness(0.15f);
-	gold->setMetalness(0.85f);*/
-	gold->setFaceVisibility(BOTH);
-	Model* warrior = new Model("warrior.obj", gold);
-	warrior->setScale(glm::vec3(.3f));
-	sc->add(warrior);
+	//PhysicalMaterial* gold = new PhysicalMaterial();
+	//gold->setAlbedoColor(glm::vec3(1.0f, .84f, .0f));
+	//gold->setRoughness(0.15f);
+	//gold->setMetalness(0.85f);
+	//gold->setFaceVisibility(BOTH);
+	//Model* warrior = new Model("warrior.obj", gold);
+	//warrior->setScale(glm::vec3(.3f));
+	//sc->add(warrior);
 
 	//BasicPhongMaterial* alpha_m = new BasicPhongMaterial();
 	//alpha_m->setShininess(10);
@@ -190,7 +190,7 @@ int main()
 	dl->setPosition(glm::vec3(50.0, 50.0, 50.0));
 	sc->add(dl);*/
 
-	CubeMapFaces skyFaces("night-sky/px.png",
+	/*CubeMapFaces skyFaces("night-sky/px.png",
 		"night-sky/nx.png",
 		"night-sky/py.png",
 		"night-sky/ny.png",
@@ -200,10 +200,9 @@ int main()
 
 	CubeMapTexture* skyText = new CubeMapTexture(skyFaces);
 	SkyboxMesh* skybox = new SkyboxMesh(new SkyboxMaterial(skyText));
-	sc->setSkybox(skybox);
+	sc->setSkybox(skybox);*/
 
 	sc->getActiveCamera()->setFOV(60.0f);
-	sc->getActiveCamera()->setProj(WIDTH, HEIGHT);
 	sc->getActiveCamera()->setFar(500);
 	sc->setAmbientStrength(0.03f);
 	r->addScene(sc);

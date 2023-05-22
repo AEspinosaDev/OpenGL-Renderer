@@ -12,6 +12,8 @@
 #include <Core/LightManager.h>
 #include <OGL-Graphics/SkyboxMesh.h>
 #include "Scene.h"
+#include "UIManager.h"
+
 
 enum AntialiasingType {
 	NONE = 0,
@@ -35,7 +37,7 @@ struct PossProcessEffects {
 
 struct UtilityParameters {
 	bool isFullscreen;
-
+	bool vsync;
 	float secondCounter;
 	unsigned int fps;
 	float mouselastX;
@@ -49,13 +51,16 @@ struct UtilityParameters {
 class Renderer
 {
 private:
+	//Singleton 
+	static Renderer* m_InstancePtr;
+
 	std::string m_Name;
 
 	GLFWwindow* m_Window;
 
 	unsigned int m_SWidth = 800;
 	unsigned int m_SHeight = 600;
-	
+
 	LightManager* m_LightManager;
 	unsigned int m_ShadowResolution;
 	unsigned int  m_AntialiasingSamples;
@@ -70,9 +75,8 @@ private:
 	PossProcessEffects m_PPEffects;
 	//Utility variables
 	UtilityParameters m_UtilParameters;
+	
 
-
-public:
 	Renderer(std::string name, unsigned int width, unsigned int height, AntialiasingType antialiasing) :
 
 		m_Name(name),
@@ -84,13 +88,13 @@ public:
 		m_ShadowResolution(ShadowMapQuality::MID),
 		m_AntialiasingSamples(antialiasing),
 		m_LightManager(new LightManager(ShadowMapQuality::MID)),
-
 		m_CurrentScene(nullptr)
 	{
 		m_PPEffects.gammaCorrection = true;
 		m_PPEffects.bloom = false;
 
 		m_UtilParameters.isFullscreen = false;
+		m_UtilParameters.vsync = true;
 		m_UtilParameters.secondCounter = 0;
 		m_UtilParameters.fps = 0;
 		m_UtilParameters.clearColor = glm::vec4(0.2f, 0.3f, 0.3f, 1.0f);
@@ -104,6 +108,19 @@ public:
 		lateInit();
 	}
 
+public:
+	Renderer(const Renderer& obj)
+		= delete;
+
+	/// <summary>
+	/// Get renderer singleton. Instance defaults are 1200x900 and MSAAx16 aliasing. 
+	/// </summary>
+	static inline Renderer* getInstance() {
+		if (!m_InstancePtr)
+			m_InstancePtr = new Renderer("Renderer", 1200, 900, AntialiasingType::MSAAx16);
+		return m_InstancePtr;
+	}
+
 
 	inline void setAntialiasingType(AntialiasingType n) { m_AntialiasingSamples = n; }
 	inline AntialiasingType getAntialiasingType() { return (AntialiasingType)m_AntialiasingSamples; }
@@ -112,6 +129,11 @@ public:
 	inline glm::vec4 getClearColor() { return  m_UtilParameters.clearColor; }
 	inline void setClearColor(glm::vec4 c) { m_UtilParameters.clearColor = c; }
 	inline void setGammaCorrection(bool op) { op ? m_PPEffects.gammaCorrection = true : m_PPEffects.gammaCorrection = false; }
+	inline void setVsync(bool op) { m_UtilParameters.vsync = op; }
+	inline bool getVsync() { return m_UtilParameters.vsync; }
+	void setWindowTitle(std::string name);
+	inline std::string getWindowTitle() { return m_Name; }
+	void setSize(unsigned int w, unsigned int h);
 
 	/// <summary>
 	/// Run application
@@ -238,3 +260,4 @@ private:
 	void profile();
 };
 
+//Renderer* Renderer::m_InstancePtr = nullptr;
