@@ -106,3 +106,8 @@ bool  UIManager::needsToHandleInput() {
 	else
 		return false;
 }
+void  UIManager::terminateUI() {
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+}

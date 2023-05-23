@@ -89,7 +89,7 @@ void Mesh::importFile() {
 		std::cout << "Error al importar" << std::endl;
 	}
 
-	std::cout << "Se han cargado " << sc->mNumMeshes << " meshes" << std::endl;
+	//std::cout << "Se han cargado " << sc->mNumMeshes << " meshes" << std::endl;
 
 	m_MeshNumber = sc->mNumMeshes;
 	m_Vaos = new VAO[sc->mNumMeshes];
@@ -99,8 +99,6 @@ void Mesh::importFile() {
 	{
 
 		const aiMesh* mesh = sc->mMeshes[n];
-
-		std::cout << m_FileRoute << " " << mesh->mMaterialIndex << std::endl;
 
 		unsigned int faceIndex = 0;
 		unsigned int vertexIndex = 0;

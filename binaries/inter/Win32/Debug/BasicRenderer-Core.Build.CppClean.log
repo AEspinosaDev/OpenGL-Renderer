@@ -28,6 +28,15 @@ c:\dev\basicrenderer\binaries\inter\win32\debug\vao.obj
 c:\dev\basicrenderer\binaries\inter\win32\debug\texture.obj
 c:\dev\basicrenderer\binaries\inter\win32\debug\shader.obj
 c:\dev\basicrenderer\binaries\inter\win32\debug\mesh.obj
+c:\dev\basicrenderer\binaries\inter\win32\debug\imgui_widgets.obj
+c:\dev\basicrenderer\binaries\inter\win32\debug\imgui_tables.obj
+c:\dev\basicrenderer\binaries\inter\win32\debug\imgui_draw.obj
+c:\dev\basicrenderer\binaries\inter\win32\debug\imgui_demo.obj
+c:\dev\basicrenderer\binaries\inter\win32\debug\imgui.obj
+c:\dev\basicrenderer\binaries\inter\win32\debug\imgui_impl_opengl3.obj
+c:\dev\basicrenderer\binaries\inter\win32\debug\imgui_impl_glfw.obj
+c:\dev\basicrenderer\binaries\inter\win32\debug\uimanager.obj
+c:\dev\basicrenderer\binaries\inter\win32\debug\inputmanager.obj
 c:\dev\basicrenderer\binaries\win32\debug\basicrenderer-core.exe
 c:\dev\basicrenderer\binaries\inter\win32\debug\basicrenderer-core.ilk
 c:\dev\basicrenderer\binaries\win32\debug\basicrenderer-core.pdb

@@ -1,22 +1,26 @@
 #include "Renderer.h"
-#include <Core/Lights/PointLight.h>
-#include <Core/Lights/DirectionalLight.h>
-#include <Core/Materials/BasicPhongMaterial.h>
-#include <map>
+
+Renderer* Renderer::m_InstancePtr = nullptr;
 
 void Renderer::setWindowTitle(std::string name) {
 	m_Name = name;
 	//glfwSetWindowTitle(m_Window, updatedTitle.c_str());
 }
 void Renderer::setSize(unsigned int w, unsigned int h) {
+	m_UtilParameters.lastWidth = m_SWidth;
+	m_UtilParameters.lastHeight = m_SWidth;
 	m_SWidth = w; m_SHeight = h;
 	glfwSetWindowSize(m_Window, w, h);
+	//Resize framebuffers
+	for (auto& fbo : m_Framebuffers) {
+		fbo.second->resize(w, h);
+	}
 }
 
 void Renderer::run() {
 	cacheData();
 	tick();
-	glfwTerminate();
+	terminate();
 }
 
 void Renderer::addScene(Scene* sc) {
@@ -48,8 +52,8 @@ void Renderer::renderScene() {
 		return;
 	}
 	//Shadow mapping pass
-	if (m_LightManager->getLightsCount() != 0)
-		computeShadows();
+	if (m_CurrentScene->getLights().size() != 0)
+		renderShadows();
 
 	//Render scene in given fbo
 	if (m_AntialiasingSamples > 0)
@@ -92,6 +96,7 @@ void  Renderer::setPostProcessPass(bool op) {
 }
 
 void Renderer::init() {
+
 	// glfw: initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -102,7 +107,8 @@ void Renderer::init() {
 
   // glfw window creation
 	m_Window = glfwCreateWindow(m_SWidth, m_SHeight, m_Name.c_str(), NULL, NULL);
-	
+	glfwSetWindowPos(m_Window, 45, 45);
+
 	if (m_Window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -115,19 +121,18 @@ void Renderer::init() {
 
 	auto frameBufferFunc = [](GLFWwindow* w, int width, int heigth)
 	{
-		static_cast<Renderer*>(glfwGetWindowUserPointer(w))->FramebufferResize_Callback(w, width, heigth);
+		InputManager::onWindowResize(w, width, heigth);
 	};
 	auto keyFunc = [](GLFWwindow* w, int key, int scancode, int action, int mods)
 	{
+		InputManager::onKeyPressed(w, key, scancode, action, mods);
 		UIManager::implementKeyboardCB(w, key, scancode, action, mods);
-		static_cast<Renderer*>(glfwGetWindowUserPointer(w))->Key_Callback(w, key, scancode, action, mods);
 	};
 	auto mouseFunc = [](GLFWwindow* w, double xpos, double ypos)
 	{
+		InputManager::onMouseMoved(w, xpos, ypos);
 		UIManager::implementMouseCB(w, xpos, ypos);
-		static_cast<Renderer*>(glfwGetWindowUserPointer(w))->Mouse_Callback(w, xpos, ypos);
 	};
-	
 
 
 	glfwMakeContextCurrent(m_Window);
@@ -135,14 +140,12 @@ void Renderer::init() {
 	if (m_UtilParameters.vsync)
 		glfwSwapInterval(1); //V-Sync
 
-	UIManager::initUIContext(m_Window, "#version 460");
+	UIManager::initUIContext(m_Window, GLSL_VERSION);
 
-	
 	glfwSetFramebufferSizeCallback(m_Window, frameBufferFunc);
 	glfwSetKeyCallback(m_Window, keyFunc);
 	glfwSetCursorPosCallback(m_Window, mouseFunc);
 
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	if (glewInit() != GLEW_OK) {
 
 		std::cout << "Problem initializing glew\n";
@@ -156,7 +159,23 @@ void Renderer::init() {
 
 void Renderer::lateInit()
 {
-	std::cout << "Compiling shaders..." << std::endl;
+	m_PPEffects.gammaCorrection = true;
+	m_PPEffects.bloom = false;
+
+	m_UtilParameters.isFullscreen = false;
+	m_UtilParameters.vsync = true;
+	m_UtilParameters.secondCounter = 0;
+	m_UtilParameters.fps = 0;
+	m_UtilParameters.clearColor = glm::vec4(0.2f, 0.3f, 0.3f, 1.0f);
+	m_UtilParameters.firstMouse = true;
+	m_UtilParameters.deltaTime = 0.0;
+	m_UtilParameters.lastFrame = 0.0;
+	m_UtilParameters.mouselastX = m_SWidth * .5f;
+	m_UtilParameters.mouselastY = m_SHeight * .5f;
+	m_UtilParameters.lastWidth = m_SWidth;
+	m_UtilParameters.lastHeight = m_SWidth;
+
+	std::cout << "Compiling core shaders..." << std::endl;
 
 	m_Shaders["UnlitBasicShader"] = new Shader("UnlitBasicShader.shader", ShaderType::UNLIT);
 	m_Shaders["BasicDepthShader"] = new Shader("BasicDepthShader.shader", ShaderType::UNLIT);
@@ -166,41 +185,39 @@ void Renderer::lateInit()
 	m_Shaders["NormalDebugShader"] = new Shader("NormalVisualizationShader.shader", ShaderType::UNLIT);
 	m_Shaders["PhysicallyBasedShader"] = new Shader("PhysicallyBasedShader.shader", ShaderType::LIT);
 
-	m_LightManager->init();
-	m_LightManager->getDebugMaterial()->setShader(m_Shaders[m_LightManager->getDebugMaterial()->getShaderNameID()]);
+	m_Controllers.push_back(CameraController(WASD));
+	m_ActiveController = &m_Controllers[0];
+
+
 }
 
 void Renderer::cacheData() {
 
-
-	//Set all shaders to materials and generate and bind meshes vertex buffers
-	for (auto& m : m_CurrentScene->getModels()) {
-		m.second->getMesh()->generateBuffers();
-
-		for (size_t i = 0; i < m.second->getMesh()->getNumberOfMeshes(); i++)
-		{
-			m.second->getMaterialReference(i)->generateTextures();
-			auto shaderID = m.second->getMaterialReference(i)->getShaderNameID();
-			if (!m.second->getMaterialReference(i)->getShader())
-				m.second->getMaterialReference(i)->setShader(m_Shaders[shaderID]);
-
-		}
-	}
-	if (m_CurrentScene->getSkybox()) {
-		m_CurrentScene->getSkybox()->getMaterial()->generateTextures();
-		auto shaderID = m_CurrentScene->getSkybox()->getMaterial()->getShaderNameID();
-		m_CurrentScene->getSkybox()->getMaterial()->setShader(m_Shaders[shaderID]);
-	}
-
-	//Upload lights to light manager
 	if (m_CurrentScene) {
-		m_LightManager->setAmbientStrength(m_CurrentScene->getAmbientStrength());
-		m_LightManager->setAmbientColor(m_CurrentScene->getAmbientColor());
-		auto lights = m_CurrentScene->getLights();
+		//Set all shaders to materials and generate and bind meshes vertex buffers
+		std::cout << "Generating textures and vertex buffers..." << std::endl;
+		for (auto& m : m_CurrentScene->getModels()) {
+			m.second->getMesh()->generateBuffers();
 
-		for (auto& l : lights) {
-			m_LightManager->addLight(l.second);
+
+			for (size_t i = 0; i < m.second->getMesh()->getNumberOfMeshes(); i++)
+			{
+				m.second->getMaterialReference(i)->generateTextures();
+				auto shaderID = m.second->getMaterialReference(i)->getShaderNameID();
+				if (!m.second->getMaterialReference(i)->getShader())
+					m.second->getMaterialReference(i)->setShader(m_Shaders[shaderID]);
+
+			}
 		}
+		if (m_CurrentScene->getSkybox()) {
+			m_CurrentScene->getSkybox()->getMaterial()->generateTextures();
+			auto shaderID = m_CurrentScene->getSkybox()->getMaterial()->getShaderNameID();
+			m_CurrentScene->getSkybox()->getMaterial()->setShader(m_Shaders[shaderID]);
+		}
+
+		//Upload lights to light manager
+		LightManager::generateShadowMaps();
+
 	}
 
 	//Create and setup basic FBs
@@ -227,75 +244,12 @@ void Renderer::tick()
 		glfwPollEvents();
 	}
 }
+void  Renderer::terminate() {
+	//Hnadle all memory erasings
 
-void Renderer::Key_Callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	if (UIManager::needsToHandleInput()) return;
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GLFW_TRUE);
-
-	m_CurrentScene->getActiveCamera()->camMovement(window, m_UtilParameters.deltaTime);
-
-	//WIP LIGHT CONTROLS
-	Light* l = m_LightManager->getLight(0);
-
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x - .5f, l->getPosition().y, l->getPosition().z));
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x + .5f, l->getPosition().y, l->getPosition().z));
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x, l->getPosition().y + .5f, l->getPosition().z));
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x, l->getPosition().y - .5f, l->getPosition().z));
-
-	if (glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS) {
-		if (!m_UtilParameters.isFullscreen) {
-			m_UtilParameters.isFullscreen = true;
-			const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-			glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, mode->refreshRate);
-		}
-		else {
-			m_UtilParameters.isFullscreen = false;
-			glfwSetWindowMonitor(window, NULL, 0, 0, m_SWidth, m_SHeight, GLFW_DONT_CARE);
-		}
-		//m_UtilParameters.isFullscreen ? glfwFullscre
-	}
-
+	UIManager::terminateUI();
+	glfwTerminate();
 }
-
-void Renderer::Mouse_Callback(GLFWwindow* window, double xpos, double ypos) {
-	if (UIManager::needsToHandleInput()) return;
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
-		if (m_UtilParameters.firstMouse)
-		{
-			m_UtilParameters.mouselastX = xpos;
-			m_UtilParameters.mouselastY = ypos;
-			m_UtilParameters.firstMouse = false;
-		}
-
-		float xoffset = xpos - m_UtilParameters.mouselastX;
-		float yoffset = m_UtilParameters.mouselastY - ypos; // reversed since y-coordinates go from bottom to top
-
-		m_UtilParameters.mouselastX = xpos;
-		m_UtilParameters.mouselastY = ypos;
-
-		m_CurrentScene->getActiveCamera()->camRotation(xoffset, yoffset);
-	}
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE) {
-		m_UtilParameters.firstMouse = true;
-	}
-
-}
-
-void Renderer::FramebufferResize_Callback(GLFWwindow* window, int width, int height)
-{
-
-	m_SWidth = width;
-	m_SHeight = height;
-
-	//Resize framebuffers
-	for (auto& fbo : m_Framebuffers) {
-		fbo.second->resize(width, height);
-	}
-
-}
-
-
 
 void Renderer::createVignette()
 {
@@ -318,7 +272,7 @@ void Renderer::renderSceneObjects()
 	//Just in case although each material handles depth testing
 	glEnable(GL_DEPTH_TEST);
 
-	if (m_LightManager->getLightsCount() != 0)
+	if (m_CurrentScene->getLights().size() != 0)
 		renderAndCacheLights(true);
 
 	std::vector<Model*> opaqueModels;
@@ -405,17 +359,18 @@ void Renderer::renderAndCacheLights(bool enableGizmos)
 {
 	for (auto& shader : m_Shaders) {
 		if (shader.second->getType() == ShaderType::LIT)
-			m_LightManager->uploadLightDataToShader(shader.second, m_CurrentScene->getActiveCamera()->getView());
+			LightManager::uploadLightDataToShader(shader.second);
 	}
+
 	if (enableGizmos) {
-		for (size_t i = 0; i < m_LightManager->getLightsCount(); i++)
+		/*for (size_t i = 0; i < m_LightManager->getLightsCount(); i++)
 		{
 			Light* l = m_LightManager->getLight(i);
 			m_LightManager->getDebugMaterial()->setColor(l->getColor());
 			m_LightManager->getLightModel(l->getType())->setPosition(l->getPosition());
 			renderModel(m_LightManager->getLightModel(l->getType()));
 
-		}
+		}*/
 	}
 }
 
@@ -520,148 +475,16 @@ void Renderer::blitFramebuffer(std::string src_name, GLbitfield mask, GLenum fil
 }
 
 
-void Renderer::computeShadows()
+void Renderer::renderShadows()
 {
 	glViewport(0, 0, m_ShadowResolution, m_ShadowResolution);
 
-	int lights = m_LightManager->getLightsCount();
-
-	for (size_t i = 0; i < lights; i++)
-	{
-		if (!m_Framebuffers["depthFBO"])
-			m_Framebuffers["depthFBO"] = new Framebuffer(m_LightManager->getLight(i)->getShadowText(), GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, GL_FALSE, GL_FALSE);
-
-		if (m_LightManager->getLight(i)->getCastShadows() && m_LightManager->getLight(i)->getTransform()->getIsDirty()) {
-
-
-			if (m_LightManager->getLight(i)->getType() == 0) {
-
-				glm::mat4 lightProj = glm::perspective(glm::radians(90.0f), 1.0f, 1.0f, m_LightManager->getShadowsFarPlane());
-
-				std::vector<glm::mat4> shadowTransforms;
-				shadowTransforms.push_back(lightProj *
-					glm::lookAt(m_LightManager->getLight(i)->getPosition(), m_LightManager->getLight(i)->getPosition() + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
-				shadowTransforms.push_back(lightProj *
-					glm::lookAt(m_LightManager->getLight(i)->getPosition(), m_LightManager->getLight(i)->getPosition() + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
-				shadowTransforms.push_back(lightProj *
-					glm::lookAt(m_LightManager->getLight(i)->getPosition(), m_LightManager->getLight(i)->getPosition() + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
-				shadowTransforms.push_back(lightProj *
-					glm::lookAt(m_LightManager->getLight(i)->getPosition(), m_LightManager->getLight(i)->getPosition() + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
-				shadowTransforms.push_back(lightProj *
-					glm::lookAt(m_LightManager->getLight(i)->getPosition(), m_LightManager->getLight(i)->getPosition() + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
-				shadowTransforms.push_back(lightProj *
-					glm::lookAt(m_LightManager->getLight(i)->getPosition(), m_LightManager->getLight(i)->getPosition() + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
-
-				m_Shaders["PointShadowDepthShader"]->bind();
-				for (unsigned int i = 0; i < 6; ++i)
-					m_Shaders["PointShadowDepthShader"]->setMat4("cubeMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
-				m_Shaders["PointShadowDepthShader"]->setVec3("lightPos", m_LightManager->getLight(i)->getPosition());
-				m_Shaders["PointShadowDepthShader"]->setFloat("far_plane", m_LightManager->getShadowsFarPlane());
-				m_Shaders["PointShadowDepthShader"]->unbind();
-
-				m_Framebuffers["depthFBO"]->setTextureAttachment(m_LightManager->getLight(i)->getShadowText(), GL_DEPTH_ATTACHMENT);
-
-				bindFramebuffer("depthFBO");
-
-				glDrawBuffer(GL_NONE);
-				glReadBuffer(GL_NONE);
-				glEnable(GL_DEPTH_TEST);
-				glEnable(GL_CULL_FACE);
-
-
-
-				glClear(GL_DEPTH_BUFFER_BIT);
-
-				for (auto& m : m_CurrentScene->getModels()) {
-
-					if (!m.second->isActive()) continue;
-					if (!m.second->getMesh()->getCastShadows()) continue;
-
-					m_Shaders["PointShadowDepthShader"]->bind();
-
-					m_Shaders["PointShadowDepthShader"]->setMat4("u_model", m.second->getTransform()->getWorldMatrix());
-
-					if (!m.second->getMesh()->isInstanced())
-						m_Shaders["PointShadowDepthShader"]->setBool("u_isInstanced", false);
-					else
-						m_Shaders["PointShadowDepthShader"]->setBool("u_isInstanced", true);
-
-					for (size_t k = 0; k < m.second->getMesh()->getNumberOfMeshes(); k++)
-					{
-						if (m.second->getMesh()->getMeshBuffertData(k).numFaces != 2)
-							glCullFace(GL_FRONT);
-						else
-							glCullFace(GL_BACK);
-
-						//if (m.second->getMaterialReference(k)->getTransparency()) {
-						//	if (m.second->getMaterialReference(k)->getOpacityMask())
-						//		m.second->getMaterialReference(k)->getOpacityMask()->bind(1);
-						//	m_Shaders["PointShadowDepthShader"]->setInt("alphaMask", 1);
-						//}
-						//else {
-						//	//m.second->getMaterialReference(k)->getMask()->unbind();
-						//	//m_Shaders["PointShadowDepthShader"]->setInt("alphaMask", -1);
-						//}
-
-						m.second->getMesh()->draw(k);
-					}
-
-					m_Shaders["PointShadowDepthShader"]->unbind();
-
-				}
-
-			}
-			else {
-
-
-
-				m_Framebuffers["depthFBO"]->setTextureAttachment(m_LightManager->getLight(i)->getShadowText(), GL_TEXTURE_2D);
-
-				bindFramebuffer("depthFBO");
-
-				glDrawBuffer(GL_NONE);
-				glReadBuffer(GL_NONE);
-				glEnable(GL_DEPTH_TEST);
-				glEnable(GL_CULL_FACE);
-
-				glClear(GL_DEPTH_BUFFER_BIT);
-
-				for (auto& m : m_CurrentScene->getModels()) {
-
-					if (!m.second->isActive()) continue;
-					if (!m.second->getMesh()->getCastShadows()) continue;
-
-					m_Shaders["BasicDepthShader"]->bind();
-
-
-					if (!m.second->getMesh()->isInstanced()) {
-						m_Shaders["BasicDepthShader"]->setBool("u_isInstanced", false);
-						m_Shaders["BasicDepthShader"]->setMat4("u_Light_ModelViewProj", m_LightManager->getLight(i)->getLightTransformMatrix() * m.second->getTransform()->getWorldMatrix());
-						m_Shaders["BasicDepthShader"]->setMat4("u_model", m.second->getTransform()->getWorldMatrix());
-					}
-					else {
-						m_Shaders["BasicDepthShader"]->setBool("u_isInstanced", true);
-						m_Shaders["BasicDepthShader"]->setMat4("u_viewProj", m_LightManager->getLight(i)->getLightTransformMatrix());
-					}
-
-					for (size_t k = 0; k < m.second->getMesh()->getNumberOfMeshes(); k++)
-					{
-						if (m.second->getMesh()->getMeshBuffertData(k).numFaces != 2)
-							glCullFace(GL_FRONT);
-						else
-							glCullFace(GL_BACK);
-						m.second->getMesh()->draw(k);
-					}
-
-					m_Shaders["BasicDepthShader"]->unbind();
-
-				}
-			}
-			m_LightManager->getLight(i)->getTransform()->setIsDirty(false);
-		}
-
+	if (!m_Framebuffers["depthFBO"]) {
+		Light* firstLight = m_CurrentScene->getLights().begin()->second;
+		m_Framebuffers["depthFBO"] = new Framebuffer(firstLight->getShadowText(), GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, GL_FALSE, GL_FALSE);
 	}
 
+	LightManager::renderShadows();
 }
 
 void Renderer::profile() {

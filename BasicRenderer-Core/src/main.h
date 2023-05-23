@@ -1,15 +1,15 @@
 #pragma once
 
 #include <Core/Renderer.h>
-#include <Core/Lights/PointLight.h>
+#include <Core/SceneObjects/Lights/PointLight.h>
 #include <Core/Materials/BasicPhongMaterial.h>
 #include <InstancedMesh.h>
-#include <Core/Lights/DirectionalLight.h>
+#include <Core/SceneObjects/Lights/DirectionalLight.h>
 #include <Core/Materials/PhysicalMaterial.h>
 
 
 const unsigned int INSTANCES = 100;
-Renderer* Renderer::m_InstancePtr = nullptr;
+
 
 int main()
 {

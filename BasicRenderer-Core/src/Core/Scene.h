@@ -1,9 +1,9 @@
 #pragma once
 #include <unordered_map>
-#include "Model.h"
-#include <Core/Lights/Light.h>
+#include "SceneObjects/Model.h"
+#include <Core/SceneObjects/Lights/Light.h>
 #include <OGL-Graphics/SkyboxMesh.h>
-#include <Core/Camera.h>
+#include <Core/SceneObjects/Camera.h>
 
 
 class Scene {

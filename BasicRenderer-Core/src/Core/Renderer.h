@@ -2,17 +2,23 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "Shader.h"
-#include "Camera.h"
-#include "Texture.h"
-#include "Mesh.h"
-#include "Core/Model.h"
 #include <Vignette.h>
 #include <OGL-Graphics/Framebuffer.h>
 #include <Core/LightManager.h>
 #include <OGL-Graphics/SkyboxMesh.h>
+#include <Core/SceneObjects/Lights/PointLight.h>
+#include <Core/SceneObjects/Lights/DirectionalLight.h>
+#include <Core/Materials/BasicPhongMaterial.h>
+#include <map>
+#include "Shader.h"
+#include "SceneObjects/Camera.h"
+#include "Texture.h"
+#include "Mesh.h"
+#include "SceneObjects/Model.h"
 #include "Scene.h"
 #include "UIManager.h"
+#include "InputManager.h"
+#include "CameraController.h"
 
 
 enum AntialiasingType {
@@ -46,6 +52,8 @@ struct UtilityParameters {
 	float deltaTime;
 	float lastFrame;
 	glm::vec4 clearColor;
+	unsigned int lastWidth;
+	unsigned int lastHeight;
 };
 
 class Renderer
@@ -55,27 +63,34 @@ private:
 	static Renderer* m_InstancePtr;
 
 	std::string m_Name;
-
 	GLFWwindow* m_Window;
-
 	unsigned int m_SWidth = 800;
 	unsigned int m_SHeight = 600;
 
-	LightManager* m_LightManager;
+	//LightManager* m_LightManager;
 	unsigned int m_ShadowResolution;
 	unsigned int  m_AntialiasingSamples;
 
+	const char* GLSL_VERSION = "#version 460";
+	std::unordered_map<std::string, Shader*> m_Shaders;
 	std::unordered_map<std::string, Framebuffer*> m_Framebuffers;
 	std::unordered_map<std::string, Scene*> m_Scenes;
 	Scene* m_CurrentScene;
-	std::unordered_map<std::string, Shader*> m_Shaders;
+	std::vector<CameraController> m_Controllers;
+	CameraController* m_ActiveController;
+	
 	//PostProcess
 	Vignette* m_Vignette;
 	bool m_PossProcess;
 	PossProcessEffects m_PPEffects;
+	
 	//Utility variables
 	UtilityParameters m_UtilParameters;
-	
+
+	//Friends
+	friend class InputManager;
+	friend class UIManager;
+	friend class LightManager;
 
 	Renderer(std::string name, unsigned int width, unsigned int height, AntialiasingType antialiasing) :
 
@@ -87,23 +102,9 @@ private:
 		m_PossProcess(false),
 		m_ShadowResolution(ShadowMapQuality::MID),
 		m_AntialiasingSamples(antialiasing),
-		m_LightManager(new LightManager(ShadowMapQuality::MID)),
-		m_CurrentScene(nullptr)
+		m_CurrentScene(nullptr),
+		m_ActiveController(nullptr)
 	{
-		m_PPEffects.gammaCorrection = true;
-		m_PPEffects.bloom = false;
-
-		m_UtilParameters.isFullscreen = false;
-		m_UtilParameters.vsync = true;
-		m_UtilParameters.secondCounter = 0;
-		m_UtilParameters.fps = 0;
-		m_UtilParameters.clearColor = glm::vec4(0.2f, 0.3f, 0.3f, 1.0f);
-		m_UtilParameters.firstMouse = true;
-		m_UtilParameters.deltaTime = 0.0;
-		m_UtilParameters.lastFrame = 0.0;
-		m_UtilParameters.mouselastX = width * .5f;
-		m_UtilParameters.mouselastY = height * .5f;
-
 		init();
 		lateInit();
 	}
@@ -121,7 +122,7 @@ public:
 		return m_InstancePtr;
 	}
 
-
+#pragma region getters & setters
 	inline void setAntialiasingType(AntialiasingType n) { m_AntialiasingSamples = n; }
 	inline AntialiasingType getAntialiasingType() { return (AntialiasingType)m_AntialiasingSamples; }
 	inline void setShadoMapQuality(ShadowMapQuality q) { m_ShadowResolution = q; }
@@ -134,7 +135,8 @@ public:
 	void setWindowTitle(std::string name);
 	inline std::string getWindowTitle() { return m_Name; }
 	void setSize(unsigned int w, unsigned int h);
-
+#pragma endregion
+#pragma region main functions
 	/// <summary>
 	/// Run application
 	/// </summary>
@@ -181,14 +183,12 @@ private:
 	/// </summary>
 	void tick();
 
-	void Key_Callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-
-	void Mouse_Callback(GLFWwindow* window, double xpos, double ypos);
-
-	void FramebufferResize_Callback(GLFWwindow* window, int width, int height);
-
-
-	//Utilities
+	/// <summary>
+	/// Terminates application process. Handles all memory erasings
+	/// </summary>
+	void terminate();
+#pragma endregion
+#pragma region core functions
 
 	/// <summary>
 	/// Render all models and lights
@@ -209,7 +209,7 @@ private:
 	/// <summary>
 	/// Compute shadows on all lit shaders
 	/// </summary>
-	void computeShadows();
+	void renderShadows();
 
 	/// <summary>
 	/// Render scene skybox if its using one
@@ -259,5 +259,4 @@ private:
 
 	void profile();
 };
-
-//Renderer* Renderer::m_InstancePtr = nullptr;
+#pragma endregion

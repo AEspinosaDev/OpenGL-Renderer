@@ -151,7 +151,6 @@ void Texture::generateTexture() {
 
 	isDirty = false;
 
-	std::cout << "Texture loaded" << std::endl;
 
 
 }

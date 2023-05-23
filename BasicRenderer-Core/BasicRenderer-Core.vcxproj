@@ -172,25 +172,26 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\CameraController.cpp" />
+    <ClCompile Include="src\Core\InputManager.cpp" />
     <ClCompile Include="src\Core\Materials\PhysicalMaterial.cpp" />
     <ClCompile Include="src\Core\Scene.cpp" />
     <ClCompile Include="src\Core\Materials\SkyboxMaterial.cpp" />
-    <ClCompile Include="src\Core\SceneObject.cpp" />
+    <ClCompile Include="src\Core\SceneObjects\SceneObject.cpp" />
     <ClCompile Include="src\Core\UIManager.cpp" />
     <ClCompile Include="src\OGL-Graphics\InstancedMesh.cpp" />
     <ClCompile Include="src\OGL-Graphics\SkyboxMesh.cpp" />
     <ClCompile Include="src\OGL-Graphics\CubeMapTexture.cpp" />
-    <ClCompile Include="src\Core\Lights\DirectionalLight.cpp" />
-    <ClCompile Include="src\Core\Lights\PointLight.cpp" />
+    <ClCompile Include="src\Core\SceneObjects\Lights\DirectionalLight.cpp" />
+    <ClCompile Include="src\Core\SceneObjects\Lights\PointLight.cpp" />
     <ClCompile Include="src\Core\Materials\BasicPhongMaterial.cpp" />
     <ClCompile Include="src\Core\Materials\Material.cpp" />
     <ClCompile Include="src\OGL-Graphics\Framebuffer.cpp" />
     <ClCompile Include="src\Core\Renderer.cpp" />
     <ClCompile Include="src\Core\LightManager.cpp" />
-    <ClCompile Include="src\Core\Lights\Light.cpp" />
-    <ClCompile Include="src\Core\Model.cpp" />
+    <ClCompile Include="src\Core\SceneObjects\Lights\Light.cpp" />
+    <ClCompile Include="src\Core\SceneObjects\Model.cpp" />
     <ClCompile Include="src\main.h" />
-    <ClCompile Include="src\Core\Camera.cpp" />
     <ClCompile Include="src\OGL-Graphics\Graphics_Core.cpp" />
     <ClCompile Include="src\OGL-Graphics\IBO.cpp" />
     <ClCompile Include="src\OGL-Graphics\Mesh.cpp" />
@@ -210,6 +211,8 @@
     <ClCompile Include="src\Utils\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\CameraController.h" />
+    <ClInclude Include="src\Core\InputManager.h" />
     <ClInclude Include="src\Core\Materials\PhysicalMaterial.h" />
     <ClInclude Include="src\OGL-Graphics\InstancedMesh.h" />
     <ClInclude Include="src\Core\Scene.h" />
@@ -217,15 +220,15 @@
     <ClInclude Include="src\OGL-Graphics\SkyboxMesh.h" />
     <ClInclude Include="src\OGL-Graphics\CubeMapTexture.h" />
     <ClInclude Include="Resources\Shaders\BasicDepthShader.shader" />
-    <ClInclude Include="src\Core\Lights\DirectionalLight.h" />
+    <ClInclude Include="src\Core\SceneObjects\Lights\DirectionalLight.h" />
     <ClInclude Include="src\Core\Materials\BasicPhongMaterial.h" />
     <ClInclude Include="src\OGL-Graphics\Framebuffer.h" />
     <ClInclude Include="src\Core\Renderer.h" />
     <ClInclude Include="src\Core\LightManager.h" />
-    <ClInclude Include="src\Core\Lights\PointLight.h" />
-    <ClInclude Include="src\Core\Lights\Light.h" />
-    <ClInclude Include="src\Core\Model.h" />
-    <ClInclude Include="src\Core\SceneObject.h" />
+    <ClInclude Include="src\Core\SceneObjects\Lights\PointLight.h" />
+    <ClInclude Include="src\Core\SceneObjects\Lights\Light.h" />
+    <ClInclude Include="src\Core\SceneObjects\Model.h" />
+    <ClInclude Include="src\Core\SceneObjects\SceneObject.h" />
     <ClInclude Include="src\OGL-Graphics\Graphics_Core.h" />
     <ClInclude Include="src\Core\Materials\Material.h" />
     <ClInclude Include="src\OGL-Graphics\IBO.h" />
@@ -235,7 +238,7 @@
     <ClInclude Include="src\OGL-Graphics\VAO.h" />
     <ClInclude Include="src\OGL-Graphics\VBLayout.h" />
     <ClInclude Include="src\OGL-Graphics\VBO.h" />
-    <ClInclude Include="src\Core\Camera.h" />
+    <ClInclude Include="src\Core\SceneObjects\Camera.h" />
     <ClInclude Include="src\OGL-Graphics\Vignette.h" />
     <ClInclude Include="src\Core\Materials\UnlitBasicMaterial.h" />
     <ClInclude Include="src\Utils\imgui\imconfig.h" />
