@@ -1,4 +1,4 @@
-#include <iostream>
+
 #include "UIManager.h"
 
 void UIManager::initUIContext(GLFWwindow* window, const char* version) {
@@ -22,47 +22,95 @@ void UIManager::initUIContext(GLFWwindow* window, const char* version) {
 
 }
 void UIManager::update() {
-	// Poll and handle events (inputs, window resize, etc.)
-   // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-   // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
-   // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
-   // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-	//glfwPollEvents();
-	//io.WantCaptureMouse = true;
-	// Start the Dear ImGui frame
+
+	/*if (!UILayer::editMode) {
+		Renderer::getInstance()->bindFramebuffer();
+		if (UILayer::editMode) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		return;
+	}*/
 	ImGuiIO& io = ImGui::GetIO();
-	
+	Renderer* r = Renderer::getInstance();
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	bool show_demo_window = true;
-	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-	if (show_demo_window)
-		ImGui::ShowDemoWindow(&show_demo_window);
+	//bool show_demo_window = true;
+	//// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+	//if (show_demo_window)
+	//	ImGui::ShowDemoWindow(&show_demo_window);
 
-	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+
+	//ImGui::End();
+
+	// Scene Explorer
 	{
 		static float f = 0.0f;
 		static int counter = 0;
 
-		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
-		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-		ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+		ImGui::SetNextWindowPos(ImVec2(0, 0), 0);
+		ImGui::SetNextWindowSize(ImVec2(r->m_SWidth * 0.15, r->m_SHeight), 0);
+
+		ImGui::Begin("Scene Explorer");                          // Create a window called "Hello, world!" and append into it.
+		ImGui::Text("Scene Objects");
+		ImGui::BeginTable("Scene Objects", 3);
+
+		for (int item = 0; item < 14; item++)
+		{
+			ImGui::TableNextColumn();
+			ImGui::Text("Item %d", item);
+		}
+		ImGui::EndTable();
+		ImGui::End();
+
+		ImGui::SetNextWindowPos(ImVec2(r->m_SWidth * 0.15, 0), 0);
+		ImGui::SetNextWindowSize(ImVec2(r->m_SWidth * 0.65, r->m_SHeight), 0);
+		ImGui::Begin("Viewport");
+		{
+			ImGui::BeginChild("GameRender");
+
+			float width = ImGui::GetContentRegionAvail().x;
+			float height = ImGui::GetContentRegionAvail().y;
+
+			r->m_RWidth = width;
+			r->m_RHeight = height;
+			ImGui::Image(
+				(ImTextureID)r->m_Framebuffers["viewportFBO"]->getTextureAttachment()->getID(),
+				ImGui::GetContentRegionAvail(),
+				ImVec2(0, 1),
+				ImVec2(1, 0)
+			);
+		}
+		ImGui::EndChild();
+		ImGui::End();
+
+		ImGui::SetNextWindowPos(ImVec2(r->m_SWidth * 0.8, 0), 0);
+		ImGui::SetNextWindowSize(ImVec2(r->m_SWidth * 0.2, r->m_SHeight), 0);
+		ImGui::Begin("Properties");                          // Create a window called "Hello, world!" and append into it.
+		ImGui::Text("Transform");
+		ImGui::BeginTable("Scene Objects", 3);
+
+		for (int item = 0; item < 14; item++)
+		{
+			ImGui::TableNextColumn();
+			ImGui::Text("Item %d", item);
+		}
+		ImGui::EndTable();
+		/*ImGui::Checkbox("Demo Window", &show_demo_window);  */    // Edit bools storing our window open/close state
 		//ImGui::Checkbox("Another Window", &show_another_window);
 
 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 		//ImGui::ColorEdit3("clear color", (float*)&m_UtilParameters.clearColor); // Edit 3 floats representing a color
 
-		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-			counter++;
-		ImGui::SameLine();
-		ImGui::Text("counter = %d", counter);
+		//if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+		//	counter++;
+		//ImGui::SameLine();
+		//ImGui::Text("counter = %d", counter);
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 		ImGui::End();
+		//ImGui::End();
 	}
 
 	// 3. Show another simple window.
@@ -90,6 +138,8 @@ void UIManager::update() {
 }
 
 void UIManager::render() {
+	Renderer::getInstance()->bindFramebuffer();
+	if (UILayer::editMode) glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

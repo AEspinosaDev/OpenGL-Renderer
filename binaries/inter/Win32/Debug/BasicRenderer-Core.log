@@ -1,16 +1,10 @@
 ﻿  InputManager.cpp
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\SceneObjects\Camera.h(36,8): warning C4305: 'initializing': truncation from 'double' to 'float'
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Scene.h(44,1): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\InputManager.cpp(63,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\InputManager.cpp(64,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\InputManager.cpp(68,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\InputManager.cpp(69,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\InputManager.cpp(71,36): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\InputManager.cpp(72,36): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-  Renderer.cpp
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\SceneObjects\Camera.h(36,8): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Scene.h(44,1): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(234,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(496,28): warning C4244: '=': conversion from 'float' to 'unsigned int', possible loss of data
-  Generating Code...
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\InputManager.cpp(65,38): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\InputManager.cpp(66,38): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\InputManager.cpp(70,18): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\InputManager.cpp(71,18): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\InputManager.cpp(73,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\InputManager.cpp(74,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
   BasicRenderer-Core.vcxproj -> C:\Dev\BasicRenderer\binaries\Win32\Debug\BasicRenderer-Core.exe

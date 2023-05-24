@@ -31,7 +31,7 @@ struct TextureConfig {
 class Texture {
 protected:
 
-	unsigned int	m_RendererID;
+	GLuint			m_RendererID;
 	std::string		m_FilePath;
 	unsigned char*	m_LocalBuffer;
 	unsigned int	m_Width, m_Height;
@@ -108,7 +108,7 @@ public:
 
 	~Texture();
 
-	inline unsigned int getID() const { return m_RendererID; }
+	inline GLuint getID() const { return m_RendererID; }
 	inline int getWidth() const { return m_Width; }
 	inline int getHeight() const { return m_Height; }
 	inline int getSamples() const { return m_Samples; }

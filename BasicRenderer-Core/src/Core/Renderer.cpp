@@ -66,15 +66,22 @@ void Renderer::renderScene() {
 	}
 
 	renderSceneObjects();
+	
+	for (auto& fbo : m_Framebuffers) {
+		fbo.second->resize(m_RWidth, m_RHeight);
+	}
+	
 
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	if (m_AntialiasingSamples > 0) {
 		if (m_PossProcess)
 			//Blit msaa fbo data to vignette fbo
 			blitFramebuffer("msaaFBO", "postprocessingFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST);
 		else
 			//Blit to standard framebuffer
-			blitFramebuffer("msaaFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST);
+			UILayer::editMode ? blitFramebuffer("msaaFBO","viewportFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST) : blitFramebuffer("msaaFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	}
+
 
 	if (m_PossProcess) {
 		possProcessPass();
@@ -107,6 +114,11 @@ void Renderer::init() {
 
   // glfw window creation
 	m_Window = glfwCreateWindow(m_SWidth, m_SHeight, m_Name.c_str(), NULL, NULL);
+	/*const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+	m_SWidth = mode->width;
+	m_SHeight = mode->height;
+	m_Window = glfwCreateWindow(m_SWidth, m_SHeight, m_Name.c_str(), glfwGetPrimaryMonitor(), NULL);
+	m_UtilParameters.isFullscreen = true;*/
 	glfwSetWindowPos(m_Window, 45, 45);
 
 	if (m_Window == NULL)
@@ -222,8 +234,12 @@ void Renderer::cacheData() {
 
 	//Create and setup basic FBs
 	if (m_AntialiasingSamples > 0)
-		m_Framebuffers["msaaFBO"] = new Framebuffer(new Texture(m_SWidth, m_SHeight, m_AntialiasingSamples), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
+		m_Framebuffers["msaaFBO"] = new Framebuffer(new Texture(m_RWidth, m_RHeight, m_AntialiasingSamples), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
 
+
+	Texture* t = new Texture(0, GL_RGBA8, m_RWidth, m_RHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, false, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
+	t->generateTexture();
+	m_Framebuffers["viewportFBO"] = new Framebuffer(t, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
 }
 
 void Renderer::tick()
@@ -253,14 +269,14 @@ void  Renderer::terminate() {
 
 void Renderer::createVignette()
 {
-	m_Vignette = new Vignette(m_SWidth, m_SHeight);
+	m_Vignette = new Vignette(m_RWidth, m_RHeight);
 }
 
 void Renderer::renderSceneObjects()
 {
-	glViewport(0, 0, m_SWidth, m_SHeight);
+	glViewport(0, 0, m_RWidth, m_RHeight);
 
-	m_CurrentScene->getActiveCamera()->setProj(m_SWidth, m_SHeight);
+	m_CurrentScene->getActiveCamera()->setProj(m_RWidth, m_RHeight);
 
 	glClearColor(m_UtilParameters.clearColor.r,
 		m_UtilParameters.clearColor.g,
@@ -415,7 +431,7 @@ void Renderer::renderSkybox() {
 
 void Renderer::possProcessPass() {
 	//Render to texture for possprocessing
-	bindFramebuffer();
+	UILayer::editMode ? bindFramebuffer("viewportFBO"): bindFramebuffer();
 
 	glClearColor(m_UtilParameters.clearColor.r,
 		m_UtilParameters.clearColor.g,
@@ -471,7 +487,7 @@ void Renderer::blitFramebuffer(std::string src_name, GLbitfield mask, GLenum fil
 
 	GLcall(glBindFramebuffer(GL_READ_FRAMEBUFFER, src->getID()));
 	GLcall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
-	GLcall(glBlitFramebuffer(0, 0, src->getWidth(), src->getHeight(), 0, 0, m_SWidth, m_SHeight, mask, filter));
+	GLcall(glBlitFramebuffer(0, 0, src->getWidth(), src->getHeight(), 0, 0, m_RWidth, m_RHeight, mask, filter));
 }
 
 

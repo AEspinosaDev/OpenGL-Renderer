@@ -4,19 +4,20 @@
 #include <string>
 #include <Vignette.h>
 #include <OGL-Graphics/Framebuffer.h>
-#include <Core/LightManager.h>
 #include <OGL-Graphics/SkyboxMesh.h>
-#include <Core/SceneObjects/Lights/PointLight.h>
-#include <Core/SceneObjects/Lights/DirectionalLight.h>
-#include <Core/Materials/BasicPhongMaterial.h>
 #include <map>
 #include "Shader.h"
+#include "Core/LightManager.h"
+#include "Core/SceneObjects/Lights/PointLight.h"
+#include "Core/SceneObjects/Lights/DirectionalLight.h"
+#include "Core/Materials/BasicPhongMaterial.h"
 #include "SceneObjects/Camera.h"
 #include "Texture.h"
 #include "Mesh.h"
 #include "SceneObjects/Model.h"
 #include "Scene.h"
 #include "UIManager.h"
+#include "Core/UI/UISettings.h"
 #include "InputManager.h"
 #include "CameraController.h"
 
@@ -37,55 +38,56 @@ enum ShadowMapQuality {
 };
 
 struct PossProcessEffects {
-	bool gammaCorrection;
-	bool bloom;
+	bool												gammaCorrection;
+	bool												bloom;
 };
 
 struct UtilityParameters {
-	bool isFullscreen;
-	bool vsync;
-	float secondCounter;
-	unsigned int fps;
-	float mouselastX;
-	float mouselastY;
-	bool firstMouse;
-	float deltaTime;
-	float lastFrame;
-	glm::vec4 clearColor;
-	unsigned int lastWidth;
-	unsigned int lastHeight;
+	bool												isFullscreen;
+	bool												vsync;
+	float												secondCounter;
+	unsigned int										fps;
+	float												mouselastX;
+	float												mouselastY;
+	bool												firstMouse;
+	float												deltaTime;
+	float												lastFrame;
+	glm::vec4											clearColor;
+	unsigned int										lastWidth;
+	unsigned int										lastHeight;
 };
 
 class Renderer
 {
 private:
 	//Singleton 
-	static Renderer* m_InstancePtr;
+	static Renderer*									m_InstancePtr;
 
-	std::string m_Name;
-	GLFWwindow* m_Window;
-	unsigned int m_SWidth = 800;
-	unsigned int m_SHeight = 600;
+	std::string											m_Name;
+	GLFWwindow*											m_Window;
+	unsigned int										m_SWidth;
+	unsigned int										m_SHeight;
+	unsigned int										m_RWidth;
+	unsigned int										m_RHeight;
 
-	//LightManager* m_LightManager;
-	unsigned int m_ShadowResolution;
-	unsigned int  m_AntialiasingSamples;
+	unsigned int										m_ShadowResolution;
+	unsigned int										m_AntialiasingSamples;
 
-	const char* GLSL_VERSION = "#version 460";
-	std::unordered_map<std::string, Shader*> m_Shaders;
-	std::unordered_map<std::string, Framebuffer*> m_Framebuffers;
-	std::unordered_map<std::string, Scene*> m_Scenes;
-	Scene* m_CurrentScene;
-	std::vector<CameraController> m_Controllers;
-	CameraController* m_ActiveController;
+	const char*											GLSL_VERSION = "#version 460";
+	std::unordered_map<std::string, Shader*>			m_Shaders;
+	std::unordered_map<std::string, Framebuffer*>		m_Framebuffers;
+	std::unordered_map<std::string, Scene*>				m_Scenes;
+	Scene*												m_CurrentScene;
+	std::vector<CameraController>						m_Controllers;
+	CameraController*									m_ActiveController;
 	
 	//PostProcess
-	Vignette* m_Vignette;
-	bool m_PossProcess;
-	PossProcessEffects m_PPEffects;
+	Vignette*											m_Vignette;
+	bool												m_PossProcess;
+	PossProcessEffects									m_PPEffects;
 	
 	//Utility variables
-	UtilityParameters m_UtilParameters;
+	UtilityParameters									m_UtilParameters;
 
 	//Friends
 	friend class InputManager;
@@ -98,6 +100,8 @@ private:
 		m_Window(nullptr),
 		m_SWidth(width),
 		m_SHeight(height),
+		m_RWidth(width),
+		m_RHeight(height),
 		m_Vignette(nullptr),
 		m_PossProcess(false),
 		m_ShadowResolution(ShadowMapQuality::MID),

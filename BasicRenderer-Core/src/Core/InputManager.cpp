@@ -1,4 +1,5 @@
 #include "InputManager.h"
+#include "Core/UI/UISettings.h"
 
 void InputManager::onWindowResize(GLFWwindow* window, int width, int height) {
 
@@ -15,12 +16,12 @@ void InputManager::onWindowResize(GLFWwindow* window, int width, int height) {
 }
 
 void InputManager::onKeyPressed(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	if (UIManager::needsToHandleInput()) return;
 
 
 	//BASIC APPLICATION CONTROLS
-
-
+	if (glfwGetKey(window, GLFW_KEY_F10) == GLFW_PRESS) {
+		UILayer::editMode ? UILayer::editMode = false : UILayer::editMode = true;
+	}
 	//EXIT APP______________________________
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
@@ -43,6 +44,7 @@ void InputManager::onKeyPressed(GLFWwindow* window, int key, int scancode, int a
 		//m_UtilParameters.isFullscreen ? glfwFullscre
 	}
 
+	if (UIManager::needsToHandleInput()) {
 	//WIP LIGHT CONTROLS 
 	Light* l = r->m_CurrentScene->getLights().begin()->second;
 
@@ -50,30 +52,31 @@ void InputManager::onKeyPressed(GLFWwindow* window, int key, int scancode, int a
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x + .5f, l->getPosition().y, l->getPosition().z));
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x, l->getPosition().y + .5f, l->getPosition().z));
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) l->setPosition(glm::vec3(l->getPosition().x, l->getPosition().y - .5f, l->getPosition().z));
-
+	}
 
 }
 void InputManager::onMouseMoved(GLFWwindow* window, double xpos, double ypos) {
-	if (UIManager::needsToHandleInput()) return;
-	Renderer* r = Renderer::getInstance();
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
+	if (UIManager::needsToHandleInput()) {
+		Renderer* r = Renderer::getInstance();
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
 
-		if (r->m_UtilParameters.firstMouse)
-		{
+			if (r->m_UtilParameters.firstMouse)
+			{
+				r->m_UtilParameters.mouselastX = xpos;
+				r->m_UtilParameters.mouselastY = ypos;
+				r->m_UtilParameters.firstMouse = false;
+			}
+
+			float xoffset = xpos - r->m_UtilParameters.mouselastX;
+			float yoffset = r->m_UtilParameters.mouselastY - ypos; // reversed since y-coordinates go from bottom to top
+
 			r->m_UtilParameters.mouselastX = xpos;
 			r->m_UtilParameters.mouselastY = ypos;
-			r->m_UtilParameters.firstMouse = false;
+
+			r->m_ActiveController->handleMouse(r->m_CurrentScene->getActiveCamera(), xoffset, yoffset);
 		}
-
-		float xoffset = xpos - r->m_UtilParameters.mouselastX;
-		float yoffset = r->m_UtilParameters.mouselastY - ypos; // reversed since y-coordinates go from bottom to top
-
-		r->m_UtilParameters.mouselastX = xpos;
-		r->m_UtilParameters.mouselastY = ypos;
-
-		r->m_ActiveController->handleMouse(r->m_CurrentScene->getActiveCamera(), xoffset, yoffset);
-	}
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE) {
-		r->m_UtilParameters.firstMouse = true;
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE) {
+			r->m_UtilParameters.firstMouse = true;
+		}
 	}
 }
