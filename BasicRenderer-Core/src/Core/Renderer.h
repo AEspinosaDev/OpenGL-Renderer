@@ -6,56 +6,22 @@
 #include <OGL-Graphics/Framebuffer.h>
 #include <OGL-Graphics/SkyboxMesh.h>
 #include <map>
+#include "Renderer_Core.h"
 #include "Shader.h"
-#include "Core/LightManager.h"
-#include "Core/SceneObjects/Lights/PointLight.h"
-#include "Core/SceneObjects/Lights/DirectionalLight.h"
-#include "Core/Materials/BasicPhongMaterial.h"
+#include "LightManager.h"
+#include "SceneObjects/Lights/PointLight.h"
+#include "SceneObjects/Lights/DirectionalLight.h"
+#include "Materials/BasicPhongMaterial.h"
 #include "SceneObjects/Camera.h"
 #include "Texture.h"
 #include "Mesh.h"
 #include "SceneObjects/Model.h"
 #include "Scene.h"
 #include "UIManager.h"
-#include "Core/UI/UISettings.h"
 #include "InputManager.h"
 #include "CameraController.h"
 
 
-enum AntialiasingType {
-	NONE = 0,
-	MSAAx2 = 2,
-	MSAAx4 = 4,
-	MSAAx8 = 8,
-	MSAAx16 = 16
-};
-enum ShadowMapQuality {
-	VERY_LOW = 512,
-	LOW = 1080,
-	MID = 2048,
-	HIGH = 4096,
-	VERY_HIGHT = 8192
-};
-
-struct PossProcessEffects {
-	bool												gammaCorrection;
-	bool												bloom;
-};
-
-struct UtilityParameters {
-	bool												isFullscreen;
-	bool												vsync;
-	float												secondCounter;
-	unsigned int										fps;
-	float												mouselastX;
-	float												mouselastY;
-	bool												firstMouse;
-	float												deltaTime;
-	float												lastFrame;
-	glm::vec4											clearColor;
-	unsigned int										lastWidth;
-	unsigned int										lastHeight;
-};
 
 class Renderer
 {
@@ -65,13 +31,12 @@ private:
 
 	std::string											m_Name;
 	GLFWwindow*											m_Window;
+	//Window size
 	unsigned int										m_SWidth;
 	unsigned int										m_SHeight;
-	unsigned int										m_RWidth;
+	//Render aspect
+	unsigned int										m_RWidth; 
 	unsigned int										m_RHeight;
-
-	unsigned int										m_ShadowResolution;
-	unsigned int										m_AntialiasingSamples;
 
 	const char*											GLSL_VERSION = "#version 460";
 	std::unordered_map<std::string, Shader*>			m_Shaders;
@@ -81,12 +46,10 @@ private:
 	std::vector<CameraController>						m_Controllers;
 	CameraController*									m_ActiveController;
 	
-	//PostProcess
 	Vignette*											m_Vignette;
-	bool												m_PossProcess;
-	PossProcessEffects									m_PPEffects;
 	
-	//Utility variables
+	//Settings
+	GlobalSettings										m_Settings;
 	UtilityParameters									m_UtilParameters;
 
 	//Friends
@@ -94,7 +57,7 @@ private:
 	friend class UIManager;
 	friend class LightManager;
 
-	Renderer(std::string name, unsigned int width, unsigned int height, AntialiasingType antialiasing) :
+	Renderer(std::string name, unsigned int width, unsigned int height) :
 
 		m_Name(name),
 		m_Window(nullptr),
@@ -103,11 +66,9 @@ private:
 		m_RWidth(width),
 		m_RHeight(height),
 		m_Vignette(nullptr),
-		m_PossProcess(false),
-		m_ShadowResolution(ShadowMapQuality::MID),
-		m_AntialiasingSamples(antialiasing),
 		m_CurrentScene(nullptr),
 		m_ActiveController(nullptr)
+		
 	{
 		init();
 		lateInit();
@@ -118,24 +79,16 @@ public:
 		= delete;
 
 	/// <summary>
-	/// Get renderer singleton. Instance defaults are 1200x900 and MSAAx16 aliasing. 
+	/// Get renderer singleton. Instance defaults are 1200x900 and for settings go to Renderer_Core.h 
 	/// </summary>
 	static inline Renderer* getInstance() {
 		if (!m_InstancePtr)
-			m_InstancePtr = new Renderer("Renderer", 1200, 900, AntialiasingType::MSAAx16);
+			m_InstancePtr = new Renderer("Renderer", 1200, 900);
 		return m_InstancePtr;
 	}
 
 #pragma region getters & setters
-	inline void setAntialiasingType(AntialiasingType n) { m_AntialiasingSamples = n; }
-	inline AntialiasingType getAntialiasingType() { return (AntialiasingType)m_AntialiasingSamples; }
-	inline void setShadoMapQuality(ShadowMapQuality q) { m_ShadowResolution = q; }
-	inline ShadowMapQuality getShadoMapQuality() { return (ShadowMapQuality)m_ShadowResolution; }
-	inline glm::vec4 getClearColor() { return  m_UtilParameters.clearColor; }
-	inline void setClearColor(glm::vec4 c) { m_UtilParameters.clearColor = c; }
-	inline void setGammaCorrection(bool op) { op ? m_PPEffects.gammaCorrection = true : m_PPEffects.gammaCorrection = false; }
-	inline void setVsync(bool op) { m_UtilParameters.vsync = op; }
-	inline bool getVsync() { return m_UtilParameters.vsync; }
+	inline GlobalSettings* getGlobalSettings() { return &m_Settings; }
 	void setWindowTitle(std::string name);
 	inline std::string getWindowTitle() { return m_Name; }
 	void setSize(unsigned int w, unsigned int h);

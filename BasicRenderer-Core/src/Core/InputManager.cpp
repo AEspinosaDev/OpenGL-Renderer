@@ -1,5 +1,4 @@
 #include "InputManager.h"
-#include "Core/UI/UISettings.h"
 
 void InputManager::onWindowResize(GLFWwindow* window, int width, int height) {
 
@@ -19,26 +18,27 @@ void InputManager::onKeyPressed(GLFWwindow* window, int key, int scancode, int a
 
 
 	//BASIC APPLICATION CONTROLS
+	Renderer* r = Renderer::getInstance();
+
 	if (glfwGetKey(window, GLFW_KEY_F10) == GLFW_PRESS) {
-		UILayer::editMode ? UILayer::editMode = false : UILayer::editMode = true;
+		r->m_Settings.editMode ? r->m_Settings.editMode = false : r->m_Settings.editMode = true;
 	}
 	//EXIT APP______________________________
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 
-	Renderer* r = Renderer::getInstance();
 
 	r->m_ActiveController->handleKeyboard(r->m_CurrentScene->getActiveCamera(), window, r->m_UtilParameters.deltaTime);
 
 	//FULLSCREEN MODE__________________________________
 	if (glfwGetKey(window, GLFW_KEY_F11) == GLFW_PRESS) {
-		if (!r->m_UtilParameters.isFullscreen) {
-			r->m_UtilParameters.isFullscreen = true;
+		if (!r->m_Settings.isFullscreen) {
+			r->m_Settings.isFullscreen = true;
 			const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 			glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, mode->refreshRate);
 		}
 		else {
-			r->m_UtilParameters.isFullscreen = false;
+			r->m_Settings.isFullscreen = false;
 			glfwSetWindowMonitor(window, NULL, 45, 45, r->m_UtilParameters.lastWidth, r->m_UtilParameters.lastHeight, GLFW_DONT_CARE);
 		}
 		//m_UtilParameters.isFullscreen ? glfwFullscre

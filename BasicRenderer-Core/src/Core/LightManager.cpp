@@ -1,11 +1,9 @@
 #include "LightManager.h"
 
 
-float LightManager::shadowFarPlane = 100.0;
-
 void  LightManager::generateShadowMaps() {
 	std::unordered_map<std::string, Light*> lights = Renderer::getInstance()->m_CurrentScene->getLights();
-	unsigned int shadowResolution = Renderer::getInstance()->m_ShadowResolution;
+	unsigned int shadowResolution = Renderer::getInstance()->m_Settings.shadowResolution;
 
 	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	unsigned int counter{ 0 };
@@ -102,7 +100,7 @@ void LightManager::uploadLightDataToShader(Shader* s)
 	s->setInt("directionalLightsNumber", dirLightIndex);
 	s->setInt("spotLightsNumber", spotLightIndex);
 
-	s->setFloat("u_shadowsFarPlane", shadowFarPlane);
+	s->setFloat("u_shadowsFarPlane", r->m_Settings.shadowFarPlane);
 
 	s->setFloat("u_ambientStrength", ambientStrength);
 	s->setVec3("u_ambientColor", ambientColor);
@@ -134,7 +132,7 @@ void LightManager::renderShadows() {
 
 			if (l->getType() == 0) {
 
-				glm::mat4 lightProj = glm::perspective(glm::radians(90.0f), 1.0f, 1.0f, shadowFarPlane);
+				glm::mat4 lightProj = glm::perspective(glm::radians(90.0f), 1.0f, 1.0f, r->m_Settings.shadowFarPlane);
 
 				std::vector<glm::mat4> shadowTransforms;
 				shadowTransforms.push_back(lightProj *
@@ -154,7 +152,7 @@ void LightManager::renderShadows() {
 				for (unsigned int i = 0; i < 6; ++i)
 					quadDepthShader->setMat4("cubeMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
 				quadDepthShader->setVec3("lightPos", l->getPosition());
-				quadDepthShader->setFloat("far_plane", shadowFarPlane);
+				quadDepthShader->setFloat("far_plane", r->m_Settings.shadowFarPlane);
 				quadDepthShader->unbind();
 
 				depthBuffer->setTextureAttachment(l->getShadowText(), GL_DEPTH_ATTACHMENT);

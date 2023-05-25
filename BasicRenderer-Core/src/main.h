@@ -9,7 +9,7 @@
 
 
 const unsigned int INSTANCES = 100;
-bool UILayer::editMode = true;
+
 
 int main()
 {

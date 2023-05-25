@@ -48,8 +48,6 @@
     <ClCompile Include="src\Core\UIManager.cpp" />
     <ClCompile Include="src\Core\InputManager.cpp" />
     <ClCompile Include="src\Core\CameraController.cpp" />
-    <ClCompile Include="src\Core\UI\SceneExplorerPanel.cpp" />
-    <ClCompile Include="src\Core\UI\PropertiesPanel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\OGL-Graphics\VBO.h" />
@@ -93,9 +91,7 @@
     <ClInclude Include="src\Core\UIManager.h" />
     <ClInclude Include="src\Core\InputManager.h" />
     <ClInclude Include="src\Core\CameraController.h" />
-    <ClInclude Include="src\Core\UI\SceneExplorerPanel.h" />
-    <ClInclude Include="src\Core\UI\PropertiesPanel.h" />
-    <ClInclude Include="src\Core\UI\UISettings.h" />
+    <ClInclude Include="src\Core\Renderer_Core.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\BasicPhongShader.shader" />

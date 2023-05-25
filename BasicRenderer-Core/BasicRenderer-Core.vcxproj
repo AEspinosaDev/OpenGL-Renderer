@@ -173,8 +173,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\CameraController.cpp" />
-    <ClCompile Include="src\Core\UI\PropertiesPanel.cpp" />
-    <ClCompile Include="src\Core\UI\SceneExplorerPanel.cpp" />
     <ClCompile Include="src\Core\InputManager.cpp" />
     <ClCompile Include="src\Core\Materials\PhysicalMaterial.cpp" />
     <ClCompile Include="src\Core\Scene.cpp" />
@@ -214,9 +212,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\CameraController.h" />
-    <ClInclude Include="src\Core\UI\PropertiesPanel.h" />
-    <ClInclude Include="src\Core\UI\SceneExplorerPanel.h" />
-    <ClInclude Include="src\Core\UI\UISettings.h" />
+    <ClInclude Include="src\Core\Renderer_Core.h" />
     <ClInclude Include="src\Core\InputManager.h" />
     <ClInclude Include="src\Core\Materials\PhysicalMaterial.h" />
     <ClInclude Include="src\OGL-Graphics\InstancedMesh.h" />

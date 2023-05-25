@@ -45,10 +45,10 @@ void Renderer::setCurrentScene(std::string sceneName) {
 void Renderer::renderScene() {
 
 	if (!m_CurrentScene) {
-		glClearColor(m_UtilParameters.clearColor.r,
-			m_UtilParameters.clearColor.g,
-			m_UtilParameters.clearColor.b,
-			m_UtilParameters.clearColor.a);
+		glClearColor(m_Settings.clearColor.r,
+			m_Settings.clearColor.g,
+			m_Settings.clearColor.b,
+			m_Settings.clearColor.a);
 		return;
 	}
 	//Shadow mapping pass
@@ -56,10 +56,10 @@ void Renderer::renderScene() {
 		renderShadows();
 
 	//Render scene in given fbo
-	if (m_AntialiasingSamples > 0)
+	if (m_Settings.antialiasingSamples > 0)
 		bindFramebuffer("msaaFBO");
 	else {
-		if (m_PossProcess)
+		if (m_Settings.postProcess)
 			bindFramebuffer("postprocessingFBO");
 		else
 			bindFramebuffer();
@@ -73,29 +73,29 @@ void Renderer::renderScene() {
 	
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	if (m_AntialiasingSamples > 0) {
-		if (m_PossProcess)
+	if (m_Settings.antialiasingSamples > 0) {
+		if (m_Settings.postProcess)
 			//Blit msaa fbo data to vignette fbo
 			blitFramebuffer("msaaFBO", "postprocessingFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST);
 		else
 			//Blit to standard framebuffer
-			UILayer::editMode ? blitFramebuffer("msaaFBO","viewportFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST) : blitFramebuffer("msaaFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST);
+			m_Settings.editMode ? blitFramebuffer("msaaFBO","viewportFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST) : blitFramebuffer("msaaFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	}
 
 
-	if (m_PossProcess) {
+	if (m_Settings.postProcess) {
 		possProcessPass();
 	}
 }
 
 void  Renderer::setPostProcessPass(bool op) {
 	if (op) {
-		m_PossProcess = true;
+		m_Settings.postProcess = true;
 		createVignette();
 		m_Framebuffers["postprocessingFBO"] = new Framebuffer(m_Vignette->getTexture(), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
 	}
 	else {
-		m_PossProcess = false;
+		m_Settings.postProcess = false;
 
 		//Delete vignette and possprocessingFBO
 	}
@@ -149,7 +149,7 @@ void Renderer::init() {
 
 	glfwMakeContextCurrent(m_Window);
 
-	if (m_UtilParameters.vsync)
+	if (m_Settings.vsync)
 		glfwSwapInterval(1); //V-Sync
 
 	UIManager::initUIContext(m_Window, GLSL_VERSION);
@@ -171,17 +171,7 @@ void Renderer::init() {
 
 void Renderer::lateInit()
 {
-	m_PPEffects.gammaCorrection = true;
-	m_PPEffects.bloom = false;
-
-	m_UtilParameters.isFullscreen = false;
-	m_UtilParameters.vsync = true;
-	m_UtilParameters.secondCounter = 0;
-	m_UtilParameters.fps = 0;
-	m_UtilParameters.clearColor = glm::vec4(0.2f, 0.3f, 0.3f, 1.0f);
-	m_UtilParameters.firstMouse = true;
-	m_UtilParameters.deltaTime = 0.0;
-	m_UtilParameters.lastFrame = 0.0;
+	
 	m_UtilParameters.mouselastX = m_SWidth * .5f;
 	m_UtilParameters.mouselastY = m_SHeight * .5f;
 	m_UtilParameters.lastWidth = m_SWidth;
@@ -233,8 +223,8 @@ void Renderer::cacheData() {
 	}
 
 	//Create and setup basic FBs
-	if (m_AntialiasingSamples > 0)
-		m_Framebuffers["msaaFBO"] = new Framebuffer(new Texture(m_RWidth, m_RHeight, m_AntialiasingSamples), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
+	if (m_Settings.antialiasingSamples > 0)
+		m_Framebuffers["msaaFBO"] = new Framebuffer(new Texture(m_RWidth, m_RHeight, m_Settings.antialiasingSamples), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
 
 
 	Texture* t = new Texture(0, GL_RGBA8, m_RWidth, m_RHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, false, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
@@ -278,10 +268,10 @@ void Renderer::renderSceneObjects()
 
 	m_CurrentScene->getActiveCamera()->setProj(m_RWidth, m_RHeight);
 
-	glClearColor(m_UtilParameters.clearColor.r,
-		m_UtilParameters.clearColor.g,
-		m_UtilParameters.clearColor.b,
-		m_UtilParameters.clearColor.a);
+	glClearColor(m_Settings.clearColor.r,
+		m_Settings.clearColor.g,
+		m_Settings.clearColor.b,
+		m_Settings.clearColor.a);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -431,12 +421,12 @@ void Renderer::renderSkybox() {
 
 void Renderer::possProcessPass() {
 	//Render to texture for possprocessing
-	UILayer::editMode ? bindFramebuffer("viewportFBO"): bindFramebuffer();
+	m_Settings.editMode ? bindFramebuffer("viewportFBO"): bindFramebuffer();
 
-	glClearColor(m_UtilParameters.clearColor.r,
-		m_UtilParameters.clearColor.g,
-		m_UtilParameters.clearColor.b,
-		m_UtilParameters.clearColor.a);
+	glClearColor(m_Settings.clearColor.r,
+		m_Settings.clearColor.g,
+		m_Settings.clearColor.b,
+		m_Settings.clearColor.a);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -444,7 +434,7 @@ void Renderer::possProcessPass() {
 
 	//Setup poss process effects
 	m_Vignette->getShader()->bind();
-	m_Vignette->getShader()->setBool("useGammaCorrection", m_PPEffects.gammaCorrection);
+	m_Vignette->getShader()->setBool("useGammaCorrection", m_Settings.ppEffects.gammaCorrection);
 
 
 	///*************
@@ -493,7 +483,7 @@ void Renderer::blitFramebuffer(std::string src_name, GLbitfield mask, GLenum fil
 
 void Renderer::renderShadows()
 {
-	glViewport(0, 0, m_ShadowResolution, m_ShadowResolution);
+	glViewport(0, 0, m_Settings.shadowResolution, m_Settings.shadowResolution);
 
 	if (!m_Framebuffers["depthFBO"]) {
 		Light* firstLight = m_CurrentScene->getLights().begin()->second;

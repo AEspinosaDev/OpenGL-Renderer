@@ -2,7 +2,7 @@
 #include "Material.h"
 
 enum MaskPreset {
-	NODE = 0,
+	_NONE = 0,
 	UNITY_HDRP = 1,
 	UNREAL_ENGINE_4 = 2,
 	UNITY_URP = 3,
