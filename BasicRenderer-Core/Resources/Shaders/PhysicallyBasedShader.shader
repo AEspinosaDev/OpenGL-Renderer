@@ -346,7 +346,7 @@ void main()
 
 	material.hasNormalTex ? N = normalize(TBN * (texture(material.normalTex, texCoord).rgb * 2.0 - 1.0)) : N = normal;
 	material.hasAlbedoTex ? albedo = texture(material.albedoTex, texCoord).rgb : albedo = material.albedo;
-	//material.hasAlbedoTex ? albedo = pow(texture(material.albedoTex, texCoord).rgb, vec3(2.2)) : albedo = material.albedo;
+	//material.hasAlbedoTex ? albedo = pow(texture(material.albedoTex, texCoord).rgb, vec3(2.2)) : albedo = pow(material.albedo, vec3(2.2));
 	material.hasOpacityTex ? opacity = texture(material.opacityTex, texCoord).r : opacity = material.opacity;
 	//Discriminate by preset type
 	if (material.presetType == 0) {

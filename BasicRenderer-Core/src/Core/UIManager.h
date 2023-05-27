@@ -6,7 +6,7 @@
 #include "Renderer.h"
 
 class UIManager {
-
+	static SceneObject* m_SelectedObject;
 public:
 	static void initUIContext(GLFWwindow* window, const char* version);
 	static void update(); 
@@ -15,11 +15,12 @@ public:
 	static void implementKeyboardCB(GLFWwindow* w, int key, int scancode, int action, int mods);
 	static bool needsToHandleInput();
 	static void terminateUI();
+private:
 	//ImGUI Panels
-	static void renderViewportPanel(ImGuiWindowFlags windowFlags,ImVec2 pos);
-	static void renderExplorerPanel(ImGuiWindowFlags windowFlags, ImVec2 pos);
-	static void renderPropertiesPanel(ImGuiWindowFlags windowFlags, ImVec2 pos);
-	/*static void renderToolbar(ImGuiWindowFlags windowFlags);
-	static void renderGlobalSettingsPanel(ImGuiWindowFlags windowFlags);*/
+	static float renderMainMenuBar();
+	static void renderViewportPanel(ImGuiWindowFlags windowFlags,ImVec2 pos, ImVec2 size);
+	static void renderExplorerPanel(ImGuiWindowFlags windowFlags, ImVec2 pos, ImVec2 size);
+	static void renderPropertiesPanel(ImGuiWindowFlags windowFlags, ImVec2 pos, ImVec2 size);
+	static void renderGlobalSettingsPanel(ImGuiWindowFlags windowFlags, ImVec2 pos, ImVec2 size);
 	
 };

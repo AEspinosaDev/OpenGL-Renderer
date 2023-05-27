@@ -77,7 +77,7 @@ void LightManager::uploadLightDataToShader(Shader* s)
 				pointLightIndex++;
 				break;
 			case 1:
-				s->setVec3("directionalLights[" + std::to_string(dirLightIndex) + "].dir", view * glm::vec4(static_cast<DirectionalLight*>(l)->getDirection(), 0.0));
+				s->setVec3("directionalLights[" + std::to_string(dirLightIndex) + "].dir", view * glm::vec4(dynamic_cast<DirectionalLight*>(l)->getDirection(), 0.0));
 				s->setVec3("directionalLights[" + std::to_string(dirLightIndex) + "].color", l->getColor());
 				s->setFloat("directionalLights[" + std::to_string(dirLightIndex) + "].intensity", l->getIntensity());
 				s->setBool("directionalLights[" + std::to_string(dirLightIndex) + "].castShadows", l->getCastShadows());
@@ -127,7 +127,7 @@ void LightManager::renderShadows() {
 
 		Light* l = lightData.second;
 
-		if (l->getCastShadows() && l->getTransform()->getIsDirty()) {
+		if (l->getCastShadows()/* && (l->getTransform()->getIsDirty())*/) {
 
 
 			if (l->getType() == 0) {

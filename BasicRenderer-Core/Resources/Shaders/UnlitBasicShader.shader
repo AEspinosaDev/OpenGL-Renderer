@@ -2,19 +2,28 @@
 #version 460 core
 
 layout(location = 0) in vec3 a_Pos;
+layout(location = 1) in vec3 a_Normal;
+
 layout(location = 2) in vec2 a_TexCoord;
 layout(location = 5) in mat4 a_InstancedModelMatrix;
 
 uniform mat4 u_modelViewProj;
 uniform mat4 u_viewProj;
 uniform mat4 u_model;
+uniform mat4 u_modelView;
+uniform mat4 u_proj;
+
 
 
 uniform float u_TileU;
 uniform float u_TileV;
 uniform bool u_isInstanced;
 
+uniform bool u_isOutlining;
+
 out vec2 texCoord;
+
+
 
 void main() {
 
@@ -22,7 +31,16 @@ void main() {
 	texCoord.x *= u_TileU;
 	texCoord.y *= u_TileV;
 
-	!u_isInstanced ? gl_Position = u_modelViewProj * vec4(a_Pos, 1.0) : gl_Position = (u_viewProj * (u_model * a_InstancedModelMatrix)) * vec4(a_Pos, 1.0);
+	vec3 pos;
+
+	pos = a_Pos; /*+normalize(a_Normal) * 0.5f;*/
+
+	// mat4 sizeMat = u_model;
+	//sizeMat[0][0] = 1.1f;
+	//sizeMat[1][1] = 1.1f;
+	//sizeMat[2][2] = 1.1f;
+
+	!u_isInstanced ? gl_Position = (u_proj * u_modelView) * vec4(pos, 1.0) : gl_Position = (u_viewProj * (u_model * a_InstancedModelMatrix)) * vec4(pos, 1.0);
 }
 
 #shader fragment

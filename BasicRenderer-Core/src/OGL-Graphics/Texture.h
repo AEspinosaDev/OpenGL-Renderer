@@ -5,6 +5,7 @@
 #include "Shader.h"
 #include "FreeImage.h"
 #include <Utils/stb_image.h>
+#include <Core/Renderer_Core.h>
 
 enum TextureType {
 	TEXTURE_2D,
@@ -114,6 +115,7 @@ public:
 	inline int getSamples() const { return m_Samples; }
 	inline TextureType getType() const { return m_TextureType; }
 	inline TextureConfig getConfiguration() const { return m_TextConfig; }
+	void changeSampleNumber(AntialiasingType number);
 
 	/// <summary>
 	/// Activates the texture

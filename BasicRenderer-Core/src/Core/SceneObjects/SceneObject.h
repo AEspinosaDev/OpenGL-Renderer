@@ -62,7 +62,7 @@ public:
 		isDirty = true;
 	}
 	glm::vec3 getRotation() {
-		return glm::vec3(0.0f);
+		return rotation;
 	}
 
 	glm::vec3 getUp() {
@@ -109,7 +109,6 @@ public:
 class SceneObject
 {
 protected:
-
 	std::string m_Name;
 
 	Transform m_Transform;
@@ -121,30 +120,34 @@ protected:
 
 	unsigned int m_Clones;
 	bool enabled;
+	bool selected;
+
+	friend class UIManager;
 
 public:
 
 	SceneObject(const std::string na, ObjectType t) : m_Name(na), enabled(true),
-		child(nullptr), parent(nullptr), m_Type(t), m_Clones(0) {}
+		child(nullptr), parent(nullptr), m_Type(t), m_Clones(0), selected(false) {}
 
 	SceneObject(const std::string na, glm::vec3 p, ObjectType t) : m_Name(na), enabled(true),
-		child(nullptr), parent(nullptr), m_Type(t), m_Clones(0) {
+		child(nullptr), parent(nullptr), m_Type(t), m_Clones(0), selected(false) {
 		m_Transform.setPosition(p);
 	}
 
 	SceneObject(glm::vec3 p, ObjectType t) : m_Name(""), enabled(true),
-		child(nullptr), parent(nullptr), m_Type(t), m_Clones(0) {
+		child(nullptr), parent(nullptr), m_Type(t), m_Clones(0), selected(false) {
 		m_Transform.setPosition(p);
 	}
 
 	SceneObject(ObjectType t) : m_Name(""), enabled(true),
-		child(nullptr), parent(nullptr), m_Type(t), m_Clones(0) {}
+		child(nullptr), parent(nullptr), m_Type(t), m_Clones(0), selected(false) {}
 
 	~SceneObject() {
 		delete child;
 		delete parent;
 	}
-
+	
+	virtual bool isSelected() { return selected; }
 
 	virtual void setPosition(const glm::vec3 p) { m_Transform.setPosition(p); }
 
@@ -171,7 +174,6 @@ public:
 	virtual inline ObjectType getObjectType() { return m_Type; }
 
 	virtual void setTransform(Transform t) { m_Transform = t; }
-
 
 };
 

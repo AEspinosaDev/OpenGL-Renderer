@@ -16,7 +16,7 @@ attachmentType(attachmentType)
 	case TEXTURE_2D:
 		if (text->getSamples() == 1) {
 			GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textarget, m_MainAttachmentID, 0));
-			
+
 		}
 		else {
 			GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D_MULTISAMPLE, m_MainAttachmentID, 0));
@@ -27,7 +27,7 @@ attachmentType(attachmentType)
 		GLcall(glFramebufferTexture(GL_FRAMEBUFFER, attachmentType, m_MainAttachmentID, 0));
 		break;
 	}
-	
+
 
 	if (depthAttachment) {
 
@@ -87,6 +87,16 @@ void Framebuffer::setTextureAttachment(Texture* t, GLenum textarget)
 
 	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
+
+void Framebuffer::setTextureAttachmentSamples(AntialiasingType samples)
+{
+	if (samples == 0) return;
+	m_TextureAttachment->changeSampleNumber(samples);
+	GLcall(glBindRenderbuffer(GL_RENDERBUFFER, m_DepthAttachmentID));
+	GLcall(glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_TextureAttachment->getSamples(), GL_DEPTH24_STENCIL8, width, height));
+	GLcall(glBindRenderbuffer(GL_RENDERBUFFER, NULL));
+}
+
 
 
 

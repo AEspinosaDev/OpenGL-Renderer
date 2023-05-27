@@ -54,6 +54,7 @@ public:
 	inline unsigned int getHeight() { return height; }
 	inline Texture* getTextureAttachment() { return m_TextureAttachment; }
 	void setTextureAttachment(Texture* t, GLenum textarget);
+	void setTextureAttachmentSamples(AntialiasingType samples);
 
 	/// <summary>
 	/// Tell OpenGL to activate this framebuffer

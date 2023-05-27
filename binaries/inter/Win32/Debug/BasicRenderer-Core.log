@@ -1,11 +1,11 @@
-﻿  UIManager.cpp
+﻿  main.h
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\SceneObjects\Camera.h(36,8): warning C4305: 'initializing': truncation from 'double' to 'float'
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Scene.h(44,1): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\UIManager.cpp(75,55): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\UIManager.cpp(76,57): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\UIManager.cpp(116,46): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\UIManager.cpp(147,17): warning C4244: '=': conversion from 'float' to 'unsigned int', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\UIManager.cpp(148,18): warning C4244: '=': conversion from 'float' to 'unsigned int', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\UIManager.cpp(166,46): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\UIManager.cpp(263,46): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(84,30): warning C4244: 'argument': conversion from 'float' to 'T', possible loss of data
+          with
+          [
+              T=glm::uint
+          ]
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(145,87): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\main.h(146,88): warning C4305: 'argument': truncation from 'double' to 'float'
   BasicRenderer-Core.vcxproj -> C:\Dev\BasicRenderer\binaries\Win32\Debug\BasicRenderer-Core.exe

@@ -48,9 +48,10 @@ private:
 	
 	Vignette*											m_Vignette;
 	
+
 	//Settings
 	GlobalSettings										m_Settings;
-	UtilityParameters									m_UtilParameters;
+	UtilityParameters									m_UtilParams;
 
 	//Friends
 	friend class InputManager;
@@ -182,6 +183,8 @@ private:
 	/// 
 	/// </summary>
 	void possProcessPass();
+
+	void outlinePass(Model* m);
 
 	/// <summary>
 	/// Bind standard framebuffer

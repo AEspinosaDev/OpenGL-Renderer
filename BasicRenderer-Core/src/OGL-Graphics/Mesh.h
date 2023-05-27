@@ -49,6 +49,8 @@ public:
 		delete[] m_BufferData;
 	}
 
+	inline std::string getFileRoute() const { return  modelPath + m_FileRoute; }
+
 	inline void setCastShadows(bool c) { castShadows = c; }
 
 	inline bool getCastShadows() {  return castShadows; }

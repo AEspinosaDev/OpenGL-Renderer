@@ -7,8 +7,8 @@ void Renderer::setWindowTitle(std::string name) {
 	//glfwSetWindowTitle(m_Window, updatedTitle.c_str());
 }
 void Renderer::setSize(unsigned int w, unsigned int h) {
-	m_UtilParameters.lastWidth = m_SWidth;
-	m_UtilParameters.lastHeight = m_SWidth;
+	m_UtilParams.lastWidth = m_SWidth;
+	m_UtilParams.lastHeight = m_SWidth;
 	m_SWidth = w; m_SHeight = h;
 	glfwSetWindowSize(m_Window, w, h);
 	//Resize framebuffers
@@ -62,15 +62,18 @@ void Renderer::renderScene() {
 		if (m_Settings.postProcess)
 			bindFramebuffer("postprocessingFBO");
 		else
-			bindFramebuffer();
+			bindFramebuffer("viewportFBO");
 	}
 
 	renderSceneObjects();
-	
+
+	if (m_UtilParams.renderNormals || m_UtilParams.renderTangents)
+		renderObjectNormals();
+
 	for (auto& fbo : m_Framebuffers) {
 		fbo.second->resize(m_RWidth, m_RHeight);
 	}
-	
+
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	if (m_Settings.antialiasingSamples > 0) {
@@ -79,7 +82,7 @@ void Renderer::renderScene() {
 			blitFramebuffer("msaaFBO", "postprocessingFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST);
 		else
 			//Blit to standard framebuffer
-			m_Settings.editMode ? blitFramebuffer("msaaFBO","viewportFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST) : blitFramebuffer("msaaFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST);
+			m_Settings.editMode ? blitFramebuffer("msaaFBO", "viewportFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST) : blitFramebuffer("msaaFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	}
 
 
@@ -171,11 +174,11 @@ void Renderer::init() {
 
 void Renderer::lateInit()
 {
-	
-	m_UtilParameters.mouselastX = m_SWidth * .5f;
-	m_UtilParameters.mouselastY = m_SHeight * .5f;
-	m_UtilParameters.lastWidth = m_SWidth;
-	m_UtilParameters.lastHeight = m_SWidth;
+
+	m_UtilParams.mouselastX = m_SWidth * .5f;
+	m_UtilParams.mouselastY = m_SHeight * .5f;
+	m_UtilParams.lastWidth = m_SWidth;
+	m_UtilParams.lastHeight = m_SWidth;
 
 	std::cout << "Compiling core shaders..." << std::endl;
 
@@ -238,8 +241,8 @@ void Renderer::tick()
 	{
 
 		float currentFrame = glfwGetTime();
-		m_UtilParameters.deltaTime = currentFrame - m_UtilParameters.lastFrame;
-		m_UtilParameters.lastFrame = currentFrame;
+		m_UtilParams.deltaTime = currentFrame - m_UtilParams.lastFrame;
+		m_UtilParams.lastFrame = currentFrame;
 		profile();
 
 		renderScene();
@@ -273,7 +276,7 @@ void Renderer::renderSceneObjects()
 		m_Settings.clearColor.b,
 		m_Settings.clearColor.a);
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	//Just in case although each material handles depth testing
 	glEnable(GL_DEPTH_TEST);
@@ -323,6 +326,14 @@ void Renderer::renderModel(Model* m) {
 
 	if (m->getMesh()) {
 
+		if (m->isSelected()) {
+			glEnable(GL_STENCIL_TEST);
+			//glClear(GL_STENCIL_BUFFER_BIT);
+			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+			glStencilFunc(GL_ALWAYS, 1, 0xFF);
+			glStencilMask(0xFF);
+		}
+
 		for (size_t i = 0; i < m->getMesh()->getNumberOfMeshes(); i++)
 		{
 			Shader* mShader = m->getMaterialReference(i)->getShader();
@@ -353,6 +364,47 @@ void Renderer::renderModel(Model* m) {
 			m->getMaterialReference(i)->decacheUniforms();
 
 			mShader->unbind();
+		}
+		if (m->isSelected()) {
+			glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+			glStencilMask(0x00);
+			//glDisable(GL_DEPTH_TEST);
+			for (size_t i = 0; i < m->getMesh()->getNumberOfMeshes(); i++)
+			{
+				Shader* mShader =m_Shaders["UnlitBasicShader"];
+
+				//Check if is instanced mesh
+				mShader->bind();
+				if (!m->getMesh()->isInstanced())
+					mShader->setBool("u_isInstanced", false);
+				else
+					mShader->setBool("u_isInstanced", true);
+
+				glm::vec3 originalSize = m->getScale();
+				m->setScale(glm::vec3(originalSize.x * 1.08f,
+					originalSize.y  * 1.08f,
+					originalSize.z * 1.08f));
+
+				//Load main transformation matrices
+				//Check the need for this ones for material
+				glm::mat4 modelView = m_CurrentScene->getActiveCamera()->getView() * m->getTransform()->getWorldMatrix();
+				mShader->setMat4("u_View", m_CurrentScene->getActiveCamera()->getView());
+				mShader->setMat4("u_proj", m_CurrentScene->getActiveCamera()->getProj());
+				mShader->setMat4("u_model", m->getTransform()->getWorldMatrix());
+				mShader->setMat4("u_modelView", modelView);
+				mShader->setMat4("u_modelViewProj", m_CurrentScene->getActiveCamera()->getProj() * modelView);
+				mShader->setVec3("u_color", glm::vec3(0.0, 0.0, 1.0));
+
+				m->getMesh()->draw(i);
+
+				m->setScale(originalSize);
+				mShader->unbind();
+			}
+			glStencilMask(0xFF);
+			glStencilFunc(GL_ALWAYS, 0, 0xFF);
+			glEnable(GL_DEPTH_TEST);
+			glDisable(GL_STENCIL_TEST);
+
 		}
 	}
 	else
@@ -391,7 +443,19 @@ void Renderer::renderObjectNormals()
 		if (mesh != nullptr) {
 			normalShader->setMat4("u_modelView", m_CurrentScene->getActiveCamera()->getView() * m.second->getTransform()->getWorldMatrix());
 			normalShader->setMat4("u_projection", m_CurrentScene->getActiveCamera()->getProj());
-			mesh->draw();
+			normalShader->setBool("u_isInstanced", m.second->getMesh()->isInstanced());
+
+			if (m_UtilParams.renderNormals) {
+				normalShader->setBool("u_renderNormal", true);
+				normalShader->setBool("u_renderTangent", false);
+				mesh->draw();
+			}
+
+			if (m_UtilParams.renderTangents) {
+				normalShader->setBool("u_renderNormal", false);
+				normalShader->setBool("u_renderTangent",true);
+				mesh->draw();
+			}
 		}
 		else
 			std::cout << "Model doesnt have any mesh loaded" << std::endl;
@@ -421,7 +485,7 @@ void Renderer::renderSkybox() {
 
 void Renderer::possProcessPass() {
 	//Render to texture for possprocessing
-	m_Settings.editMode ? bindFramebuffer("viewportFBO"): bindFramebuffer();
+	m_Settings.editMode ? bindFramebuffer("viewportFBO") : bindFramebuffer();
 
 	glClearColor(m_Settings.clearColor.r,
 		m_Settings.clearColor.g,
@@ -495,12 +559,12 @@ void Renderer::renderShadows()
 
 void Renderer::profile() {
 
-	m_UtilParameters.secondCounter += m_UtilParameters.deltaTime;
+	m_UtilParams.secondCounter += m_UtilParams.deltaTime;
 
-	if (m_UtilParameters.secondCounter >= 1) {
-		m_UtilParameters.secondCounter = 0;
-		m_UtilParameters.fps = 1 / m_UtilParameters.deltaTime;
-		std::string updatedTitle = m_Name + " - FPS " + std::to_string(m_UtilParameters.fps) + " / ms " + std::to_string(m_UtilParameters.deltaTime * 1000);
+	if (m_UtilParams.secondCounter >= 1) {
+		m_UtilParams.secondCounter = 0;
+		m_UtilParams.fps = 1 / m_UtilParams.deltaTime;
+		std::string updatedTitle = m_Name + " - FPS " + std::to_string(m_UtilParams.fps) + " / ms " + std::to_string(m_UtilParams.deltaTime * 1000);
 		glfwSetWindowTitle(m_Window, updatedTitle.c_str());
 	}
 

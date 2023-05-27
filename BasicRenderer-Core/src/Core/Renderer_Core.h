@@ -23,15 +23,25 @@ struct PossProcessEffects {
 };
 
 struct UtilityParameters {
+	//General
 	float												secondCounter;
 	unsigned int										fps;
-	float												mouselastX;
-	float												mouselastY;
-	bool												firstMouse;
 	float												deltaTime;
 	float												lastFrame;
 	unsigned int										lastWidth;
 	unsigned int										lastHeight;
+	bool												renderNormals;
+	bool												renderTangents;
+	//Inputs
+	float												mouselastX;
+	float												mouselastY;
+	bool												firstMouse;
+	bool												canControl;
+	bool												isMouseLeftPressed;
+	bool												isMouseRightPressed;
+	bool												isMouseMiddlePressed;
+	bool												isMouseMiddleScrolled;
+
 
 	UtilityParameters() {
 		secondCounter = 0;
@@ -43,13 +53,22 @@ struct UtilityParameters {
 		mouselastY = 0;
 		lastWidth = 0;
 		lastHeight = 0;
+		canControl = false;
+		isMouseLeftPressed = false;
+		isMouseRightPressed = false;
+		isMouseMiddlePressed = false;
+		isMouseMiddleScrolled = false;
+		renderNormals = false;
+		renderTangents = false;
 	}
 };
 
 
 struct UISettings {
-
-
+	bool												paco; /*WIP*/
+	UISettings() {
+		paco = false;
+	}
 };
 
 struct GlobalSettings {
@@ -62,7 +81,7 @@ struct GlobalSettings {
 	PossProcessEffects									ppEffects;
 	bool												editMode;
 	glm::vec4											clearColor;
-	//UISettings											UI_Settings;
+	UISettings											UI_Settings;
 
 	GlobalSettings() {
 		isFullscreen = false;
@@ -75,7 +94,7 @@ struct GlobalSettings {
 		ppEffects.gammaCorrection = true;
 		editMode = true;
 		clearColor = glm::vec4(0.2f, 0.3f, 0.3f, 1.0f);
-		//UI_Settings;
+		UI_Settings;
 	}
 };
 

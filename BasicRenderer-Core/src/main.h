@@ -83,11 +83,11 @@ int main()
 	mosaic->setPosition(glm::vec3(0.0f, -4.97f, 0.0f));
 	mosaic->setScale(glm::uvec3(10.0f));
 	sc->add(mosaic);
-	//Model* mainPlatform = box->clone();
-	//mainPlatform->setMaterial(stoneFloor_m);
-	//mainPlatform->setPosition(glm::vec3(0.0f, -0.5f, -20.0f));
-	//mainPlatform->setScale(glm::uvec3(70.0f,1.0f,90.0f));
-	//sc->add(mainPlatform);
+	Model* mainPlatform = box->clone();
+	/*mainPlatform->setMaterial(stoneFloor_m);
+	mainPlatform->setPosition(glm::vec3(0.0f, -0.5f, -20.0f));
+	mainPlatform->setScale(glm::uvec3(70.0f,1.0f,90.0f));
+	sc->add(mainPlatform);*/
 
 	InstancedMesh* iColumn = new InstancedMesh("column.obj", INSTANCES);
 	glm::mat4* matrices = new glm::mat4[INSTANCES];
@@ -141,7 +141,7 @@ int main()
 	corner1->setMaterial(templeFloor_m, 2);
 	corner1->setMaterial(roof_m, 1);
 	sc->add(corner1);
-
+	
 	sc->add(new PointLight(glm::vec3(18.0f, 3.0, 3.5f), glm::vec3(1.0, 0.7, 0.5), 0.6, 1));
 	sc->add(new PointLight(glm::vec3(-18.0f, 3.0, 3.5f), glm::vec3(1.0, 0.7, 0.5), 0.4, 1));
 
@@ -159,14 +159,13 @@ int main()
 	//plane->setPosition(glm::vec3(0.0f, -0.5f, 0.0f));
 	sc->add(plane);
 
-	//PhysicalMaterial* gold = new PhysicalMaterial();
-	//gold->setAlbedoColor(glm::vec3(1.0f, .84f, .0f));
-	//gold->setRoughness(0.15f);
-	//gold->setMetalness(0.85f);
+	PhysicalMaterial* gold = new PhysicalMaterial();
+	gold->setAlbedoColor(glm::vec3(1.0f, .84f, .0f));
+	gold->setRoughness(0.15f);
+	gold->setMetalness(0.85f);
 	//gold->setFaceVisibility(BOTH);
-	//Model* warrior = new Model("warrior.obj", gold);
-	//warrior->setScale(glm::vec3(.3f));
-	//sc->add(warrior);
+	Model* ball = new Model("highSphere.obj", gold);
+	sc->add(ball);
 
 	//BasicPhongMaterial* alpha_m = new BasicPhongMaterial();
 	//alpha_m->setShininess(10);

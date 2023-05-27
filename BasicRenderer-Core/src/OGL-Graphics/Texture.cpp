@@ -160,6 +160,15 @@ Texture::~Texture() {
 	GLcall(glDeleteTextures(1, &m_RendererID));
 }
 
+void Texture::changeSampleNumber(AntialiasingType number)
+{
+	m_Samples = number;
+	GLcall(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_RendererID));
+	GLcall(glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Samples, m_TextConfig.internalFormat, m_Width, m_Height,
+		GL_TRUE));
+	GLcall(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0));
+}
+
 void Texture::bind(unsigned int slot) const {
 	GLcall(glActiveTexture(GL_TEXTURE0 + slot));
 	GLcall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
