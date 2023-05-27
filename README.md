@@ -23,6 +23,9 @@ WORK IN PROGRESS
 
 OPEN GL 4.4
 
+Friendly GUI
+![Screenshot (714)](https://github.com/AEspinosaDev/OpenGL-Renderer/assets/79087129/4daab3ca-0310-44f6-96f7-bb13d10eab42)
+
 PBR materials
 ![Screenshot (700)](https://github.com/AEspinosaDev/OpenGL-Renderer/assets/79087129/26497f49-89af-433d-8298-5730b0c8bc5b)
 
