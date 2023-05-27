@@ -185,11 +185,11 @@ int main()
 
 	//r->setGammaCorrection(false);
 
-	/*DirectionalLight* dl = new DirectionalLight(glm::vec3(-5.0, -5.0, 5.0),glm::vec3(1.0, 0.8, 0.8),2.0f);
+	DirectionalLight* dl = new DirectionalLight(glm::vec3(-5.0, -5.0, 5.0),glm::vec3(1.0, 0.8, 0.8),2.0f);
 	dl->setPosition(glm::vec3(50.0, 50.0, 50.0));
-	sc->add(dl);*/
+	sc->add(dl);
 
-	/*CubeMapFaces skyFaces("night-sky/px.png",
+	CubeMapFaces skyFaces("night-sky/px.png",
 		"night-sky/nx.png",
 		"night-sky/py.png",
 		"night-sky/ny.png",
@@ -199,7 +199,8 @@ int main()
 
 	CubeMapTexture* skyText = new CubeMapTexture(skyFaces);
 	SkyboxMesh* skybox = new SkyboxMesh(new SkyboxMaterial(skyText));
-	sc->setSkybox(skybox);*/
+	sc->setSkybox(skybox);
+	sc->add(new Camera());
 
 	sc->getActiveCamera()->setFOV(60.0f);
 	sc->getActiveCamera()->setFar(500);
@@ -207,6 +208,7 @@ int main()
 	r->addScene(sc);
 	r->setCurrentScene("mainScene");
 	r->setPostProcessPass(true);
+
 
 	r->run();
 

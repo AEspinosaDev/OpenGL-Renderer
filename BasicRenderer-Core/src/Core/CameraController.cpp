@@ -2,6 +2,7 @@
 #include "CameraController.h"
 
 void CameraController::handleKeyboard(Camera* camera,GLFWwindow* window, const float deltaTime) {
+	if (!camera->isActive()) return;
 	switch (TYPE)
 	{
 	case ORBITAL:
@@ -13,6 +14,7 @@ void CameraController::handleKeyboard(Camera* camera,GLFWwindow* window, const f
 	}
 }
 void CameraController::handleMouse(Camera* camera,float xoffset, float yoffset, GLboolean constrainPitch) {
+	if (!camera->isActive()) return;
 	switch (TYPE)
 	{
 	case ORBITAL:
@@ -44,8 +46,8 @@ void  CameraController::moveWASD(Camera* camera, GLFWwindow* window, const float
 		camera->m_Transform.setUp(glm::vec3(0.0f, 1.0f, 0.0f));
 
 	}
-
 	camera->view = glm::lookAt(camera->getPosition(), camera->getPosition() - camera->m_Transform.getForward(), camera->m_Transform.getUp());
+	//camera->m_Transform.setWorldMatrix(camera->view);
 }
 void  CameraController::rotateWASD(Camera* camera ,float xoffset, float yoffset, GLboolean constrainPitch) {
 	xoffset *= camera->mouseSensitivity;

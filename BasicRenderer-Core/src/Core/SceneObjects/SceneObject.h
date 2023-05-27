@@ -7,6 +7,7 @@ enum ObjectType {
 	MODEL,
 	LIGHT,
 	CAMERA,
+	FOG,
 };
 
 struct Transform {
@@ -96,6 +97,9 @@ public:
 			isDirty = false;
 		}
 		return worldMatrix;
+	}
+	void setWorldMatrix(glm::mat4 w) {
+		worldMatrix = w;
 	}
 	bool getIsDirty() { return isDirty; }
 

@@ -267,9 +267,6 @@ void Renderer::createVignette()
 
 void Renderer::renderSceneObjects()
 {
-	glViewport(0, 0, m_RWidth, m_RHeight);
-
-	m_CurrentScene->getActiveCamera()->setProj(m_RWidth, m_RHeight);
 
 	glClearColor(m_Settings.clearColor.r,
 		m_Settings.clearColor.g,
@@ -277,9 +274,13 @@ void Renderer::renderSceneObjects()
 		m_Settings.clearColor.a);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-	//Just in case although each material handles depth testing
 	glEnable(GL_DEPTH_TEST);
+	//Just in case although each material handles depth testing
+
+	glViewport(0, 0, m_RWidth, m_RHeight);
+
+	if (!m_CurrentScene->getActiveCamera()->isActive())return;
+	m_CurrentScene->getActiveCamera()->setProj(m_RWidth, m_RHeight);
 
 	if (m_CurrentScene->getLights().size() != 0)
 		renderAndCacheLights(true);

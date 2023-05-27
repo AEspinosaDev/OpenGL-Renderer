@@ -6,8 +6,8 @@
 #include "Renderer.h"
 
 class UIManager {
-	static SceneObject* m_SelectedObject;
 public:
+	static SceneObject* m_SelectedObject;
 	static void initUIContext(GLFWwindow* window, const char* version);
 	static void update(); 
 	static void render(); 

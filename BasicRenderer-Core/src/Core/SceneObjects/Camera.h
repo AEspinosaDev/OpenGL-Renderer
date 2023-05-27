@@ -7,10 +7,11 @@
 class Camera : public SceneObject {
 private:
 
+	float m_Fov;
+
 	glm::mat4 view;
 	glm::mat4 proj;
 
-	float m_Fov;
 	float near;
 	float far;
 	float yaw;
@@ -30,6 +31,7 @@ private:
 		direction.y = sin(glm::radians(pitch));
 		direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 		m_Transform.setForward(-glm::normalize(direction));
+		m_Transform.setRotation(acos(direction));
 		setView();
 	}
 public:
@@ -46,6 +48,19 @@ public:
 	inline void setFar(float f) { far = f; }
 	inline float getNear() { return near; }
 	inline void setNear(float n) { near = n; }
+
+	inline void setPosition(glm::vec3 p) {
+		SceneObject::setPosition(p);
+		updateCameraVectors(pitch,yaw);
+	}
+
+	inline void focusOnTarget(glm::vec3 t_position) {
+
+		//updateCameraVectors(camera->pitch, camera->yaw);
+		m_Transform.setForward(-glm::normalize(t_position-getPosition()));
+		//yaw = 0; pitch = 0;
+		setView();
+	}
 
 };
 

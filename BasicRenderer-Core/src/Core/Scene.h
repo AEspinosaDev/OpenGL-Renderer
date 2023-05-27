@@ -44,8 +44,9 @@ public:
 	{
 		Camera* m = new Camera();
 		m_ActiveCamera = m;
-
-		m_Cameras["mainCamera"] = m;
+		m->setName("MainCamera");
+		m_Cameras[m->getName()] = m;
+		m_Objects[m->getName()] = m;
 	}
 	inline std::string getName() { return m_Name; }
 

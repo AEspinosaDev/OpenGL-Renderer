@@ -6,7 +6,7 @@ void Scene::add(SceneObject* obj)
 	{
 	case ObjectType::MODEL:
 		if (obj->getName() == "") {
-			auto newName = "model" + std::to_string(modelNameIndexCount);
+			auto newName = "Model" + std::to_string(modelNameIndexCount);
 			modelNameIndexCount++;
 			obj->setName(newName);
 		}
@@ -20,15 +20,15 @@ void Scene::add(SceneObject* obj)
 			switch (light->getType())
 			{
 			case 0:
-				newName = "pointLight" + std::to_string(pointlightNameIndexCount);
+				newName = "PointLight" + std::to_string(pointlightNameIndexCount);
 				pointlightNameIndexCount++;
 				break;
 			case 1:
-				newName = "directionalLight" + std::to_string(directionallightNameIndexCount);
+				newName = "DirectionalLight" + std::to_string(directionallightNameIndexCount);
 				directionallightNameIndexCount++;
 				break;
 			case 2:
-				newName = "spotLight" + std::to_string(spotlightNameIndexCount);
+				newName = "SpotLight" + std::to_string(spotlightNameIndexCount);
 				spotlightNameIndexCount++;
 				break;
 			}
@@ -39,7 +39,7 @@ void Scene::add(SceneObject* obj)
 		break;
 	case ObjectType::CAMERA:
 		if (obj->getName() == "") {
-			auto newName = "camera" + std::to_string(cameraNameIndexCount);
+			auto newName = "Camera" + std::to_string(cameraNameIndexCount);
 			cameraNameIndexCount++;
 			obj->setName(newName);
 		}

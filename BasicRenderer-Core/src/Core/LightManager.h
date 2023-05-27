@@ -2,6 +2,7 @@
 #include <vector>
 #include "Renderer.h"
 
+
 /// <summary>
 /// Class that manages all lights instances and data.
 /// </summary>

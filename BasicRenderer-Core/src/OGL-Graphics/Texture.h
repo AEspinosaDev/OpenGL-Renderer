@@ -110,6 +110,7 @@ public:
 	~Texture();
 
 	inline GLuint getID() const { return m_RendererID; }
+	inline std::string getFilePath() const { return m_FilePath; }
 	inline int getWidth() const { return m_Width; }
 	inline int getHeight() const { return m_Height; }
 	inline int getSamples() const { return m_Samples; }

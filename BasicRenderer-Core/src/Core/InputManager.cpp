@@ -44,6 +44,10 @@ void InputManager::onKeyPressed(GLFWwindow* window, int key, int scancode, int a
 		//m_UtilParameters.isFullscreen ? glfwFullscre
 	}
 
+	if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS) {
+		if (UIManager::m_SelectedObject)
+			r->m_CurrentScene->getActiveCamera()->focusOnTarget(UIManager::m_SelectedObject->getPosition());
+	}
 	if (UIManager::needsToHandleInput()) {
 		//WIP LIGHT CONTROLS 
 		Light* l = r->m_CurrentScene->getLights().begin()->second;
@@ -77,6 +81,7 @@ void InputManager::onMouseMoved(GLFWwindow* window, double xpos, double ypos) {
 
 		if (r->m_UtilParams.canControl)
 			r->m_ActiveController->handleMouse(r->m_CurrentScene->getActiveCamera(), xoffset, yoffset);
+
 	}
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS) {
 		r->m_UtilParams.isMouseMiddlePressed = true;
