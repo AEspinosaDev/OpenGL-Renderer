@@ -13,4 +13,5 @@ public:
 	static void generateShadowMaps();
 	static void uploadLightDataToShader(Shader* s);
 	static void renderShadows();
+	
 };

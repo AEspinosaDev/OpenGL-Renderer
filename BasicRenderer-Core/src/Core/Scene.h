@@ -34,7 +34,7 @@ public:
 		m_Name(name),
 		m_Skybox(nullptr),
 		m_Fog(false),
-		m_AmbientStrength(0.1),
+		m_AmbientStrength(0.1f),
 		m_AmbientColor(glm::vec3(1.0f)),
 		modelNameIndexCount(0),
 		pointlightNameIndexCount(0),

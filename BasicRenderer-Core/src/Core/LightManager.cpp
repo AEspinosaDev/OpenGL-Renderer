@@ -115,9 +115,9 @@ void LightManager::renderShadows() {
 
 	std::unordered_map<std::string, Light*> lights = r->m_CurrentScene->getLights();
 	std::unordered_map<std::string, Model*> models = r->m_CurrentScene->getModels();
-	Framebuffer* depthBuffer = r->m_Framebuffers["depthFBO"];
-	Shader* depthShader = r->m_Shaders["BasicDepthShader"];
-	Shader* quadDepthShader = r->m_Shaders["PointShadowDepthShader"];
+	Framebuffer* depthBuffer = r->m_Resources.framebuffers["depthFBO"];
+	Shader* depthShader = r->m_Resources.shaders["BasicDepthShader"];
+	Shader* quadDepthShader = r->m_Resources.shaders["PointShadowDepthShader"];
 
 	unsigned int counter{ 0 };
 

@@ -195,7 +195,6 @@ float computeShadow(sampler2D shadowMap, mat4 lightViewProj, vec3 lightDir) {
 	float bias = max(0.0005 * (1.0 - dot(normal, lightDir)), 0.00005);
 	//bias = 0.005;
 	float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
-
 	if (projCoords.z > 1.0)
 		shadow = 0.0;
 

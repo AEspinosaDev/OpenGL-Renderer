@@ -11,7 +11,9 @@ uniform mat4 u_modelViewProj;
 uniform mat4 u_viewProj;
 uniform mat4 u_model;
 uniform mat4 u_modelView;
-uniform mat4 u_proj;
+uniform mat4 u_Proj;
+uniform mat4 u_View;
+
 
 
 
@@ -40,7 +42,9 @@ void main() {
 	//sizeMat[1][1] = 1.1f;
 	//sizeMat[2][2] = 1.1f;
 
-	!u_isInstanced ? gl_Position = (u_proj * u_modelView) * vec4(pos, 1.0) : gl_Position = (u_viewProj * (u_model * a_InstancedModelMatrix)) * vec4(pos, 1.0);
+	!u_isInstanced ? gl_Position = (u_Proj * u_modelView) * vec4(pos, 1.0) : gl_Position = (u_Proj*u_View * (u_model * a_InstancedModelMatrix)) * vec4(pos, 1.0);
+
+	
 }
 
 #shader fragment
@@ -54,6 +58,9 @@ uniform float u_opacity;
 uniform vec3 u_color;
 uniform bool u_hasOpacityTex;
 uniform bool u_hasColorTex;
+uniform bool u_overrideColor;
+uniform float u_overrideColorStrength;
+uniform bool u_highlightPass;
 
 out vec4 fragColor;
 
@@ -61,10 +68,19 @@ void main() {
 
 	vec3 color = vec3(1.0f);
 	float opacity = 1.0f;
+	if (!u_highlightPass) {
+		u_hasColorTex ? color = texture(u_colorTex, texCoord).rgb : color = u_color;
+		u_hasColorTex ? opacity = texture(u_colorTex, texCoord).a : opacity = u_opacity;
+		//u_hasOpacityTex ? opacity = texture(u_colorTex, texCoord).a : opacity = u_opacity;
+		//color = u_color;
 
-	u_hasColorTex ? color = texture(u_colorTex, texCoord).rgb : color = u_color;
-	u_hasOpacityTex ? opacity = texture(u_opacityTex, texCoord).r : opacity = u_opacity;
-
+		u_overrideColor ? color = mix(texture(u_colorTex, texCoord).rgb, u_color, u_overrideColorStrength) : color = color;
+	}
+	else {
+		color = u_color;
+		//opacity = texture(u_colorTex, texCoord).a;
+		//if (opacity < 1.0)discard;
+	}
 	fragColor = vec4(color, opacity);
 }
 

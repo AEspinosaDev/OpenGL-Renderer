@@ -6,15 +6,16 @@
 #include <OGL-Graphics/Framebuffer.h>
 #include <OGL-Graphics/SkyboxMesh.h>
 #include <map>
-#include "Renderer_Core.h"
 #include "Shader.h"
 #include "LightManager.h"
 #include "SceneObjects/Lights/PointLight.h"
 #include "SceneObjects/Lights/DirectionalLight.h"
 #include "Materials/BasicPhongMaterial.h"
+#include "Materials/UnlitBasicMaterial.h"
 #include "SceneObjects/Camera.h"
 #include "Texture.h"
 #include "Mesh.h"
+#include "Quad.h"
 #include "SceneObjects/Model.h"
 #include "Scene.h"
 #include "UIManager.h"
@@ -22,13 +23,11 @@
 #include "CameraController.h"
 
 
-
 class Renderer
 {
 private:
 	//Singleton 
 	static Renderer*									m_InstancePtr;
-
 	std::string											m_Name;
 	GLFWwindow*											m_Window;
 	//Window size
@@ -39,15 +38,108 @@ private:
 	unsigned int										m_RHeight;
 
 	const char*											GLSL_VERSION = "#version 460";
-	std::unordered_map<std::string, Shader*>			m_Shaders;
-	std::unordered_map<std::string, Framebuffer*>		m_Framebuffers;
-	std::unordered_map<std::string, Scene*>				m_Scenes;
+
+	struct Resources {
+		std::unordered_map<std::string, Shader*>			shaders;
+		std::unordered_map<std::string, Framebuffer*>		framebuffers;
+		std::unordered_map<std::string, Scene*>				scenes;
+		std::vector<CameraController>						controllers;
+		std::unordered_map<std::string, Texture*>			textures;
+		std::unordered_map<std::string, Material*>			materials;
+		std::unordered_map<std::string, Model*>				models;
+		std::unordered_map<std::string, Mesh*>				primitives;
+
+
+	};
+	Resources											m_Resources;
 	Scene*												m_CurrentScene;
-	std::vector<CameraController>						m_Controllers;
 	CameraController*									m_ActiveController;
 	
 	Vignette*											m_Vignette;
+
 	
+	struct PossProcessEffects {
+		bool												gammaCorrection;
+		bool												bloom;
+	};
+
+	struct UtilityParameters {
+		//General
+		float												secondCounter;
+		unsigned int										fps;
+		float												deltaTime;
+		float												lastFrame;
+		unsigned int										lastWidth;
+		unsigned int										lastHeight;
+		bool												renderNormals;
+		bool												renderTangents;
+		//Inputs
+		float												mouselastX;
+		float												mouselastY;
+		bool												firstMouse;
+		bool												canControl;
+		bool												isMouseLeftPressed;
+		bool												isMouseRightPressed;
+		bool												isMouseMiddlePressed;
+		bool												isMouseMiddleScrolled;
+
+
+		UtilityParameters() {
+			secondCounter = 0;
+			fps = 0;
+			firstMouse = true;
+			deltaTime = 0.0;
+			lastFrame = 0.0;
+			mouselastX = 0;
+			mouselastY = 0;
+			lastWidth = 0;
+			lastHeight = 0;
+			canControl = false;
+			isMouseLeftPressed = false;
+			isMouseRightPressed = false;
+			isMouseMiddlePressed = false;
+			isMouseMiddleScrolled = false;
+			renderNormals = false;
+			renderTangents = false;
+		}
+	};
+
+
+	struct UISettings {
+		bool												paco; /*WIP*/
+		UISettings() {
+			paco = false;
+		}
+	};
+
+	struct GlobalSettings {
+		bool												isFullscreen;
+		bool												vsync;
+		unsigned int										shadowResolution;
+		float												shadowFarPlane;
+		unsigned int										antialiasingSamples;
+		bool												postProcess;
+		PossProcessEffects									ppEffects;
+		bool												editMode;
+		bool												enableGizmos;
+		glm::vec4											clearColor;
+		UISettings											UI_Settings;
+
+		GlobalSettings() {
+			isFullscreen = false;
+			vsync = true;
+			shadowResolution = ShadowMapQuality::MID;
+			shadowFarPlane = 100.0;
+			antialiasingSamples = AntialiasingType::MSAAx16;
+			postProcess = false;
+			ppEffects.bloom = false;
+			ppEffects.gammaCorrection = true;
+			editMode = true;
+			clearColor = glm::vec4(0.2f, 0.3f, 0.3f, 1.0f);
+			UI_Settings;
+			enableGizmos = true;
+		}
+	};
 
 	//Settings
 	GlobalSettings										m_Settings;
@@ -148,6 +240,8 @@ private:
 #pragma endregion
 #pragma region core functions
 
+	void clear(bool color = true, bool depth = true, bool stencil = true);
+
 	/// <summary>
 	/// Render all models and lights
 	/// </summary>
@@ -162,8 +256,8 @@ private:
 	/// <summary>
    /// Uploads all lights data to shaders and if enabled render their gizmo meshes
    /// </summary>
-	void renderAndCacheLights(bool enableGizmos);
-
+	void cacheLights();
+	void renderBillboards();
 	/// <summary>
 	/// Compute shadows on all lit shaders
 	/// </summary>
@@ -184,7 +278,7 @@ private:
 	/// </summary>
 	void possProcessPass();
 
-	void outlinePass(Model* m);
+	void highlightPass(SceneObject* obj, const std::string defaultFBO);
 
 	/// <summary>
 	/// Bind standard framebuffer

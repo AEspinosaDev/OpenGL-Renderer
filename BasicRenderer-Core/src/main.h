@@ -123,6 +123,7 @@ int main()
 
 
 	}
+	
 	iColumn->setWorldMatrices(matrices);
 	Model* column = new Model(iColumn, column_m);
 	column->setPosition(glm::vec3(.0f, .0f, -15.0f));
@@ -166,6 +167,9 @@ int main()
 	//gold->setFaceVisibility(BOTH);
 	Model* ball = new Model("highSphere.obj", gold);
 	sc->add(ball);
+	ball->setPosition(glm::vec3(0, 1, 0));
+	ball->setScale(glm::vec3(0.4, 0.4, 0.4));
+
 
 	//BasicPhongMaterial* alpha_m = new BasicPhongMaterial();
 	//alpha_m->setShininess(10);
@@ -204,7 +208,7 @@ int main()
 
 	sc->getActiveCamera()->setFOV(60.0f);
 	sc->getActiveCamera()->setFar(500);
-	sc->setAmbientStrength(0.03f);
+	//sc->setAmbientStrength(0.05f);
 	r->addScene(sc);
 	r->setCurrentScene("mainScene");
 	r->setPostProcessPass(true);

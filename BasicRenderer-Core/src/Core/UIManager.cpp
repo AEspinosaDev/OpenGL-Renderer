@@ -141,6 +141,9 @@ void  UIManager::renderViewportPanel(ImGuiWindowFlags windowFlags, ImVec2 pos, I
 		//BasicRendererMenu
 		ImGui::BeginMenuBar();
 		if (ImGui::BeginMenu("Tools")) {
+			if (ImGui::MenuItem("Enable gizmos", "CTRL+G", r->m_Settings.enableGizmos)) {
+				r->m_Settings.enableGizmos = !r->m_Settings.enableGizmos;
+			}
 			if (ImGui::MenuItem("Show wireframe", "CTRL+W", false)) {
 				/*wip*/
 			}
@@ -169,7 +172,7 @@ void  UIManager::renderViewportPanel(ImGuiWindowFlags windowFlags, ImVec2 pos, I
 		r->m_RHeight = height;
 
 		ImGui::Image(
-			(ImTextureID)r->m_Framebuffers["viewportFBO"]->getTextureAttachment()->getID(),
+			(ImTextureID)r->m_Resources.framebuffers["viewportFBO"]->getTextureAttachment()->getID(),
 			ImGui::GetContentRegionAvail(),
 			ImVec2(0, 1),
 			ImVec2(1, 0)
@@ -324,7 +327,8 @@ void  UIManager::renderPropertiesPanel(ImGuiWindowFlags windowFlags, ImVec2 pos,
 
 	//If selected item
 	ImGui::Begin("Properties", NULL, windowFlags);
-
+	/*ImGui::Image(r->m_Resources.framebuffers["highLightFBO"]->getTextureAttachment() ? (void*)r->m_Resources.framebuffers["highLightFBO"]->getTextureAttachment()->getID() : nullptr, ImVec2(size.x , size.x ));
+	ImGui::Image(r->m_Resources.framebuffers["dilationFBO"]->getTextureAttachment() ? (void* )r->m_Resources.framebuffers["dilationFBO"]->getTextureAttachment()->getID() : nullptr, ImVec2(size.x , size.x ));*/
 	if (UIManager::m_SelectedObject) {
 		std::string str = UIManager::m_SelectedObject->getName();
 		std::transform(str.begin(), str.end(), str.begin(), ::toupper);
@@ -399,7 +403,7 @@ void  UIManager::renderPropertiesPanel(ImGuiWindowFlags windowFlags, ImVec2 pos,
 			ImGui::Text("Receive shadows");
 			ImGui::TableNextColumn();
 			bool shadows = model->getMesh()->getCastShadows();
-			if (ImGui::Checkbox("Cast Shadows", &shadows)) { model->getMesh()->setCastShadows(shadows); };
+			if (ImGui::Checkbox("", &shadows)) { model->getMesh()->setCastShadows(shadows); };
 
 			ImGui::EndTable();
 
@@ -579,15 +583,17 @@ void  UIManager::renderPropertiesPanel(ImGuiWindowFlags windowFlags, ImVec2 pos,
 			float far = cam->getFar();
 			float near = cam->getNear();
 			float fov = cam->getFOV();
+			float speed = cam->getSpeed();
+
 			bool isMainCamera = cam == r->m_CurrentScene->getActiveCamera();
 
 			if (ImGui::Checkbox("Main camera", &isMainCamera)) { 
 				r->m_CurrentScene->setActiveCamera(cam->getName());
 			};
+			if (ImGui::DragFloat("Speed", &speed, 0.1f, 0.0f, 10.0f)) cam->setSpeed(speed);
 			if (ImGui::DragFloat("Near", &near, 0.05f, 0.0f, 10.0)) cam->setNear(near);
 			if (ImGui::DragFloat("Far", &far, 0.1f, 0.0f, 9999.0f)) cam->setFar(far);
 			if (ImGui::DragFloat("Field of view", &fov, 0.1f, 0.0f, 160.0f)) cam->setFOV(fov);
-
 		}
 	}
 
@@ -638,7 +644,7 @@ void UIManager::renderGlobalSettingsPanel(ImGuiWindowFlags windowFlags, ImVec2 p
 		}
 
 		/*if (res_current != 0) {
-			r->m_Framebuffers["msaaFBO"]->setTextureAttachmentSamples((AntialiasingType)r->m_Settings.antialiasingSamples);
+			r->m_Resources.framebuffers["msaaFBO"]->setTextureAttachmentSamples((AntialiasingType)r->m_Settings.antialiasingSamples);
 		}*/
 	};
 	ImGui::SeparatorText("Antialiasing");
@@ -666,7 +672,7 @@ void UIManager::renderGlobalSettingsPanel(ImGuiWindowFlags windowFlags, ImVec2 p
 		}
 
 		if (item_current != 0) {
-			r->m_Framebuffers["msaaFBO"]->setTextureAttachmentSamples((AntialiasingType)r->m_Settings.antialiasingSamples);
+			r->m_Resources.framebuffers["msaaFBO"]->setTextureAttachmentSamples((AntialiasingType)r->m_Settings.antialiasingSamples);
 		}
 	};
 

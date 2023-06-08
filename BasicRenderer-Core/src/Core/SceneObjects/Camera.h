@@ -48,6 +48,9 @@ public:
 	inline void setFar(float f) { far = f; }
 	inline float getNear() { return near; }
 	inline void setNear(float n) { near = n; }
+	inline void setSpeed(float n) { speed = n; }
+	inline float getSpeed() { return speed; }
+
 
 	inline void setPosition(glm::vec3 p) {
 		SceneObject::setPosition(p);

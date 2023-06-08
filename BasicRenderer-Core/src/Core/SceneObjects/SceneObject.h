@@ -85,6 +85,7 @@ public:
 	void setRight(glm::vec3 u) {
 		right = glm::normalize(u);
 	}
+
 	glm::mat4 getWorldMatrix() {
 		//if(glm::vec4(position,1.0f) == worldMatrix[3])
 		if (isDirty) {

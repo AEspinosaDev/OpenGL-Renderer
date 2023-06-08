@@ -48,6 +48,7 @@
     <ClCompile Include="src\Core\UIManager.cpp" />
     <ClCompile Include="src\Core\InputManager.cpp" />
     <ClCompile Include="src\Core\CameraController.cpp" />
+    <ClCompile Include="src\OGL-Graphics\Quad.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\OGL-Graphics\VBO.h" />
@@ -92,6 +93,7 @@
     <ClInclude Include="src\Core\InputManager.h" />
     <ClInclude Include="src\Core\CameraController.h" />
     <ClInclude Include="src\Core\Renderer_Core.h" />
+    <ClInclude Include="src\OGL-Graphics\Quad.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\BasicPhongShader.shader" />
@@ -102,6 +104,7 @@
     <None Include="Resources\Shaders\NormalVisualizationShader.shader" />
     <None Include="Resources\Shaders\PointShadowDepthShader.shader" />
     <None Include="Resources\Shaders\PhysicallyBasedShader.shader" />
+    <None Include="Resources\Shaders\DilationShader.shader" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\Textures\floor.jpg" />

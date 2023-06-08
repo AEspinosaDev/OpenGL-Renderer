@@ -10,6 +10,8 @@ void UnlitBasicMaterial::cacheUniforms()
 	m_shader->setFloat("u_TileV", m_TileV);
 	m_shader->setFloat("u_TileU", m_TileU);
 	m_shader->setFloat("u_opacity", m_Opacity);
+	m_shader->setFloat("u_overrideColorStrength", m_OverrideColorStr);
+	m_shader->setBool("u_overrideColor", m_OverrideColor);
 
 	if (m_ColorText != nullptr) {
 		m_shader->setInt("u_colorTex", 0);
@@ -29,15 +31,19 @@ void UnlitBasicMaterial::cacheUniforms()
 		m_shader->setBool("u_hasOpacityTex", false);
 		m_shader->setFloat("u_opacity", m_Opacity);
 	}
+
+
 }
 
 void UnlitBasicMaterial::decacheUniforms()
 {
 	if (m_ColorText != nullptr) {
 		m_ColorText->unbind();
+		m_shader->setBool("u_hasColorTex", false);
 	}
 	if (m_OpacityText != nullptr) {
 		m_OpacityText->unbind();
+		m_shader->setBool("u_hasOpacityTex", false);
 	}
 	//m_shader->unbind();
 }

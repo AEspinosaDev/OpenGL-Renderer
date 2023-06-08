@@ -22,7 +22,9 @@ public:
 
 	inline Shader* getShader() { return shader; }
 	inline Texture* getTexture() { return texture; }
-	inline void setTexture(Texture* t) { /*delete[] texture;*/ texture = t; }
+	inline Texture* setTexture(Texture* t) {
+		Texture* returnText = texture; texture = t; return returnText;
+}
 
 };
 

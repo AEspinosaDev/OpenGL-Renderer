@@ -12,7 +12,7 @@ void Renderer::setSize(unsigned int w, unsigned int h) {
 	m_SWidth = w; m_SHeight = h;
 	glfwSetWindowSize(m_Window, w, h);
 	//Resize framebuffers
-	for (auto& fbo : m_Framebuffers) {
+	for (auto& fbo : m_Resources.framebuffers) {
 		fbo.second->resize(w, h);
 	}
 }
@@ -24,11 +24,11 @@ void Renderer::run() {
 }
 
 void Renderer::addScene(Scene* sc) {
-	m_Scenes[sc->getName()] = sc;
+	m_Resources.scenes[sc->getName()] = sc;
 }
 
 Scene* Renderer::getScene(std::string sceneName) {
-	return m_Scenes[sceneName];
+	return m_Resources.scenes[sceneName];
 }
 
 void Renderer::setCurrentScene(std::string sceneName) {
@@ -39,7 +39,7 @@ void Renderer::setCurrentScene(std::string sceneName) {
 		//////////////////////
 	}
 
-	m_CurrentScene = m_Scenes[sceneName];
+	m_CurrentScene = m_Resources.scenes[sceneName];
 };
 
 void Renderer::renderScene() {
@@ -51,35 +51,37 @@ void Renderer::renderScene() {
 			m_Settings.clearColor.a);
 		return;
 	}
+	for (auto& fbo : m_Resources.framebuffers) {
+		fbo.second->resize(m_RWidth, m_RHeight);
+	}
+
 	//Shadow mapping pass
 	if (m_CurrentScene->getLights().size() != 0)
 		renderShadows();
 
 	//Render scene in given fbo
+	std::string defaultFBO;
 	if (m_Settings.antialiasingSamples > 0)
-		bindFramebuffer("msaaFBO");
+		defaultFBO = "msaaFBO";
 	else {
 		if (m_Settings.postProcess)
-			bindFramebuffer("postprocessingFBO");
+			defaultFBO = "postprocessingFBO";
 		else
-			bindFramebuffer("viewportFBO");
+			defaultFBO = "viewportFBO";
 	}
-
+	bindFramebuffer(defaultFBO);
 	renderSceneObjects();
+	if (UIManager::m_SelectedObject) highlightPass(UIManager::m_SelectedObject, defaultFBO);
 
 	if (m_UtilParams.renderNormals || m_UtilParams.renderTangents)
 		renderObjectNormals();
 
-	for (auto& fbo : m_Framebuffers) {
-		fbo.second->resize(m_RWidth, m_RHeight);
-	}
 
-
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	if (m_Settings.antialiasingSamples > 0) {
 		if (m_Settings.postProcess)
 			//Blit msaa fbo data to vignette fbo
 			blitFramebuffer("msaaFBO", "postprocessingFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
 		else
 			//Blit to standard framebuffer
 			m_Settings.editMode ? blitFramebuffer("msaaFBO", "viewportFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST) : blitFramebuffer("msaaFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST);
@@ -95,7 +97,7 @@ void  Renderer::setPostProcessPass(bool op) {
 	if (op) {
 		m_Settings.postProcess = true;
 		createVignette();
-		m_Framebuffers["postprocessingFBO"] = new Framebuffer(m_Vignette->getTexture(), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
+		m_Resources.framebuffers["postprocessingFBO"] = new Framebuffer(m_Vignette->getTexture(), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
 	}
 	else {
 		m_Settings.postProcess = false;
@@ -182,16 +184,45 @@ void Renderer::lateInit()
 
 	std::cout << "Compiling core shaders..." << std::endl;
 
-	m_Shaders["UnlitBasicShader"] = new Shader("UnlitBasicShader.shader", ShaderType::UNLIT);
-	m_Shaders["BasicDepthShader"] = new Shader("BasicDepthShader.shader", ShaderType::UNLIT);
-	m_Shaders["PointShadowDepthShader"] = new Shader("PointShadowDepthShader.shader", ShaderType::UNLIT);
-	m_Shaders["BasicPhongShader"] = new Shader("BasicPhongShader.shader", ShaderType::LIT);
-	m_Shaders["SkyboxShader"] = new Shader("SkyboxShader.shader", ShaderType::UNLIT);
-	m_Shaders["NormalDebugShader"] = new Shader("NormalVisualizationShader.shader", ShaderType::UNLIT);
-	m_Shaders["PhysicallyBasedShader"] = new Shader("PhysicallyBasedShader.shader", ShaderType::LIT);
+	m_Resources.shaders["UnlitBasicShader"] = new Shader("UnlitBasicShader.shader", ShaderType::UNLIT);
+	m_Resources.shaders["BasicDepthShader"] = new Shader("BasicDepthShader.shader", ShaderType::UNLIT);
+	m_Resources.shaders["DilationShader"] = new Shader("DilationShader.shader", ShaderType::UNLIT);
+	m_Resources.shaders["PointShadowDepthShader"] = new Shader("PointShadowDepthShader.shader", ShaderType::UNLIT);
+	m_Resources.shaders["NormalDebugShader"] = new Shader("NormalVisualizationShader.shader", ShaderType::UNLIT);
+	m_Resources.shaders["SkyboxShader"] = new Shader("SkyboxShader.shader", ShaderType::UNLIT);
 
-	m_Controllers.push_back(CameraController(WASD));
-	m_ActiveController = &m_Controllers[0];
+	m_Resources.shaders["BasicPhongShader"] = new Shader("BasicPhongShader.shader", ShaderType::LIT);
+	m_Resources.shaders["PhysicallyBasedShader"] = new Shader("PhysicallyBasedShader.shader", ShaderType::LIT);
+
+	//Create and setup basic FBs
+	if (m_Settings.antialiasingSamples > 0)
+		m_Resources.framebuffers["msaaFBO"] = new Framebuffer(new Texture(m_RWidth, m_RHeight, m_Settings.antialiasingSamples), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
+
+	Texture* highLightT = new Texture(0, GL_RGBA8, m_RWidth, m_RHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	Texture* dilationT = new Texture(0, GL_RGBA8, m_RWidth, m_RHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
+	highLightT->generateTexture(); dilationT->generateTexture();
+	m_Resources.framebuffers["highLightFBO"] = new Framebuffer(highLightT, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
+	m_Resources.framebuffers["dilationFBO"] = new Framebuffer(dilationT, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
+	Texture* viewPortT = new Texture(0, GL_RGBA8, m_RWidth, m_RHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, false, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
+	viewPortT->generateTexture();
+	m_Resources.framebuffers["viewportFBO"] = new Framebuffer(viewPortT, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
+
+	m_Resources.primitives["quad"] = new Quad();
+	m_Resources.primitives["quad"]->generateBuffers();
+	m_Resources.models["billboard"] = new Model(m_Resources.primitives["quad"], new UnlitBasicMaterial());
+	auto shaderID = m_Resources.models["billboard"]->getMaterialReference(0)->getShaderNameID();
+	m_Resources.models["billboard"]->getMaterialReference(0)->setFaceVisibility(BOTH);
+	m_Resources.models["billboard"]->getMaterialReference(0)->setTransparency(true);
+	m_Resources.models["billboard"]->getMaterialReference(0)->setShader(m_Resources.shaders[shaderID]);
+	Texture* lightText = new Texture("bulb.png");
+	lightText->generateTexture();
+	m_Resources.textures["lightIcon"] = lightText;
+	Texture* camText = new Texture("camera.png");
+	camText->generateTexture();
+	m_Resources.textures["cameraIcon"] = camText;
+
+	m_Resources.controllers.push_back(CameraController(WASD));
+	m_ActiveController = &m_Resources.controllers[0];
 
 
 }
@@ -210,29 +241,22 @@ void Renderer::cacheData() {
 				m.second->getMaterialReference(i)->generateTextures();
 				auto shaderID = m.second->getMaterialReference(i)->getShaderNameID();
 				if (!m.second->getMaterialReference(i)->getShader())
-					m.second->getMaterialReference(i)->setShader(m_Shaders[shaderID]);
+					m.second->getMaterialReference(i)->setShader(m_Resources.shaders[shaderID]);
 
 			}
 		}
 		if (m_CurrentScene->getSkybox()) {
 			m_CurrentScene->getSkybox()->getMaterial()->generateTextures();
 			auto shaderID = m_CurrentScene->getSkybox()->getMaterial()->getShaderNameID();
-			m_CurrentScene->getSkybox()->getMaterial()->setShader(m_Shaders[shaderID]);
+			m_CurrentScene->getSkybox()->getMaterial()->setShader(m_Resources.shaders[shaderID]);
 		}
 
 		//Upload lights to light manager
 		LightManager::generateShadowMaps();
 
 	}
+	std::cout << "Ready." << std::endl;
 
-	//Create and setup basic FBs
-	if (m_Settings.antialiasingSamples > 0)
-		m_Framebuffers["msaaFBO"] = new Framebuffer(new Texture(m_RWidth, m_RHeight, m_Settings.antialiasingSamples), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
-
-
-	Texture* t = new Texture(0, GL_RGBA8, m_RWidth, m_RHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, false, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
-	t->generateTexture();
-	m_Framebuffers["viewportFBO"] = new Framebuffer(t, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
 }
 
 void Renderer::tick()
@@ -275,7 +299,7 @@ void Renderer::renderSceneObjects()
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
-	//Just in case although each material handles depth testing
+	glEnable(GL_STENCIL_TEST);
 
 	glViewport(0, 0, m_RWidth, m_RHeight);
 
@@ -283,7 +307,7 @@ void Renderer::renderSceneObjects()
 	m_CurrentScene->getActiveCamera()->setProj(m_RWidth, m_RHeight);
 
 	if (m_CurrentScene->getLights().size() != 0)
-		renderAndCacheLights(true);
+		cacheLights();
 
 	std::vector<Model*> opaqueModels;
 	std::vector<Model*> blendModels;
@@ -295,11 +319,14 @@ void Renderer::renderSceneObjects()
 
 	//FIRST = OPAQUE OBJECTS
 	for (auto& m : opaqueModels) {
-
+		//if (!m->isSelected())
 		renderModel(m);
 
 	}
 
+	if (m_CurrentScene->getSkybox()) {
+		renderSkybox();
+	}
 
 	//Calculate distance
 	std::map<float, Model*> sorted;
@@ -311,13 +338,13 @@ void Renderer::renderSceneObjects()
 	//SECOND = TRANSPARENT OBJECTS SORTED FROM NEAR TO FAR
 	for (std::map<float, Model*>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
 	{
-
+		//if (!it->second->isSelected())
 		renderModel(it->second);
 	}
 
-	if (m_CurrentScene->getSkybox()) {
-		renderSkybox();
-	}
+	if (m_Settings.enableGizmos)
+		renderBillboards();
+
 
 }
 
@@ -326,14 +353,6 @@ void Renderer::renderModel(Model* m) {
 	if (!m->isActive()) return;
 
 	if (m->getMesh()) {
-
-		if (m->isSelected()) {
-			glEnable(GL_STENCIL_TEST);
-			//glClear(GL_STENCIL_BUFFER_BIT);
-			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-			glStencilFunc(GL_ALWAYS, 1, 0xFF);
-			glStencilMask(0xFF);
-		}
 
 		for (size_t i = 0; i < m->getMesh()->getNumberOfMeshes(); i++)
 		{
@@ -366,76 +385,190 @@ void Renderer::renderModel(Model* m) {
 
 			mShader->unbind();
 		}
-		if (m->isSelected()) {
-			glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-			glStencilMask(0x00);
-			//glDisable(GL_DEPTH_TEST);
-			for (size_t i = 0; i < m->getMesh()->getNumberOfMeshes(); i++)
-			{
-				Shader* mShader =m_Shaders["UnlitBasicShader"];
 
-				//Check if is instanced mesh
-				mShader->bind();
-				if (!m->getMesh()->isInstanced())
-					mShader->setBool("u_isInstanced", false);
-				else
-					mShader->setBool("u_isInstanced", true);
-
-				glm::vec3 originalSize = m->getScale();
-				m->setScale(glm::vec3(originalSize.x * 1.08f,
-					originalSize.y  * 1.08f,
-					originalSize.z * 1.08f));
-
-				//Load main transformation matrices
-				//Check the need for this ones for material
-				glm::mat4 modelView = m_CurrentScene->getActiveCamera()->getView() * m->getTransform()->getWorldMatrix();
-				mShader->setMat4("u_View", m_CurrentScene->getActiveCamera()->getView());
-				mShader->setMat4("u_proj", m_CurrentScene->getActiveCamera()->getProj());
-				mShader->setMat4("u_model", m->getTransform()->getWorldMatrix());
-				mShader->setMat4("u_modelView", modelView);
-				mShader->setMat4("u_modelViewProj", m_CurrentScene->getActiveCamera()->getProj() * modelView);
-				mShader->setVec3("u_color", glm::vec3(0.0, 0.0, 1.0));
-
-				m->getMesh()->draw(i);
-
-				m->setScale(originalSize);
-				mShader->unbind();
-			}
-			glStencilMask(0xFF);
-			glStencilFunc(GL_ALWAYS, 0, 0xFF);
-			glEnable(GL_DEPTH_TEST);
-			glDisable(GL_STENCIL_TEST);
-
-		}
 	}
 	else
 		std::cout << "Model " << m->getName() << " doesnt have any mesh loaded" << std::endl;
 
 }
 
+void Renderer::highlightPass(SceneObject* obj, const std::string defaultFBO) {
+	Model* m = nullptr;
+	if (!obj->isActive()) return;
+	if (obj->getObjectType() == MODEL) {
+		m = dynamic_cast<Model*>(obj);
+	}
+	else {
+		m = m_Resources.models["billboard"];
+		
+		m->setPosition(obj->getPosition());
+	}
+	// --------------------------------------------------------------------
+	bindFramebuffer("highLightFBO");
+	glClearColor(0.0f, 0.0, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-void Renderer::renderAndCacheLights(bool enableGizmos)
+
+	Shader* mShader = m_Resources.shaders["UnlitBasicShader"];
+
+	for (size_t i = 0; i < m->getMesh()->getNumberOfMeshes(); i++)
+	{
+		mShader->bind();
+		if (!m->getMesh()->isInstanced())
+			mShader->setBool("u_isInstanced", false);
+		else
+			mShader->setBool("u_isInstanced", true);
+
+		glm::mat4 modelView;
+		if (obj->getObjectType() == MODEL)
+			modelView = m_CurrentScene->getActiveCamera()->getView() * m->getTransform()->getWorldMatrix();
+		else {
+			mShader->setBool("u_highlightPass", true);
+			modelView = m_CurrentScene->getActiveCamera()->getView() * glm::inverse(glm::lookAt(obj->getPosition(), m_CurrentScene->getActiveCamera()->getPosition(), glm::vec3(0, 1, 0)));
+				mShader->setInt("u_colorTex", 0);
+				if (obj->getObjectType() == LIGHT)
+					m_Resources.textures["lightIcon"]->bind(0);
+				else
+					m_Resources.textures["cameraIcon"]->bind(0);
+		}
+		mShader->setMat4("u_View", m_CurrentScene->getActiveCamera()->getView());
+		mShader->setMat4("u_Proj", m_CurrentScene->getActiveCamera()->getProj());
+		mShader->setMat4("u_model", m->getTransform()->getWorldMatrix());
+		mShader->setMat4("u_modelView", modelView);
+		mShader->setMat4("u_modelViewProj", m_CurrentScene->getActiveCamera()->getProj() * modelView);
+		mShader->setVec3("u_color", glm::vec3(0.0, 0.0, 1.0));
+		mShader->setBool("opacity", 1.0);
+
+		m->getMesh()->draw(i);
+		mShader->setBool("u_highlightPass", false);
+		mShader->unbind();
+	}
+	// --------------------------------------------------------------------
+
+	bindFramebuffer("dilationFBO");
+	glClearColor(0.0f, 0.0, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	m_Vignette->getShader()->bind();
+	m_Vignette->getShader()->setBool("dilationPass", true);
+	m_Vignette->getShader()->setFloat("radius", 2.5f);
+	m_Vignette->getShader()->setFloat("gridX", 1.F / (float)m_RWidth);
+	m_Vignette->getShader()->setFloat("gridY", 1.F / (float)m_RHeight);
+
+	Texture* originalT = m_Vignette->getTexture();
+	m_Vignette->setTexture(m_Resources.framebuffers["highLightFBO"]->getTextureAttachment());
+	m_Vignette->draw();
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	glStencilFunc(GL_ALWAYS, 1, 0xFF); //Always pass if reference equals to 1
+	glStencilMask(0xFF); //Enable stencil writing
+	m_Vignette->getShader()->bind();
+	m_Vignette->getShader()->setBool("contourPass", true);
+
+	m_Vignette->getShader()->setInt("contourTex", 1);
+	m_Resources.framebuffers["dilationFBO"]->getTextureAttachment()->bind(1);
+	m_Vignette->draw();
+	m_Vignette->getShader()->bind();
+	m_Resources.framebuffers["dilationFBO"]->getTextureAttachment()->unbind();
+	m_Vignette->getShader()->setBool("contourPass", false);
+	m_Vignette->getShader()->unbind();
+
+	glStencilFunc(GL_ALWAYS, 0, 0xFF); //Always pass if reference equals to 0
+
+	//// copy stencil buffer from target B
+	blitFramebuffer("dilationFBO", 0, 0, m_RWidth, m_RHeight, defaultFBO, 0, 0, m_RWidth, m_RHeight, GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+
+	//// bind to main frame buffer
+	bindFramebuffer(defaultFBO);
+
+
+	//// blit target B to the default frame buffer
+	glStencilFunc(GL_EQUAL, 1, 0xFF);
+	glStencilMask(0x00); //Not write
+
+	glDepthMask(false);
+	glDisable(GL_DEPTH_TEST);
+	m_Vignette->getShader()->bind();
+	m_Vignette->getShader()->setBool("dilationPass", false);
+	m_Vignette->getShader()->setBool("useGammaCorrection", false);
+	m_Vignette->setTexture(m_Resources.framebuffers["dilationFBO"]->getTextureAttachment());
+
+	m_Vignette->draw();
+	m_Vignette->getShader()->bind();
+	m_Vignette->getShader()->setBool("useGammaCorrection", m_Settings.ppEffects.gammaCorrection);
+	m_Vignette->setTexture(originalT);
+	m_Vignette->getShader()->unbind();
+	//// disable stencil buffer
+	glStencilMask(0xFF);
+	glStencilFunc(GL_ALWAYS, 0, 0xFF);
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(true);
+	//// --------------------------------------------------------------------
+	//renderModel(m);
+
+
+
+
+}
+void Renderer::cacheLights()
 {
-	for (auto& shader : m_Shaders) {
+	for (auto& shader : m_Resources.shaders) {
 		if (shader.second->getType() == ShaderType::LIT)
 			LightManager::uploadLightDataToShader(shader.second);
 	}
 
-	if (enableGizmos) {
-		/*for (size_t i = 0; i < m_LightManager->getLightsCount(); i++)
-		{
-			Light* l = m_LightManager->getLight(i);
-			m_LightManager->getDebugMaterial()->setColor(l->getColor());
-			m_LightManager->getLightModel(l->getType())->setPosition(l->getPosition());
-			renderModel(m_LightManager->getLightModel(l->getType()));
 
-		}*/
+}
+void Renderer::renderBillboards() {
+	Model* billboard = m_Resources.models["billboard"];
+
+	UnlitBasicMaterial* billboardMat = static_cast<UnlitBasicMaterial*>(billboard->getMaterialReference());
+	Shader* mShader = billboardMat->getShader();
+	for (auto& obj : m_CurrentScene->getSceneObjects())
+	{
+		if (obj.second->getObjectType() == MODEL) continue;
+		if (obj.second->getObjectType() == LIGHT) {
+
+			billboardMat->addColorTex(m_Resources.textures["lightIcon"]);
+			/*billboardMat->setOverrideColor(true);
+			billboardMat->setColor()*/
+		}
+		else
+		{
+			billboardMat->addColorTex(m_Resources.textures["cameraIcon"]);
+		}
+
+		billboard->setPosition(obj.second->getPosition());
+		glm::vec3 pos = billboard->getPosition();
+		glm::vec3 camPos = m_CurrentScene->getActiveCamera()->getPosition();
+		Model* m = billboard;
+		mShader->bind();
+		mShader->setBool("u_isInstanced", false);
+
+		glm::mat4 modelView = m_CurrentScene->getActiveCamera()->getView() * glm::inverse(glm::lookAt(pos, camPos, glm::vec3(0, 1, 0)));
+		mShader->setMat4("u_View", m_CurrentScene->getActiveCamera()->getView());
+		mShader->setMat4("u_Proj", m_CurrentScene->getActiveCamera()->getProj());
+		mShader->setMat4("u_modelView", modelView);
+		mShader->setMat4("u_modelViewProj", m_CurrentScene->getActiveCamera()->getProj() * modelView);
+
+
+		m->getMaterialReference()->setupParameters();
+
+		m->getMaterialReference()->cacheUniforms();
+
+		m->getMesh()->draw();
+
+		m->getMaterialReference()->decacheUniforms();
+
+		mShader->unbind();
 	}
+
+
 }
 
 void Renderer::renderObjectNormals()
 {
-	Shader* normalShader = m_Shaders["NormalDebugShader"];
+	Shader* normalShader = m_Resources.shaders["NormalDebugShader"];
 	normalShader->bind();
 
 	for (auto& m : m_CurrentScene->getModels()) {
@@ -454,7 +587,7 @@ void Renderer::renderObjectNormals()
 
 			if (m_UtilParams.renderTangents) {
 				normalShader->setBool("u_renderNormal", false);
-				normalShader->setBool("u_renderTangent",true);
+				normalShader->setBool("u_renderTangent", true);
 				mesh->draw();
 			}
 		}
@@ -493,7 +626,7 @@ void Renderer::possProcessPass() {
 		m_Settings.clearColor.b,
 		m_Settings.clearColor.a);
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	glDisable(GL_DEPTH_TEST);
 
@@ -512,13 +645,13 @@ void Renderer::bindFramebuffer() {
 }
 
 void Renderer::bindFramebuffer(std::string name) {
-	m_Framebuffers[name]->bind();
+	m_Resources.framebuffers[name]->bind();
 
 }
 void Renderer::blitFramebuffer(std::string src_name, std::string dst_name, GLbitfield mask, GLenum filter) {
 
-	Framebuffer* src = m_Framebuffers[src_name];
-	Framebuffer* dst = m_Framebuffers[dst_name];
+	Framebuffer* src = m_Resources.framebuffers[src_name];
+	Framebuffer* dst = m_Resources.framebuffers[dst_name];
 
 	GLcall(glBindFramebuffer(GL_READ_FRAMEBUFFER, src->getID()));
 	GLcall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dst->getID()));
@@ -528,8 +661,8 @@ void Renderer::blitFramebuffer(std::string src_name, std::string dst_name, GLbit
 void Renderer::blitFramebuffer(std::string src_name, unsigned int src_x_o, unsigned int src_y_o, unsigned int src_x_f, unsigned int src_y_f,
 	std::string dst_name, unsigned int dst_x_o, unsigned int dst_y_o, unsigned int dst_x_f, unsigned int dst_y_f, GLbitfield mask, GLenum filter) {
 
-	Framebuffer* src = m_Framebuffers[src_name];
-	Framebuffer* dst = m_Framebuffers[dst_name];
+	Framebuffer* src = m_Resources.framebuffers[src_name];
+	Framebuffer* dst = m_Resources.framebuffers[dst_name];
 
 	GLcall(glBindFramebuffer(GL_READ_FRAMEBUFFER, src->getID()));
 	GLcall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dst->getID()));
@@ -538,7 +671,7 @@ void Renderer::blitFramebuffer(std::string src_name, unsigned int src_x_o, unsig
 
 void Renderer::blitFramebuffer(std::string src_name, GLbitfield mask, GLenum filter) {
 
-	Framebuffer* src = m_Framebuffers[src_name];
+	Framebuffer* src = m_Resources.framebuffers[src_name];
 
 	GLcall(glBindFramebuffer(GL_READ_FRAMEBUFFER, src->getID()));
 	GLcall(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
@@ -550,9 +683,9 @@ void Renderer::renderShadows()
 {
 	glViewport(0, 0, m_Settings.shadowResolution, m_Settings.shadowResolution);
 
-	if (!m_Framebuffers["depthFBO"]) {
+	if (!m_Resources.framebuffers["depthFBO"]) {
 		Light* firstLight = m_CurrentScene->getLights().begin()->second;
-		m_Framebuffers["depthFBO"] = new Framebuffer(firstLight->getShadowText(), GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, GL_FALSE, GL_FALSE);
+		m_Resources.framebuffers["depthFBO"] = new Framebuffer(firstLight->getShadowText(), GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, GL_FALSE, GL_FALSE);
 	}
 
 	LightManager::renderShadows();
@@ -569,6 +702,10 @@ void Renderer::profile() {
 		glfwSetWindowTitle(m_Window, updatedTitle.c_str());
 	}
 
+}
+
+void  Renderer::clear(bool color, bool depth, bool stencil) {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
 

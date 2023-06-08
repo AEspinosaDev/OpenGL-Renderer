@@ -9,7 +9,7 @@ void InputManager::onWindowResize(GLFWwindow* window, int width, int height) {
 	r->m_SHeight = height;
 
 	//Resize framebuffers
-	for (auto& fbo : r->m_Framebuffers) {
+	for (auto& fbo : r->m_Resources.framebuffers) {
 		fbo.second->resize(width, height);
 	}
 }

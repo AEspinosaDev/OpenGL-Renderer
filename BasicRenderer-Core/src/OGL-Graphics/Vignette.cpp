@@ -57,5 +57,7 @@ void Vignette::draw()
 
 	GLcall(glDrawElements(GL_TRIANGLES, trisNum, GL_UNSIGNED_INT, (void*)0));
 
+	texture->unbind();
+
 	shader->unbind();
 }
