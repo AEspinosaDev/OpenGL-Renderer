@@ -14,8 +14,10 @@ WORK IN PROGRESS
 - PBR [Epic's Unreal Engine 4 Metallic-Roughness Workflow]
 - Parallax mapping (WIP)
 - Skybox with enviroment lightning and reflections
-- IBO (WIP)
+- IBL (WIP)
 - UI (WIP)
+- HDR (WIP)
+- Asynchronous asset loading (WIP)
 - SSAO (?)
 - Bloom (?)
 - Depth peeling (?)
