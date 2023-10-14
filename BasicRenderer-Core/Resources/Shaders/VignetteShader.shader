@@ -22,9 +22,19 @@ void main() {
 in vec2 texCoord;
 
 uniform sampler2D vignetteTex;
-uniform sampler2D contourTex;
-uniform bool useGammaCorrection;
+uniform sampler2D depthTex;
 
+uniform sampler2D contourTex;
+
+uniform bool useGammaCorrection;
+uniform bool useFog;
+uniform float fogIntensity;
+uniform float fogFalloff;
+uniform vec3 fogColor;
+uniform int fogType;
+
+uniform float far;
+uniform float near;
 uniform bool dilationPass;
 uniform bool contourPass;
 uniform float radius;
@@ -38,44 +48,56 @@ out vec4 fragColor;
 
 void main() {
 
-    if (!dilationPass) {
-        fragColor = vec4(texture(vignetteTex, texCoord).rgb, 1.0);
+	if (!dilationPass) {
+		fragColor = vec4(texture(vignetteTex, texCoord).rgb, 1.0);
 
 
-        //Poss processing
+		//Poss processing
 
+			float z = (2.0 * near) / (far + near - texture2D(depthTex, texCoord).x * (far - near));
+		//Fog TODO
+		if (useFog) {
+			//Linearize
 
-        //Gamma correction
-        if (useGammaCorrection) {
-            float gamma = 2.2;
-            fragColor.rgb = pow(fragColor.rgb, vec3(1.0 / gamma));
-        }
-    }
-    else {
-        //Dilation pass
-        // 
-        if (!contourPass) {
-            //Dilation algorythm -----------------------------------------------------
-            for (float i = -radius; i < radius; ++i) {
-                for (float j = -radius; j < radius; ++j) {
-                    if (i * i + j * j < (1e-6 + radius * radius)) { // inside a circle
-                        vec2 uv = texCoord.st + vec2(i * gridX, j * gridY);
-                        vec3 colour = texture(vignetteTex, uv).rgb;
-                        if (colour.r + colour.g + colour.b > 0) {
-                            //if (uv.x <0.0)discard;
-                            fragColor = vec4(colour, 1.F);
-                            return;
-                        }
-                    }
-                }
-            }
-            // not near the selected object, discard
-            discard;
-        }
-        else {
-            if (texture(vignetteTex, texCoord).b == texture(contourTex, texCoord).b) discard;
-            else  fragColor = vec4(1.0f,0.6f,0.0f, 1.F);
-        }
-    }
+			fragColor.rgb = mix(fragColor.rgb, fogColor, z);
+
+		}
+
+		//Bloom TODO
+
+		//Gamma correction
+		if (useGammaCorrection) {
+			float gamma = 2.2;
+			fragColor.rgb = pow(fragColor.rgb, vec3(1.0 / gamma));
+		}
+
+		//fragColor =vec4(z,z,z,1.0);
+	}
+	else {
+		//Dilation pass
+		// 
+		if (!contourPass) {
+			//Dilation algorythm -----------------------------------------------------
+			for (float i = -radius; i < radius; ++i) {
+				for (float j = -radius; j < radius; ++j) {
+					if (i * i + j * j < (1e-6 + radius * radius)) { // inside a circle
+						vec2 uv = texCoord.st + vec2(i * gridX, j * gridY);
+						vec3 colour = texture(vignetteTex, uv).rgb;
+						if (colour.r + colour.g + colour.b > 0) {
+							//if (uv.x <0.0)discard;
+							fragColor = vec4(colour, 1.F);
+							return;
+						}
+					}
+				}
+			}
+			// not near the selected object, discard
+			discard;
+		}
+		else {
+			if (texture(vignetteTex, texCoord).b == texture(contourTex, texCoord).b) discard;
+			else  fragColor = vec4(1.0f, 0.6f, 0.0f, 1.F);
+		}
+	}
 }
 

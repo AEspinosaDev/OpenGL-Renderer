@@ -5,7 +5,7 @@ void BasicPhongMaterial::cacheUniforms()
 	//Tiling
 	m_shader->setFloat("u_TileV", m_TileV);
 	m_shader->setFloat("u_TileU", m_TileU);
-
+	m_shader->setBool("u_AlphaTest", m_Parameters.alphaTest);
 	//Mat properties
 	if (m_ColorTex != nullptr) {
 		m_shader->setInt("material.colorTex", 0);

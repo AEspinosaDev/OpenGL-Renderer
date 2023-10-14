@@ -1,6 +1,6 @@
 #include "Framebuffer.h"
 
-Framebuffer::Framebuffer(Texture* text, int attachmentType, GLenum textarget, bool depthAttachment, bool resizeOnCallback) : m_TextureAttachment(text), resizeOnCallback(resizeOnCallback),
+Framebuffer::Framebuffer(Texture* text, int attachmentType, GLenum textarget, bool depthAttachment, bool resizeOnCallback) : m_TextureAttachment(text), resizeOnCallback(resizeOnCallback), m_DepthTextureAtachment(nullptr),
 attachmentType(attachmentType)
 {
 	width = text->getWidth();
@@ -54,11 +54,52 @@ attachmentType(attachmentType)
 
 }
 
-Framebuffer::Framebuffer(unsigned int w, unsigned int h, bool depthAttachment, bool resizeOnCallback) : width(w), height(h), resizeOnCallback(resizeOnCallback),
+Framebuffer::Framebuffer(unsigned int w, unsigned int h, bool depthAttachment, bool resizeOnCallback) : width(w), height(h), resizeOnCallback(resizeOnCallback), m_DepthTextureAtachment(nullptr),
 attachmentType(attachmentType)
 {
 
 }
+
+Framebuffer::Framebuffer(Texture* text, Texture* depthText, bool resizeOnCallback) : m_TextureAttachment(text), resizeOnCallback(resizeOnCallback), m_DepthTextureAtachment(depthText)
+
+{
+	width = text->getWidth();
+	height = text->getHeight();
+	m_MainAttachmentID = text->getID();
+	m_DepthAttachmentID = depthText->getID();
+	attachmentType = GL_COLOR_ATTACHMENT0;
+	GLcall(glGenFramebuffers(1, &m_RendererID));
+	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID));
+
+	switch (text->getType())
+	{
+	case TEXTURE_2D:
+		if (text->getSamples() == 1) {
+			GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D, m_MainAttachmentID, 0));
+			GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachmentID, 0));
+
+
+		}
+		else {
+			GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D_MULTISAMPLE, m_MainAttachmentID, 0));
+			GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, m_DepthAttachmentID, 0));
+
+		}
+
+		break;
+	case TEXTURE_CUBE:
+		GLcall(glFramebufferTexture(GL_FRAMEBUFFER, attachmentType, m_MainAttachmentID, 0));
+		break;
+	}
+
+
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "ERROR::FRAMEBUFFER::" << m_RendererID << ":: Framebuffer is not complete!" << std::endl;
+
+	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+}
+
 
 void Framebuffer::setTextureAttachment(Texture* t, GLenum textarget)
 {
@@ -84,7 +125,40 @@ void Framebuffer::setTextureAttachment(Texture* t, GLenum textarget)
 		break;
 	}
 
+	
+	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+}
 
+void Framebuffer::setDepthTextureAttachment(Texture* t, GLenum textarget)
+{
+	m_DepthTextureAtachment = t;
+	m_DepthAttachmentID = t->getID();
+
+	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID));
+
+	switch (t->getType())
+	{
+	case TEXTURE_2D:
+		if (t->getSamples() == 1) {
+			GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, textarget, m_DepthAttachmentID, 0));
+
+		}
+		else {
+			GLcall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, m_DepthAttachmentID, 0));
+		}
+
+		break;
+	case TEXTURE_CUBE:
+		GLcall(glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, m_DepthAttachmentID, 0));
+		break;
+	}
+
+	/*glTexImage2D(
+		GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, 800, 600, 0,
+		GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL
+	);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture, 0);*/
 	GLcall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
@@ -92,9 +166,15 @@ void Framebuffer::setTextureAttachmentSamples(AntialiasingType samples)
 {
 	if (samples == 0) return;
 	m_TextureAttachment->changeSampleNumber(samples);
+	if(!m_DepthTextureAtachment){
+
 	GLcall(glBindRenderbuffer(GL_RENDERBUFFER, m_DepthAttachmentID));
 	GLcall(glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_TextureAttachment->getSamples(), GL_DEPTH24_STENCIL8, width, height));
 	GLcall(glBindRenderbuffer(GL_RENDERBUFFER, NULL));
+	}
+	else {
+		m_DepthTextureAtachment->changeSampleNumber(samples);
+	}
 }
 
 
@@ -115,16 +195,21 @@ void Framebuffer::resize(unsigned int w, unsigned int h)
 
 	if (m_DepthAttachmentID != -1) {
 
-		GLcall(glBindRenderbuffer(GL_RENDERBUFFER, m_DepthAttachmentID));
+		if (!m_DepthTextureAtachment) {
+			GLcall(glBindRenderbuffer(GL_RENDERBUFFER, m_DepthAttachmentID));
 
-		if (m_TextureAttachment->getSamples() == 1) {
-			GLcall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, w, h));
+			if (m_TextureAttachment->getSamples() == 1) {
+				GLcall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, w, h));
+			}
+			else {
+				GLcall(glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_TextureAttachment->getSamples(), GL_DEPTH24_STENCIL8, w, h));
+			}
+
+
+			GLcall(glBindRenderbuffer(GL_RENDERBUFFER, NULL));
 		}
 		else {
-			GLcall(glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_TextureAttachment->getSamples(), GL_DEPTH24_STENCIL8, w, h));
+			m_DepthTextureAtachment->resize(w, h);
 		}
-
-
-		GLcall(glBindRenderbuffer(GL_RENDERBUFFER, NULL));
 	}
 }

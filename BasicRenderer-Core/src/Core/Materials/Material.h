@@ -66,7 +66,9 @@ public:
 	virtual inline FaceVisibility getFaceVisibility() { return m_Parameters.faceVisibility; }
 
 	virtual inline void setFaceVisibility(FaceVisibility v) { m_Parameters.faceVisibility = v; }
-	
+	virtual inline bool getAlphaTest() { return m_Parameters.alphaTest; }
+
+	virtual inline void setAlphaTest(bool t) { m_Parameters.alphaTest = t; }
 	virtual void cacheUniforms() = 0;
 
 	virtual void decacheUniforms() = 0;

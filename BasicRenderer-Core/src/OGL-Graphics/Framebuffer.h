@@ -15,6 +15,7 @@ private:
 	unsigned int m_MainAttachmentID;
 
 	Texture* m_TextureAttachment;
+	Texture* m_DepthTextureAtachment;
 
 	int attachmentType;
 	unsigned int width;
@@ -45,7 +46,7 @@ public:
 	/// <param name="text">Texture</param>
 	/// <param name="depthAttachment">Depth attachment enabling</param>
 	/// <param name="resizeOnCallback">Resize enabling</param>
-	Framebuffer(Texture* text, bool resizeOnCallback);
+	Framebuffer(Texture* text, Texture* depthText, bool resizeOnCallback);
 
 	inline const int getID() { return m_RendererID; }
 	inline void setWidth(unsigned int w) { width = w; }
@@ -54,6 +55,8 @@ public:
 	inline unsigned int getHeight() { return height; }
 	inline Texture* getTextureAttachment() { return m_TextureAttachment; }
 	void setTextureAttachment(Texture* t, GLenum textarget);
+	inline Texture* getDepthTextureAttachment() { return m_DepthTextureAtachment; }
+	void setDepthTextureAttachment(Texture* t, GLenum textarget);
 	void setTextureAttachmentSamples(AntialiasingType samples);
 
 	/// <summary>
@@ -68,11 +71,7 @@ public:
 	/// <param name="h">New height</param>
 	void resize(unsigned int w, unsigned int h);
 
-	/// <summary>
-	/// Load renderbuffer data to color texture
-	/// </summary>
-	void blit();
-
+	
 
 
 };

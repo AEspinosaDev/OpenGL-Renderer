@@ -97,6 +97,31 @@ Texture::Texture(GLint level, GLint internalFormat, unsigned int w, unsigned int
 	
 }
 
+Texture::Texture(GLint level, GLint internalFormat, unsigned int w, unsigned int h, int samples, GLint border, GLenum format, GLenum type, bool anisotropicFilter,
+	int magFilter, int minFilter, int wrapT, int wrapS) :m_RendererID(0), m_FilePath("null"), m_LocalBuffer(nullptr), m_Width(w), m_Height(h), m_Samples(samples),
+	m_TextureType(TextureType::TEXTURE_2D), isDirty(true) {
+
+	m_TextConfig.anisotropicFilter = anisotropicFilter;
+	m_TextConfig.level = level;
+	m_TextConfig.internalFormat = internalFormat;
+	m_TextConfig.border = border;
+	m_TextConfig.format = format;
+	m_TextConfig.type = type;
+	m_TextConfig.magFilter = magFilter;
+	m_TextConfig.minFilter = minFilter;
+	m_TextConfig.wrapS = wrapS;
+	m_TextConfig.wrapT = wrapT;
+	m_TextConfig.wrapR = wrapT;
+
+	if (samples > 1) {
+		GLcall(glGenTextures(1, &m_RendererID));
+		GLcall(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_RendererID));
+		GLcall(glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, m_TextConfig.internalFormat, m_Width, m_Height,
+			GL_TRUE));
+		GLcall(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0));
+	}
+}
+
 void Texture::generateTexture() {
 	if (!isDirty) return;
 

@@ -86,7 +86,8 @@ public:
 	Texture(const std::string& path, GLint level, GLint internalFormat, unsigned int w, unsigned int h, GLint border, GLenum format, GLenum type,
 		bool anisotropicFilter, int magFilter, int minFilter, int wrapT, int wrapS);
 
-
+	Texture(GLint level, GLint internalFormat, unsigned int w, unsigned int h, int samples, GLint border, GLenum format, GLenum type, bool anisotropicFilter,
+		int magFilter, int minFilter, int wrapT, int wrapS);
 
 	/// <summary>
 	/// Creates a complete custom texture given all necessary parameters with no imae data

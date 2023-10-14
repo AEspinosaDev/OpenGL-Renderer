@@ -162,6 +162,8 @@ uniform float u_ambientStrength;
 uniform vec3 u_ambientColor;
 uniform samplerCube u_skybox;
 
+uniform bool u_AlphaTest;
+
 //Surface properties
 vec3	N;
 vec3	albedo;
@@ -364,6 +366,7 @@ void main()
 		metalness = pow(texture(material.roughnessTex, texCoord).b, 2.2);
 		ao = pow(texture(material.roughnessTex, texCoord).r, 2.2);
 	}
+	if (opacity <= 0.0 && u_AlphaTest)discard;
 
 	FragColor = vec4(shade(), opacity);
 	//FragColor = vec4(1.0, 0.0, 0.0, opacity);

@@ -5,7 +5,7 @@ void PhysicalMaterial::cacheUniforms()
 	//Tiling
 	m_shader->setFloat("u_TileV", m_TileV);
 	m_shader->setFloat("u_TileU", m_TileU);
-
+	m_shader->setBool("u_AlphaTest", m_Parameters.alphaTest);
 	//Material properties
 	if (m_AlbedoTex) {
 		m_shader->setInt("material.albedoTex", 0);

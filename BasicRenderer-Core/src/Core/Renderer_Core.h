@@ -14,6 +14,12 @@ enum ShadowMapQuality {
 	HIGH = 4096,
 	VERY_HIGHT = 8192
 };
+enum FogType {
+	LINEAR = 0,
+	EXPONENTIAL = 0,
+
+
+};
 
 
 

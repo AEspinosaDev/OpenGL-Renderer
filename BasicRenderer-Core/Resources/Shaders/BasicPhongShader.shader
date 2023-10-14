@@ -153,6 +153,7 @@ uniform float u_shadowsFarPlane;
 uniform float u_ambientStrength;
 uniform vec3 u_ambientColor;
 uniform samplerCube u_skybox;
+uniform bool u_AlphaTest;
 
 //Surface properties
 vec3 N;
@@ -308,12 +309,12 @@ void main()
 	material.hasSpecularTex ? specularity = texture(material.specularTex, texCoord).r : specularity = material.specularity;
 	material.hasGlossTex ? shininess = texture(material.glossTex, texCoord).r : shininess = material.shininess;
 	material.hasOpacityTex ? opacity = texture(material.opacityTex, texCoord).r : opacity = material.opacity;
+	if (opacity <= 0.0 && u_AlphaTest)discard;
 
 	vec3 r = normalize(reflect(normalize(pos), N));
 	vec3 result = mix(shade(), vec3(texture(u_skybox, r).rgb), 0.0);
 
 	//result = pow(result, vec3(1.0 / 2.2));
-
 	FragColor = vec4(result, opacity);
 
 }

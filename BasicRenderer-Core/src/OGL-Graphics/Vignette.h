@@ -11,6 +11,8 @@ private:
 	VAO* vao;
 	Shader* shader;
 	Texture* texture;
+	Texture* depthTexture;
+
 
 	const int vertexNum = 4;
 	const int trisNum = 6;
@@ -25,6 +27,9 @@ public:
 	inline Texture* setTexture(Texture* t) {
 		Texture* returnText = texture; texture = t; return returnText;
 }
-
+	inline Texture* getDepthTexture() { return depthTexture; }
+	inline Texture* setDepthTexture(Texture* t) {
+		Texture* returnText = depthTexture; depthTexture = t; return returnText;
+	}
 };
 

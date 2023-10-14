@@ -193,7 +193,7 @@ int main()
 	dl->setPosition(glm::vec3(50.0, 50.0, 50.0));
 	sc->add(dl);
 
-	CubeMapFaces skyFaces("night-sky/px.png",
+	/*CubeMapFaces skyFaces("night-sky/px.png",
 		"night-sky/nx.png",
 		"night-sky/py.png",
 		"night-sky/ny.png",
@@ -203,7 +203,8 @@ int main()
 
 	CubeMapTexture* skyText = new CubeMapTexture(skyFaces);
 	SkyboxMesh* skybox = new SkyboxMesh(new SkyboxMaterial(skyText));
-	sc->setSkybox(skybox);
+	sc->setSkybox(skybox);*/
+
 	sc->add(new Camera());
 
 	sc->getActiveCamera()->setFOV(60.0f);

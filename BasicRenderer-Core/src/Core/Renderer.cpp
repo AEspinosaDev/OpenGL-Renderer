@@ -69,8 +69,10 @@ void Renderer::renderScene() {
 		else
 			defaultFBO = "viewportFBO";
 	}
+
 	bindFramebuffer(defaultFBO);
 	renderSceneObjects();
+
 	if (UIManager::m_SelectedObject) highlightPass(UIManager::m_SelectedObject, defaultFBO);
 
 	if (m_UtilParams.renderNormals || m_UtilParams.renderTangents)
@@ -80,7 +82,7 @@ void Renderer::renderScene() {
 	if (m_Settings.antialiasingSamples > 0) {
 		if (m_Settings.postProcess)
 			//Blit msaa fbo data to vignette fbo
-			blitFramebuffer("msaaFBO", "postprocessingFBO", GL_COLOR_BUFFER_BIT, GL_NEAREST);
+			blitFramebuffer("msaaFBO", "postprocessingFBO", GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT , GL_NEAREST);
 
 		else
 			//Blit to standard framebuffer
@@ -88,7 +90,9 @@ void Renderer::renderScene() {
 	}
 
 
+
 	if (m_Settings.postProcess) {
+		//m_Vignette->setDepthTexture(m_Resources.framebuffers["msaaFBO"]->getDepthTextureAttachment());
 		possProcessPass();
 	}
 }
@@ -97,7 +101,12 @@ void  Renderer::setPostProcessPass(bool op) {
 	if (op) {
 		m_Settings.postProcess = true;
 		createVignette();
-		m_Resources.framebuffers["postprocessingFBO"] = new Framebuffer(m_Vignette->getTexture(), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
+		Texture* depthTexture = new Texture(0, GL_DEPTH24_STENCIL8, m_RWidth, m_RHeight,0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, false, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT);
+		depthTexture->generateTexture();
+		/*m_Resources.framebuffers["postprocessingFBO"] = new Framebuffer(m_Vignette->getTexture(), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);*/
+		m_Resources.framebuffers["postprocessingFBO"] = new Framebuffer(m_Vignette->getTexture(), depthTexture, true);
+		m_Vignette->setDepthTexture(depthTexture);
+
 	}
 	else {
 		m_Settings.postProcess = false;
@@ -195,8 +204,10 @@ void Renderer::lateInit()
 	m_Resources.shaders["PhysicallyBasedShader"] = new Shader("PhysicallyBasedShader.shader", ShaderType::LIT);
 
 	//Create and setup basic FBs
-	if (m_Settings.antialiasingSamples > 0)
-		m_Resources.framebuffers["msaaFBO"] = new Framebuffer(new Texture(m_RWidth, m_RHeight, m_Settings.antialiasingSamples), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
+	//if (m_Settings.antialiasingSamples > 0)
+	/*Texture* depthTexture = new Texture(0, GL_DEPTH24_STENCIL8, m_RWidth, m_RHeight, (int)m_Settings.antialiasingSamples, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, false, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);*/
+	m_Resources.framebuffers["msaaFBO"] = new Framebuffer(new Texture(m_RWidth, m_RHeight, m_Settings.antialiasingSamples), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
+	
 
 	Texture* highLightT = new Texture(0, GL_RGBA8, m_RWidth, m_RHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	Texture* dilationT = new Texture(0, GL_RGBA8, m_RWidth, m_RHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
@@ -213,6 +224,7 @@ void Renderer::lateInit()
 	auto shaderID = m_Resources.models["billboard"]->getMaterialReference(0)->getShaderNameID();
 	m_Resources.models["billboard"]->getMaterialReference(0)->setFaceVisibility(BOTH);
 	m_Resources.models["billboard"]->getMaterialReference(0)->setTransparency(true);
+	m_Resources.models["billboard"]->getMaterialReference(0)->setAlphaTest(true);
 	m_Resources.models["billboard"]->getMaterialReference(0)->setShader(m_Resources.shaders[shaderID]);
 	Texture* lightText = new Texture("bulb.png");
 	lightText->generateTexture();
@@ -400,7 +412,7 @@ void Renderer::highlightPass(SceneObject* obj, const std::string defaultFBO) {
 	}
 	else {
 		m = m_Resources.models["billboard"];
-		
+
 		m->setPosition(obj->getPosition());
 	}
 	// --------------------------------------------------------------------
@@ -425,11 +437,11 @@ void Renderer::highlightPass(SceneObject* obj, const std::string defaultFBO) {
 		else {
 			mShader->setBool("u_highlightPass", true);
 			modelView = m_CurrentScene->getActiveCamera()->getView() * glm::inverse(glm::lookAt(obj->getPosition(), m_CurrentScene->getActiveCamera()->getPosition(), glm::vec3(0, 1, 0)));
-				mShader->setInt("u_colorTex", 0);
-				if (obj->getObjectType() == LIGHT)
-					m_Resources.textures["lightIcon"]->bind(0);
-				else
-					m_Resources.textures["cameraIcon"]->bind(0);
+			mShader->setInt("u_colorTex", 0);
+			if (obj->getObjectType() == LIGHT)
+				m_Resources.textures["lightIcon"]->bind(0);
+			else
+				m_Resources.textures["cameraIcon"]->bind(0);
 		}
 		mShader->setMat4("u_View", m_CurrentScene->getActiveCamera()->getView());
 		mShader->setMat4("u_Proj", m_CurrentScene->getActiveCamera()->getProj());
@@ -491,6 +503,7 @@ void Renderer::highlightPass(SceneObject* obj, const std::string defaultFBO) {
 	m_Vignette->getShader()->bind();
 	m_Vignette->getShader()->setBool("dilationPass", false);
 	m_Vignette->getShader()->setBool("useGammaCorrection", false);
+	m_Vignette->getShader()->setBool("useFog", false);
 	m_Vignette->setTexture(m_Resources.framebuffers["dilationFBO"]->getTextureAttachment());
 
 	m_Vignette->draw();
@@ -632,7 +645,17 @@ void Renderer::possProcessPass() {
 
 	//Setup poss process effects
 	m_Vignette->getShader()->bind();
+	m_Vignette->getShader()->setFloat("far", m_CurrentScene->getActiveCamera()->getFar());
+	m_Vignette->getShader()->setFloat("near", m_CurrentScene->getActiveCamera()->getNear());
+
+
 	m_Vignette->getShader()->setBool("useGammaCorrection", m_Settings.ppEffects.gammaCorrection);
+	m_Vignette->getShader()->setBool("useFog", m_Settings.ppEffects.fog);
+	m_Vignette->getShader()->setFloat("fogIntensity", m_Settings.ppEffects.fogIntensity);
+	m_Vignette->getShader()->setVec3("fogColor", m_Settings.ppEffects.fogColor);
+	m_Vignette->getShader()->setFloat("fogFalloff", m_Settings.ppEffects.fogFalloff);
+
+
 
 
 	///*************

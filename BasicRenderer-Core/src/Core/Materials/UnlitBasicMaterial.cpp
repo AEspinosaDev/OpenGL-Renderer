@@ -12,6 +12,8 @@ void UnlitBasicMaterial::cacheUniforms()
 	m_shader->setFloat("u_opacity", m_Opacity);
 	m_shader->setFloat("u_overrideColorStrength", m_OverrideColorStr);
 	m_shader->setBool("u_overrideColor", m_OverrideColor);
+	m_shader->setBool("u_AlphaTest", m_Parameters.alphaTest);
+
 
 	if (m_ColorText != nullptr) {
 		m_shader->setInt("u_colorTex", 0);

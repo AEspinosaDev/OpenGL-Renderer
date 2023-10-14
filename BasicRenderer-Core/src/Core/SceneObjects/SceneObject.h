@@ -7,7 +7,7 @@ enum ObjectType {
 	MODEL,
 	LIGHT,
 	CAMERA,
-	FOG,
+	
 };
 
 struct Transform {

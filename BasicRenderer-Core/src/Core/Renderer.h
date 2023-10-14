@@ -27,17 +27,17 @@ class Renderer
 {
 private:
 	//Singleton 
-	static Renderer*									m_InstancePtr;
+	static Renderer* m_InstancePtr;
 	std::string											m_Name;
-	GLFWwindow*											m_Window;
+	GLFWwindow* m_Window;
 	//Window size
 	unsigned int										m_SWidth;
 	unsigned int										m_SHeight;
 	//Render aspect
-	unsigned int										m_RWidth; 
+	unsigned int										m_RWidth;
 	unsigned int										m_RHeight;
 
-	const char*											GLSL_VERSION = "#version 460";
+	const char* GLSL_VERSION = "#version 460";
 
 	struct Resources {
 		std::unordered_map<std::string, Shader*>			shaders;
@@ -52,15 +52,20 @@ private:
 
 	};
 	Resources											m_Resources;
-	Scene*												m_CurrentScene;
-	CameraController*									m_ActiveController;
-	
-	Vignette*											m_Vignette;
+	Scene* m_CurrentScene;
+	CameraController* m_ActiveController;
 
-	
+	Vignette* m_Vignette;
+
+
 	struct PossProcessEffects {
 		bool												gammaCorrection;
 		bool												bloom;
+		bool												fog;
+		glm::vec3											fogColor;
+		float												fogIntensity;
+		float												fogFalloff;
+		FogType												fogType;
 	};
 
 	struct UtilityParameters {
@@ -133,7 +138,12 @@ private:
 			antialiasingSamples = AntialiasingType::MSAAx16;
 			postProcess = false;
 			ppEffects.bloom = false;
+			ppEffects.fog = true;
 			ppEffects.gammaCorrection = true;
+			ppEffects.fogColor = glm::vec3(0.1f, 0.1f, 0.1f);
+			ppEffects.fogIntensity = 1.0;
+			ppEffects.fogFalloff = 0.0;
+			ppEffects.fogType = LINEAR;
 			editMode = true;
 			clearColor = glm::vec4(0.2f, 0.3f, 0.3f, 1.0f);
 			UI_Settings;
@@ -161,7 +171,7 @@ private:
 		m_Vignette(nullptr),
 		m_CurrentScene(nullptr),
 		m_ActiveController(nullptr)
-		
+
 	{
 		init();
 		lateInit();

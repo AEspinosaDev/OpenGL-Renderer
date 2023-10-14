@@ -53,6 +53,9 @@ void Vignette::draw()
 
 	texture->bind(0);
 
+	shader->setInt("depthTex", 2);
+	depthTexture->bind(2);
+
 	vao->bind();
 
 	GLcall(glDrawElements(GL_TRIANGLES, trisNum, GL_UNSIGNED_INT, (void*)0));
