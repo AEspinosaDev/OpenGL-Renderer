@@ -616,22 +616,32 @@ void UIManager::renderGlobalSettingsPanel(ImGuiWindowFlags windowFlags, ImVec2 p
 	if (ImGui::Checkbox("Enable post process", &r->m_Settings.postProcess));
 	if (ImGui::Checkbox("Bloom", &r->m_Settings.ppEffects.bloom));
 	if (ImGui::Checkbox("Gamma correction", &r->m_Settings.ppEffects.gammaCorrection));
-	if (ImGui::Checkbox("Fog", &r->m_Settings.ppEffects.fog));
-	const char* fogtype[] = { "LINEAR", "EXPONENTIAL" };
-	if (ImGui::ColorEdit3("Fog Color", (float*)&r->m_Settings.ppEffects.fogColor));
-	static int fog_current = 0;
-	if (ImGui::Combo("Fog Type", &fog_current, fogtype, IM_ARRAYSIZE(fogtype))) {
-		switch (fog_current)
-		{
-		case 0:
-			r->m_Settings.ppEffects.fogType = FogType::LINEAR;
-			break;
-		case 1:
-			r->m_Settings.ppEffects.fogType = FogType::EXPONENTIAL;
-			break;
 
+	if (ImGui::Checkbox("Fog", &r->m_Settings.ppEffects.fog));
+	if (r->m_Settings.ppEffects.fog) {
+
+		if (ImGui::ColorEdit3("Fog Color", (float*)&r->m_Settings.ppEffects.fogColor));
+		//const char* fogtype[] = { "LINEAR", "EXPONENTIAL" };
+		/*static int fog_current = 1;
+		if (ImGui::Combo("Fog Type", &fog_current, fogtype, IM_ARRAYSIZE(fogtype))) {
+			switch (fog_current)
+			{
+			case 0:
+				r->m_Settings.ppEffects.fogType = FogType::LINEAR;
+
+				break;
+			case 1:
+				r->m_Settings.ppEffects.fogType = FogType::EXPONENTIAL;
+				break;
+
+			}
+		}*/
+		if (ImGui::DragFloat("Fog Density", &r->m_Settings.ppEffects.fogIntensity, 1.0f, 0.0f, 100.0f));
+		/*
+			if (ImGui::DragFloat("Fog Start", &r->m_Settings.ppEffects.fogStart, 1.0f, r->m_CurrentScene->getActiveCamera()->getNear(), r->m_CurrentScene->getActiveCamera()->getFar()));
+			if (ImGui::DragFloat("Fog End", &r->m_Settings.ppEffects.fogEnd, 1.0f, r->m_CurrentScene->getActiveCamera()->getNear(), r->m_CurrentScene->getActiveCamera()->getFar()));
+		}*/
 		}
-	}
 
 
 		ImGui::SeparatorText("Shadows");

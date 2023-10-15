@@ -1,5 +1,6 @@
 ﻿  Renderer.cpp
 C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\SceneObjects\Camera.h(38,8): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(279,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(723,24): warning C4244: '=': conversion from 'float' to 'unsigned int', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.h(146,1): warning C4305: '=': truncation from 'double' to 'float'
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(285,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Dev\BasicRenderer\BasicRenderer-Core\src\Core\Renderer.cpp(730,24): warning C4244: '=': conversion from 'float' to 'unsigned int', possible loss of data
   BasicRenderer-Core.vcxproj -> C:\Dev\BasicRenderer\binaries\Win32\Debug\BasicRenderer-Core.exe

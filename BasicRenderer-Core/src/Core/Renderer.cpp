@@ -82,7 +82,9 @@ void Renderer::renderScene() {
 	if (m_Settings.antialiasingSamples > 0) {
 		if (m_Settings.postProcess)
 			//Blit msaa fbo data to vignette fbo
-			blitFramebuffer("msaaFBO", "postprocessingFBO", GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT , GL_NEAREST);
+			blitFramebuffer("msaaFBO", "postprocessingFBO", GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+			//blitFramebuffer("msaaFBO", "postprocessingFBO", GL_COLOR_BUFFER_BIT , GL_NEAREST);
+
 
 		else
 			//Blit to standard framebuffer
@@ -94,6 +96,8 @@ void Renderer::renderScene() {
 	if (m_Settings.postProcess) {
 		//m_Vignette->setDepthTexture(m_Resources.framebuffers["msaaFBO"]->getDepthTextureAttachment());
 		possProcessPass();
+		/*if (m_Settings.enableGizmos)
+			renderBillboards();*/
 	}
 }
 
@@ -101,11 +105,12 @@ void  Renderer::setPostProcessPass(bool op) {
 	if (op) {
 		m_Settings.postProcess = true;
 		createVignette();
-		Texture* depthTexture = new Texture(0, GL_DEPTH24_STENCIL8, m_RWidth, m_RHeight,0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, false, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT);
+		Texture* depthTexture = new Texture(0, GL_DEPTH24_STENCIL8, m_RWidth, m_RHeight, 0,GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, false, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT);
 		depthTexture->generateTexture();
 		/*m_Resources.framebuffers["postprocessingFBO"] = new Framebuffer(m_Vignette->getTexture(), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);*/
 		m_Resources.framebuffers["postprocessingFBO"] = new Framebuffer(m_Vignette->getTexture(), depthTexture, true);
 		m_Vignette->setDepthTexture(depthTexture);
+		//m_Vignette->setDepthTexture(m_Resources.framebuffers["msaaFBO"]->getDepthTextureAttachment());
 
 	}
 	else {
@@ -205,9 +210,10 @@ void Renderer::lateInit()
 
 	//Create and setup basic FBs
 	//if (m_Settings.antialiasingSamples > 0)
-	/*Texture* depthTexture = new Texture(0, GL_DEPTH24_STENCIL8, m_RWidth, m_RHeight, (int)m_Settings.antialiasingSamples, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, false, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);*/
+	/*Texture* depthTexture = new Texture(0, GL_DEPTH24_STENCIL8, m_RWidth, m_RHeight,32, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, false, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
+	m_Resources.framebuffers["msaaFBO"] = new Framebuffer(new Texture(m_RWidth, m_RHeight,32),depthTexture,true );*/
 	m_Resources.framebuffers["msaaFBO"] = new Framebuffer(new Texture(m_RWidth, m_RHeight, m_Settings.antialiasingSamples), GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, GL_TRUE, GL_TRUE);
-	
+
 
 	Texture* highLightT = new Texture(0, GL_RGBA8, m_RWidth, m_RHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
 	Texture* dilationT = new Texture(0, GL_RGBA8, m_RWidth, m_RHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, false, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP);
@@ -648,13 +654,14 @@ void Renderer::possProcessPass() {
 	m_Vignette->getShader()->setFloat("far", m_CurrentScene->getActiveCamera()->getFar());
 	m_Vignette->getShader()->setFloat("near", m_CurrentScene->getActiveCamera()->getNear());
 
-
 	m_Vignette->getShader()->setBool("useGammaCorrection", m_Settings.ppEffects.gammaCorrection);
 	m_Vignette->getShader()->setBool("useFog", m_Settings.ppEffects.fog);
-	m_Vignette->getShader()->setFloat("fogIntensity", m_Settings.ppEffects.fogIntensity);
+	m_Vignette->getShader()->setInt("fogType", (int)m_Settings.ppEffects.fogType);
 	m_Vignette->getShader()->setVec3("fogColor", m_Settings.ppEffects.fogColor);
-	m_Vignette->getShader()->setFloat("fogFalloff", m_Settings.ppEffects.fogFalloff);
 
+	m_Vignette->getShader()->setFloat("fogIntensity", m_Settings.ppEffects.fogIntensity);
+	m_Vignette->getShader()->setFloat("fogEnd", m_Settings.ppEffects.fogEnd);
+	m_Vignette->getShader()->setFloat("fogStart", m_Settings.ppEffects.fogStart);
 
 
 

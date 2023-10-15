@@ -208,7 +208,7 @@ int main()
 	sc->add(new Camera());
 
 	sc->getActiveCamera()->setFOV(60.0f);
-	sc->getActiveCamera()->setFar(500);
+	sc->getActiveCamera()->setFar(150);
 	//sc->setAmbientStrength(0.05f);
 	r->addScene(sc);
 	r->setCurrentScene("mainScene");

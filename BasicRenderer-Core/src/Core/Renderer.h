@@ -64,7 +64,8 @@ private:
 		bool												fog;
 		glm::vec3											fogColor;
 		float												fogIntensity;
-		float												fogFalloff;
+		float												fogStart;
+		float												fogEnd;
 		FogType												fogType;
 	};
 
@@ -138,12 +139,13 @@ private:
 			antialiasingSamples = AntialiasingType::MSAAx16;
 			postProcess = false;
 			ppEffects.bloom = false;
-			ppEffects.fog = true;
+			ppEffects.fog = false;
 			ppEffects.gammaCorrection = true;
 			ppEffects.fogColor = glm::vec3(0.1f, 0.1f, 0.1f);
 			ppEffects.fogIntensity = 1.0;
-			ppEffects.fogFalloff = 0.0;
-			ppEffects.fogType = LINEAR;
+			ppEffects.fogStart = 0.1;
+			ppEffects.fogEnd = 100.0;
+			ppEffects.fogType = EXPONENTIAL;
 			editMode = true;
 			clearColor = glm::vec4(0.2f, 0.3f, 0.3f, 1.0f);
 			UI_Settings;

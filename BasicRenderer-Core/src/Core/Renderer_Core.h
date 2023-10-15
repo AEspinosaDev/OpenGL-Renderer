@@ -16,7 +16,7 @@ enum ShadowMapQuality {
 };
 enum FogType {
 	LINEAR = 0,
-	EXPONENTIAL = 0,
+	EXPONENTIAL = 1,
 
 
 };

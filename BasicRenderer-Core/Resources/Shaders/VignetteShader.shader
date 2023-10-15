@@ -22,16 +22,22 @@ void main() {
 in vec2 texCoord;
 
 uniform sampler2D vignetteTex;
+//uniform sampler2DMS depthTex;
 uniform sampler2D depthTex;
+
 
 uniform sampler2D contourTex;
 
 uniform bool useGammaCorrection;
+
+
 uniform bool useFog;
 uniform float fogIntensity;
-uniform float fogFalloff;
+uniform float fogStart;
+uniform float fogEnd;
 uniform vec3 fogColor;
 uniform int fogType;
+
 
 uniform float far;
 uniform float near;
@@ -52,14 +58,32 @@ void main() {
 		fragColor = vec4(texture(vignetteTex, texCoord).rgb, 1.0);
 
 
-		//Poss processing
 
-			float z = (2.0 * near) / (far + near - texture2D(depthTex, texCoord).x * (far - near));
+		/*ivec2 vpCoords = ivec2(texCoord.x, texCoord.y);
+		vec4 totalSampling = vec4(0.0);
+		for (int i = 0; i < 32; i++) {
+			totalSampling += texelFetch(depthTex, ivec2(gl_FragCoord.xy), i);
+		}
+		float avrZ = (totalSampling / 32.0).x;
+		float zz = (2.0 * near) / (far + near - avrZ * (far - near));*/
+
+		//Poss processing
 		//Fog TODO
 		if (useFog) {
-			//Linearize
 
-			fragColor.rgb = mix(fragColor.rgb, fogColor, z);
+			//Linearize depth
+			float z = (2.0 * near) / (far + near - texture2D(depthTex, texCoord).x * (far - near));
+			//float z = (2.0 * near) / (far + near - avrZ * (far - near));
+
+			float f;
+			if (fogType == 0) {
+				//f = (fogEnd / far - z) / (fogEnd / far - fogStart / near);
+			}
+			else {
+				f = exp(-fogIntensity * z);
+			}
+
+			fragColor.rgb = f * fragColor.rgb + (1 - f) * fogColor;
 
 		}
 
@@ -70,8 +94,8 @@ void main() {
 			float gamma = 2.2;
 			fragColor.rgb = pow(fragColor.rgb, vec3(1.0 / gamma));
 		}
+		//fragColor = vec4(vec3(zz), 1.0);
 
-		//fragColor =vec4(z,z,z,1.0);
 	}
 	else {
 		//Dilation pass

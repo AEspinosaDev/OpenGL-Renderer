@@ -32,12 +32,12 @@ Texture::Texture(unsigned int w, unsigned int h) : m_RendererID(0), m_FilePath("
 	m_TextConfig.wrapT = GL_REPEAT;
 	m_TextConfig.wrapR = -1;
 
-	
+
 
 }
 
 Texture::Texture(unsigned int w, unsigned int h, unsigned int samples) : m_RendererID(0), m_FilePath("null"), m_LocalBuffer(nullptr), m_Width(w), m_Height(h), m_Samples(samples),
- m_TextureType(TextureType::TEXTURE_2D), isDirty(true) {
+m_TextureType(TextureType::TEXTURE_2D), isDirty(true) {
 
 	m_TextConfig.anisotropicFilter = false;
 	m_TextConfig.level = 0;
@@ -73,7 +73,7 @@ Texture::Texture(const std::string& path, GLint level, GLint internalFormat, uns
 	m_TextConfig.wrapS = wrapS;
 	m_TextConfig.wrapT = wrapT;
 	m_TextConfig.wrapR = wrapT;
-	
+
 	cacheTextureImage();
 }
 
@@ -94,7 +94,7 @@ Texture::Texture(GLint level, GLint internalFormat, unsigned int w, unsigned int
 	m_TextConfig.wrapT = wrapT;
 	m_TextConfig.wrapR = wrapT;
 
-	
+
 }
 
 Texture::Texture(GLint level, GLint internalFormat, unsigned int w, unsigned int h, int samples, GLint border, GLenum format, GLenum type, bool anisotropicFilter,
@@ -156,10 +156,10 @@ void Texture::generateTexture() {
 
 	GLcall(glGenerateMipmap(GL_TEXTURE_2D));
 
-	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,	m_TextConfig.minFilter));
-	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,	m_TextConfig.magFilter));
-	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,		m_TextConfig.wrapT));
-	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,		m_TextConfig.wrapS));
+	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_TextConfig.minFilter));
+	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_TextConfig.magFilter));
+	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_TextConfig.wrapT));
+	GLcall(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_TextConfig.wrapS));
 
 	if (m_TextConfig.anisotropicFilter) {
 
@@ -196,8 +196,12 @@ void Texture::changeSampleNumber(AntialiasingType number)
 
 void Texture::bind(unsigned int slot) const {
 	GLcall(glActiveTexture(GL_TEXTURE0 + slot));
-	GLcall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
-
+	if (m_Samples == 1) {
+		GLcall(glBindTexture(GL_TEXTURE_2D, m_RendererID));
+	}
+	else {
+		GLcall(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_RendererID));
+	}
 
 }
 void Texture::unbind() const {
@@ -224,14 +228,14 @@ void Texture::resize(unsigned int w, unsigned int h)
 
 void Texture::cacheTextureImage()
 {
-		m_LocalBuffer = loadTexture(m_FilePath.c_str(), m_Width, m_Height);
+	m_LocalBuffer = loadTexture(m_FilePath.c_str(), m_Width, m_Height);
 
-		if (!m_LocalBuffer)
-		{
-			std::cout << "Error cargando el fichero: "
-				<< m_FilePath << std::endl;
-			exit(-1);
-		}
+	if (!m_LocalBuffer)
+	{
+		std::cout << "Error cargando el fichero: "
+			<< m_FilePath << std::endl;
+		exit(-1);
+	}
 }
 
 unsigned char* Texture::loadTexture(const char* fileName, unsigned int& w, unsigned int& h)
