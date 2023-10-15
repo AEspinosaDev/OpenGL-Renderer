@@ -16,7 +16,6 @@ WORK IN PROGRESS
 - Skybox with enviroment lightning and reflections
 - IBL (WIP)
 - UI (WIP)
-- HDR (WIP)
 - Asynchronous asset loading (WIP)
 - SSAO (?)
 - Bloom (?)
@@ -24,6 +23,9 @@ WORK IN PROGRESS
 - Raytraced shadows (?)
 
 OPEN GL 4.4
+
+![renderer](https://github.com/AEspinosaDev/OpenGL-Renderer/assets/79087129/794a3a15-d45b-4cab-af26-0c5962618703)
+
 
 Friendly GUI
 ![Screenshot (714)](https://github.com/AEspinosaDev/OpenGL-Renderer/assets/79087129/4daab3ca-0310-44f6-96f7-bb13d10eab42)
