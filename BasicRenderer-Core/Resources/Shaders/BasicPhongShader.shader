@@ -165,12 +165,19 @@ float shininess;
 
 vec3 color = vec3(1, 1, 1);
 
+float computeAttenuation(vec3 lightPos, float att)
+{
+    float d = length(lightPos - pos);
+    float rd = 10.0f;
+	
+    return pow(att / max(d, 0.0001), 2);
+    //return pow(max(1 - pow(att / max(d, 0.0001),2), 0), 2);
+	
 
-float computeAttenuation(vec3 lightPos, float lin, float quad) {
-	float d = length(lightPos - pos);
-	float constant = 1.0f;
-
-	return 1.0 / (constant + lin * d + quad * (d * d));
+	//float constant = 1.0f;
+	//return 1.0 / (constant + lin * d + quad * (d * d)); OLD METHOD
+	
+	
 
 }
 
@@ -225,7 +232,7 @@ float computePointShadow(samplerCube shadowMap ,vec3 lightPos)
 	return shadow;
 }
 
-vec3 shadePointLight(vec3 lightPos, vec3 color, float intensity, samplerCube shadowMap, vec3 worldPos, bool castShadows) {
+vec3 shadePointLight(vec3 lightPos, vec3 color, float intensity,float att, samplerCube shadowMap, vec3 worldPos, bool castShadows) {
 
 	//Diffuse
 	vec3 L = normalize(lightPos - pos);
@@ -238,7 +245,7 @@ vec3 shadePointLight(vec3 lightPos, vec3 color, float intensity, samplerCube sha
 	vec3 specular = pow(factor, shininess) * specularity * color;
 
 	//Attenuation
-	float attenuation = computeAttenuation(lightPos, 0.022f, 0.019f);
+	float attenuation = computeAttenuation(lightPos, att);
 	diffuse *= attenuation;
 	specular *= attenuation;
 
@@ -285,7 +292,7 @@ vec3 shade() {
 	result += shadeAmbientLight();
 
 	for (int i = 0; i < pointsLightsNumber; i++) {
-		result += shadePointLight(pointLights[i].pos, pointLights[i].color, pointLights[i].intensity, pointLights[i].shadowMap, pointLights[i].worldPos,
+        result += shadePointLight(pointLights[i].pos, pointLights[i].color, pointLights[i].intensity, pointLights[i].att, pointLights[i].shadowMap, pointLights[i].worldPos,
 			pointLights[i].castShadows);
 	}
 

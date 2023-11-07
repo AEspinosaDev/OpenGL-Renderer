@@ -68,6 +68,7 @@ void LightManager::uploadLightDataToShader(Shader* s)
 				s->setVec3("pointLights[" + std::to_string(pointLightIndex) + "].worldPos", l->getPosition());
 				s->setVec3("pointLights[" + std::to_string(pointLightIndex) + "].color", l->getColor());
 				s->setFloat("pointLights[" + std::to_string(pointLightIndex) + "].intensity", l->getIntensity());
+				s->setFloat("pointLights[" + std::to_string(pointLightIndex) + "].influence", dynamic_cast<PointLight*>(l)->getAreaOfInfluence());
 				s->setBool("pointLights[" + std::to_string(pointLightIndex) + "].castShadows", l->getCastShadows());
 				if (l->getCastShadows()) {
 					l->getShadowText()->bind(textureSlotIndex);

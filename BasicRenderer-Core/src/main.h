@@ -19,7 +19,7 @@ int main()
 
 	//SETUP SCENE
 	//------------------------------------
-	PointLight* l = new PointLight(glm::vec3(5.0, 3.0, -4.0), glm::vec3(1.0, 0.8, 0.8), 1.5, 1);
+	PointLight* l = new PointLight(glm::vec3(5.0, 3.0, -4.0), glm::vec3(1.0, 0.8, 0.8), 1.5, 10);
 	sc->add(l);
 
 
@@ -143,8 +143,8 @@ int main()
 	corner1->setMaterial(roof_m, 1);
 	sc->add(corner1);
 	
-	sc->add(new PointLight(glm::vec3(18.0f, 3.0, 3.5f), glm::vec3(1.0, 0.7, 0.5), 0.6, 1));
-	sc->add(new PointLight(glm::vec3(-18.0f, 3.0, 3.5f), glm::vec3(1.0, 0.7, 0.5), 0.4, 1));
+	sc->add(new PointLight(glm::vec3(18.0f, 3.0, 3.5f), glm::vec3(1.0, 0.7, 0.5), 0.6, 10));
+	sc->add(new PointLight(glm::vec3(-18.0f, 3.0, 3.5f), glm::vec3(1.0, 0.7, 0.5), 0.4, 10));
 
 
 	PhysicalMaterial* floor_m = new PhysicalMaterial();

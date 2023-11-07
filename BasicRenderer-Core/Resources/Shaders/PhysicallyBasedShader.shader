@@ -83,7 +83,7 @@ struct PointLight {
 	float constant;
 	float linear;
 	float quadratic;
-	float att;
+	float influence;
 
 	bool castShadows;
 	samplerCube shadowMap;
@@ -172,11 +172,20 @@ float	opacity;
 float	metalness;
 float	ao;
 
-float computeAttenuation(vec3 lightPos, float lin, float quad) {
+float computeAttenuation(vec3 lightPos, float influnce)
+{
 	float d = length(lightPos - pos);
-	float constant = 1.0f;
+    float rd = 10.0f;
+    float window = pow(max(1 - pow(d / influnce, 2), 0), 2);
+	
+    return pow(10 / max(d, 0.0001), 2)*window;
+    //return pow(max(1 - pow(att / max(d, 0.0001),2), 0), 2);
+	
 
-	return 1.0 / (constant + lin * d + quad * (d * d));
+	//float constant = 1.0f;
+	//return 1.0 / (constant + lin * d + quad * (d * d)); OLD METHOD
+	
+	
 
 }
 float computeShadow(sampler2D shadowMap, mat4 lightViewProj, vec3 lightDir) {
@@ -311,7 +320,7 @@ vec3 shade() {
 
 	for (int i = 0; i < pointsLightsNumber; i++) {
 		vec3 lightVector = normalize(pointLights[i].pos - pos);
-		float attenuation = computeAttenuation(pointLights[i].pos, 0.022f, 0.019f);
+        float attenuation = computeAttenuation(pointLights[i].pos, pointLights[i].influence);
 		partialResult = computePBRLighting(lightVector, pointLights[i].color, pointLights[i].intensity, attenuation);
 		//Point perspective shadow 
 		material.receiveShadows ? shadow = computePointShadow(pointLights[i].shadowMap, pointLights[i].worldPos) : shadow = 0.0;

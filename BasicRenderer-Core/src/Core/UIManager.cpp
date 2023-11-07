@@ -567,6 +567,11 @@ void  UIManager::renderPropertiesPanel(ImGuiWindowFlags windowFlags, ImVec2 pos,
 
 			Light* light = dynamic_cast<Light*>(UIManager::m_SelectedObject);
 			float intensity = light->getIntensity();
+			if (light->getType() == 0) {
+				float att = dynamic_cast<PointLight*>(light)->getAreaOfInfluence();
+				if (ImGui::DragFloat("Area of Influence", &att, 0.005f, 0.0f, 50.0f))  dynamic_cast<PointLight*>(light)->setAreaOfInfluence(att);
+
+			}
 			glm::vec3 color = light->getColor();
 			bool castShadows = light->getCastShadows();
 			if (ImGui::DragFloat("Intensity", &intensity, 0.005f, 0.0f, 99.0f)) light->setIntensity(intensity);
@@ -641,76 +646,76 @@ void UIManager::renderGlobalSettingsPanel(ImGuiWindowFlags windowFlags, ImVec2 p
 			if (ImGui::DragFloat("Fog Start", &r->m_Settings.ppEffects.fogStart, 1.0f, r->m_CurrentScene->getActiveCamera()->getNear(), r->m_CurrentScene->getActiveCamera()->getFar()));
 			if (ImGui::DragFloat("Fog End", &r->m_Settings.ppEffects.fogEnd, 1.0f, r->m_CurrentScene->getActiveCamera()->getNear(), r->m_CurrentScene->getActiveCamera()->getFar()));
 		}*/
+	}
+
+
+	ImGui::SeparatorText("Shadows");
+	if (ImGui::DragFloat("Far plane", &r->m_Settings.shadowFarPlane, 1.0f, 0.0f, 200.0f));
+	const char* res[] = { "VERY LOW", "LOW", "MID", "HIGH", "VERY HIGHT" };
+
+	static int res_current = 2;
+	if (ImGui::Combo("Resolution", &res_current, res, IM_ARRAYSIZE(res))) {
+		switch (res_current)
+		{
+		case 0:
+			r->m_Settings.antialiasingSamples = ShadowMapQuality::VERY_LOW;
+			break;
+		case 1:
+			r->m_Settings.antialiasingSamples = ShadowMapQuality::LOW;
+			break;
+		case 2:
+			r->m_Settings.antialiasingSamples = ShadowMapQuality::MID;
+			break;
+		case 3:
+			r->m_Settings.antialiasingSamples = ShadowMapQuality::HIGH;
+			break;
+		case 4:
+			r->m_Settings.antialiasingSamples = ShadowMapQuality::VERY_HIGHT;
+			break;
+
 		}
 
+		/*if (res_current != 0) {
+			r->m_Resources.framebuffers["msaaFBO"]->setTextureAttachmentSamples((AntialiasingType)r->m_Settings.antialiasingSamples);
+		}*/
+	};
+	ImGui::SeparatorText("Antialiasing");
 
-		ImGui::SeparatorText("Shadows");
-		if (ImGui::DragFloat("Far plane", &r->m_Settings.shadowFarPlane, 1.0f, 0.0f, 200.0f));
-		const char* res[] = { "VERY LOW", "LOW", "MID", "HIGH", "VERY HIGHT" };
+	const char* items[] = { "NONE", "MSAAx2", "MSAAx4", "MSAAx8", "MSAAx16", "OTHER" };
+	static int item_current = 4;
+	if (ImGui::Combo("Mode", &item_current, items, IM_ARRAYSIZE(items))) {
+		switch (item_current)
+		{
+		case 0:
+			r->m_Settings.antialiasingSamples = AntialiasingType::NONE;
+			break;
+		case 1:
+			r->m_Settings.antialiasingSamples = AntialiasingType::MSAAx2;
+			break;
+		case 2:
+			r->m_Settings.antialiasingSamples = AntialiasingType::MSAAx4;
+			break;
+		case 3:
+			r->m_Settings.antialiasingSamples = AntialiasingType::MSAAx8;
+			break;
+		case 4:
+			r->m_Settings.antialiasingSamples = AntialiasingType::MSAAx16;
+			break;
+		}
 
-		static int res_current = 2;
-		if (ImGui::Combo("Resolution", &res_current, res, IM_ARRAYSIZE(res))) {
-			switch (res_current)
-			{
-			case 0:
-				r->m_Settings.antialiasingSamples = ShadowMapQuality::VERY_LOW;
-				break;
-			case 1:
-				r->m_Settings.antialiasingSamples = ShadowMapQuality::LOW;
-				break;
-			case 2:
-				r->m_Settings.antialiasingSamples = ShadowMapQuality::MID;
-				break;
-			case 3:
-				r->m_Settings.antialiasingSamples = ShadowMapQuality::HIGH;
-				break;
-			case 4:
-				r->m_Settings.antialiasingSamples = ShadowMapQuality::VERY_HIGHT;
-				break;
-
-			}
-
-			/*if (res_current != 0) {
-				r->m_Resources.framebuffers["msaaFBO"]->setTextureAttachmentSamples((AntialiasingType)r->m_Settings.antialiasingSamples);
-			}*/
-		};
-		ImGui::SeparatorText("Antialiasing");
-
-		const char* items[] = { "NONE", "MSAAx2", "MSAAx4", "MSAAx8", "MSAAx16", "OTHER" };
-		static int item_current = 4;
-		if (ImGui::Combo("Mode", &item_current, items, IM_ARRAYSIZE(items))) {
-			switch (item_current)
-			{
-			case 0:
-				r->m_Settings.antialiasingSamples = AntialiasingType::NONE;
-				break;
-			case 1:
-				r->m_Settings.antialiasingSamples = AntialiasingType::MSAAx2;
-				break;
-			case 2:
-				r->m_Settings.antialiasingSamples = AntialiasingType::MSAAx4;
-				break;
-			case 3:
-				r->m_Settings.antialiasingSamples = AntialiasingType::MSAAx8;
-				break;
-			case 4:
-				r->m_Settings.antialiasingSamples = AntialiasingType::MSAAx16;
-				break;
-			}
-
-			if (item_current != 0) {
-				r->m_Resources.framebuffers["msaaFBO"]->setTextureAttachmentSamples((AntialiasingType)r->m_Settings.antialiasingSamples);
-			}
-		};
+		if (item_current != 0) {
+			r->m_Resources.framebuffers["msaaFBO"]->setTextureAttachmentSamples((AntialiasingType)r->m_Settings.antialiasingSamples);
+		}
+	};
 
 
-		ImGui::SeparatorText("Misc");
-		ImGui::ColorEdit3("Clear Color", (float*)&r->m_Settings.clearColor); // Edit 3 floats representing a color
-		ImGuiIO& io = ImGui::GetIO();
-		ImGui::Separator();
-		ImGui::Text("Application average");
-		ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+	ImGui::SeparatorText("Misc");
+	ImGui::ColorEdit3("Clear Color", (float*)&r->m_Settings.clearColor); // Edit 3 floats representing a color
+	ImGuiIO& io = ImGui::GetIO();
+	ImGui::Separator();
+	ImGui::Text("Application average");
+	ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 
-		ImGui::PopStyleVar(2);
-		ImGui::End();
-	}
+	ImGui::PopStyleVar(2);
+	ImGui::End();
+}
