@@ -1,8 +1,5 @@
 # OGLRenderer
 
-WORK IN PROGRESS
-[UNTIL FURTHER ADVANCEMENTS I WILL BE WORKING ON Renderer-CORE]
-
 [ In src/main there is a scene sample to see how to use the engine ]
 
 
